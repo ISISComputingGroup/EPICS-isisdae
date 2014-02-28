@@ -1,0 +1,690 @@
+﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2d5a9df1).
+//
+// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tlh
+//
+// C++ source equivalent of Win32 type library isisicp.tlb
+// compiler-generated file created 02/15/14 at 01:05:47 - DO NOT EDIT!
+
+#pragma once
+#pragma pack(push, 8)
+
+#include <comdef.h>
+
+namespace isisicpLib {
+
+//
+// Forward references and typedefs
+//
+
+struct __declspec(uuid("0b6b0621-375d-44b4-9a89-1e5d2f4b4604"))
+/* LIBID */ __isisicpLib;
+struct __declspec(uuid("39775b02-bf4c-4ae3-838c-e2d8a718329e"))
+/* dispinterface */ _IdaeEvents;
+struct /* coclass */ dae;
+struct __declspec(uuid("eabe9ffe-225a-4977-998e-5fe4f02443dc"))
+/* dual interface */ Idae;
+
+//
+// Smart pointer typedef declarations
+//
+
+_COM_SMARTPTR_TYPEDEF(_IdaeEvents, __uuidof(_IdaeEvents));
+_COM_SMARTPTR_TYPEDEF(Idae, __uuidof(Idae));
+
+//
+// Type library items
+//
+
+struct __declspec(uuid("39775b02-bf4c-4ae3-838c-e2d8a718329e"))
+_IdaeEvents : IDispatch
+{};
+
+struct __declspec(uuid("884be537-33b9-400a-b38b-a7674a8c8b96"))
+dae;
+    // [ default ] interface Idae
+    // [ default, source ] dispinterface _IdaeEvents
+
+struct __declspec(uuid("eabe9ffe-225a-4977-998e-5fe4f02443dc"))
+Idae : IDispatch
+{
+    //
+    // Wrapper methods for error-handling
+    //
+
+    HRESULT updateStatusXML (
+        BSTR * cluster_xml,
+        BSTR * messages );
+    HRESULT beginRun (
+        BSTR * messages );
+    HRESULT endRun (
+        BSTR * messages );
+    HRESULT pauseRun (
+        BSTR * messages );
+    HRESULT resumeRun (
+        BSTR * messages );
+    HRESULT saveRun (
+        BSTR * messages );
+    HRESULT abortRun (
+        BSTR * messages );
+    HRESULT startSEWait (
+        BSTR * messages );
+    HRESULT endSEWait (
+        BSTR * messages );
+    HRESULT getSpectrum (
+        long spectrum_number,
+        long period,
+        VARIANT * time_channels,
+        VARIANT * signal,
+        long as_histogram,
+        long as_distribution,
+        long * sum,
+        BSTR * messages );
+    HRESULT changeTCB (
+        _bstr_t tcb_xml,
+        BSTR * messages );
+    HRESULT changeDAEsettings (
+        _bstr_t dae_xml,
+        BSTR * messages );
+    HRESULT getSpectrumIntegral (
+        long spectrum_number,
+        long period,
+        float time_low,
+        float time_high,
+        long * counts,
+        BSTR * messages );
+    HRESULT getSpectraIntegral (
+        const _variant_t & spectrum_numbers,
+        long period,
+        const _variant_t & time_low,
+        const _variant_t & time_high,
+        VARIANT * counts,
+        BSTR * messages );
+    HRESULT getsect (
+        long start,
+        long length,
+        VARIANT * values,
+        BSTR * messages );
+    HRESULT rio (
+        long address,
+        long * value,
+        BSTR * messages );
+    _variant_t getValue (
+        _bstr_t name,
+        BSTR * messages );
+    long getRawFramesTotal (
+        BSTR * messages );
+    long getGoodFramesTotal (
+        BSTR * messages );
+    double getGoodUAmpH (
+        BSTR * messages );
+    HRESULT getSpectraSum (
+        long period,
+        long first_spec,
+        long num_spec,
+        long spec_type,
+        double time_low,
+        double time_high,
+        VARIANT * sums,
+        VARIANT * max_vals,
+        VARIANT * spec_nums,
+        BSTR * messages );
+    HRESULT changeSample (
+        _bstr_t sample_xml,
+        BSTR * messages );
+    HRESULT changeUser (
+        _bstr_t user_xml,
+        BSTR * messages );
+    HRESULT changeHardwarePeriods (
+        _bstr_t periods_xml,
+        BSTR * messages );
+    HRESULT changePeriod (
+        long period_number,
+        BSTR * messages );
+    HRESULT dumpDebugInfo (
+        BSTR * messages );
+    HRESULT VMEWriteValue (
+        unsigned long card_id,
+        unsigned long card_address,
+        unsigned long word_size,
+        unsigned long value,
+        unsigned long mode,
+        BSTR * messages );
+    HRESULT VMEReadValue (
+        unsigned long card_id,
+        unsigned long card_address,
+        unsigned long word_size,
+        unsigned long * value,
+        BSTR * messages );
+    HRESULT sumAllSpectra (
+        long * counts,
+        long * bin0_counts,
+        BSTR * messages );
+    HRESULT sumAllHistogramMemory (
+        long * counts,
+        BSTR * messages );
+    HRESULT VMEReadArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        VARIANT * values,
+        unsigned long num_values,
+        BSTR * messages );
+    HRESULT VMEWriteArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        const _variant_t & values,
+        BSTR * messages );
+    HRESULT VMEReadValuesToString (
+        unsigned long card_id,
+        unsigned long card_address,
+        unsigned long word_size,
+        unsigned long num_values,
+        BSTR * values,
+        BSTR * messages );
+    HRESULT refreshCachedValues (
+        BSTR * messages );
+    HRESULT setOptions (
+        _bstr_t options_xml,
+        BSTR * messages );
+    HRESULT getOptions (
+        BSTR * options_xml,
+        BSTR * messages );
+    _variant_t getArrayValue (
+        _bstr_t name,
+        const _variant_t & arg,
+        BSTR * messages );
+    HRESULT updateCRPT (
+        BSTR * messages );
+    HRESULT storeCRPT (
+        BSTR * messages );
+    HRESULT setICPValueLong (
+        _bstr_t name,
+        long value,
+        BSTR * messages );
+    HRESULT notifyICP (
+        long event_id,
+        _bstr_t param,
+        BSTR * messages );
+    HRESULT setBlocksTable (
+        const _variant_t & table,
+        BSTR * messages );
+    HRESULT setSampleParameters (
+        const _variant_t & table,
+        BSTR * messages );
+    HRESULT setBeamlineParameters (
+        const _variant_t & table,
+        BSTR * messages );
+    HRESULT setUserParameters (
+        long rbno,
+        const _variant_t & table,
+        BSTR * messages );
+    HRESULT areYouThere ( );
+    HRESULT changeUpdateSettings (
+        _bstr_t update_xml,
+        BSTR * messages );
+    HRESULT getNPRatio (
+        float * current,
+        float * average,
+        BSTR * messages );
+    long getTotalCounts (
+        BSTR * messages );
+    double getMEvents (
+        BSTR * messages );
+    HRESULT getCurrentPeriodNumber (
+        long * period,
+        long * daq_period,
+        BSTR * messages );
+    HRESULT snapshotCRPT (
+        _bstr_t filename,
+        long do_update,
+        long do_pause,
+        BSTR * messages );
+    HRESULT changePeriodWhileRunning (
+        long period,
+        long pause_first,
+        BSTR * messages );
+    HRESULT getDAEsettings (
+        _bstr_t dae_xml_in,
+        BSTR * dae_xml_out,
+        BSTR * messages );
+    HRESULT getHardwarePeriods (
+        _bstr_t periods_xml_in,
+        BSTR * periods_xml_out,
+        BSTR * messages );
+    HRESULT getTCB (
+        _bstr_t tcb_xml_in,
+        BSTR * tcb_xml_out,
+        BSTR * messages );
+    HRESULT getUpdateSettings (
+        _bstr_t update_xml_in,
+        BSTR * update_xml_out,
+        BSTR * messages );
+    HRESULT changeNumberOfSoftwarePeriods (
+        long nperiod,
+        BSTR * messages );
+    long getRunState (
+        BSTR * messages );
+    HRESULT beginRunEx (
+        long options,
+        long period,
+        BSTR * messages );
+    HRESULT fillWithTestPattern (
+        unsigned long pattern,
+        BSTR * messages );
+    HRESULT getVetoStatus (
+        BSTR * veto_status,
+        BSTR * messages );
+    HRESULT loadDAEWithData (
+        _bstr_t file_name,
+        long options,
+        BSTR * messages );
+    HRESULT setVeto (
+        _bstr_t name,
+        long enable,
+        BSTR * messages );
+    HRESULT checkTestPattern (
+        unsigned long pattern,
+        BSTR * messages );
+    long getRunNumber (
+        BSTR * messages );
+    HRESULT changeMonitoringSettings (
+        _bstr_t monitor_xml,
+        BSTR * messages );
+    HRESULT getMonitoringSettings (
+        _bstr_t monitor_xml_in,
+        BSTR * monitor_xml_out,
+        BSTR * messages );
+    HRESULT getStatusMessages (
+        long stream,
+        VARIANT * messages );
+    long getGoodFramesPeriod (
+        BSTR * messages );
+    double getGoodUAmpHPeriod (
+        BSTR * messages );
+    HRESULT getFramesAllPeriods (
+        VARIANT * good_frames,
+        VARIANT * raw_frames,
+        BSTR * messages );
+    HRESULT getUAmpHAllPeriods (
+        VARIANT * good_uamph,
+        VARIANT * raw_uamph,
+        BSTR * messages );
+    double getMEventsPeriod (
+        long period,
+        BSTR * messages );
+    HRESULT updateCRPTSpectra (
+        long period,
+        long spec_start,
+        long nspec,
+        BSTR * messages );
+    HRESULT getCRPTSpectraIntegral (
+        const _variant_t & spectrum_numbers,
+        long period,
+        const _variant_t & time_low,
+        const _variant_t & time_high,
+        VARIANT * counts,
+        BSTR * messages );
+    HRESULT quit (
+        BSTR * messages );
+    HRESULT requestEndRunAfterNextSequenceCompletes (
+        BSTR * messages );
+    long isFinalSequenceComplete (
+        BSTR * messages );
+    HRESULT getSpectrumNumbersForTR (
+        long time_regime,
+        long * spec_min,
+        long * spec_max,
+        BSTR * messages );
+    HRESULT getSpectraIntegral2 (
+        long spec_start,
+        long nspectra,
+        long period,
+        float time_low,
+        float time_high,
+        VARIANT * counts,
+        BSTR * messages );
+    long getNumberOfPeriods (
+        BSTR * messages );
+    HRESULT updateStatusXML2 (
+        _bstr_t status_xml_in,
+        BSTR * status_xml_out,
+        BSTR * messages );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall raw_updateStatusXML (
+        /*[in,out]*/ BSTR * cluster_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_beginRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_endRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_pauseRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_resumeRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_saveRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_abortRun (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_startSEWait (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_endSEWait (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getSpectrum (
+        /*[in]*/ long spectrum_number,
+        /*[in]*/ long period,
+        /*[out]*/ VARIANT * time_channels,
+        /*[out]*/ VARIANT * signal,
+        /*[in]*/ long as_histogram,
+        /*[in]*/ long as_distribution,
+        /*[out]*/ long * sum,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeTCB (
+        /*[in]*/ BSTR tcb_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeDAEsettings (
+        /*[in]*/ BSTR dae_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getSpectrumIntegral (
+        /*[in]*/ long spectrum_number,
+        /*[in]*/ long period,
+        /*[in]*/ float time_low,
+        /*[in]*/ float time_high,
+        /*[out]*/ long * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getSpectraIntegral (
+        /*[in]*/ VARIANT spectrum_numbers,
+        /*[in]*/ long period,
+        /*[in]*/ VARIANT time_low,
+        /*[in]*/ VARIANT time_high,
+        /*[out]*/ VARIANT * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getsect (
+        /*[in]*/ long start,
+        /*[in]*/ long length,
+        /*[out]*/ VARIANT * values,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_rio (
+        /*[in]*/ long address,
+        /*[out]*/ long * value,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getValue (
+        /*[in]*/ BSTR name,
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ VARIANT * result ) = 0;
+      virtual HRESULT __stdcall raw_getRawFramesTotal (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * value ) = 0;
+      virtual HRESULT __stdcall raw_getGoodFramesTotal (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * value ) = 0;
+      virtual HRESULT __stdcall raw_getGoodUAmpH (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * value ) = 0;
+      virtual HRESULT __stdcall raw_getSpectraSum (
+        /*[in]*/ long period,
+        /*[in]*/ long first_spec,
+        /*[in]*/ long num_spec,
+        /*[in]*/ long spec_type,
+        /*[in]*/ double time_low,
+        /*[in]*/ double time_high,
+        /*[out]*/ VARIANT * sums,
+        /*[out]*/ VARIANT * max_vals,
+        /*[out]*/ VARIANT * spec_nums,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeSample (
+        /*[in]*/ BSTR sample_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeUser (
+        /*[in]*/ BSTR user_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeHardwarePeriods (
+        /*[in]*/ BSTR periods_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changePeriod (
+        /*[in]*/ long period_number,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_dumpDebugInfo (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_VMEWriteValue (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ unsigned long word_size,
+        /*[in]*/ unsigned long value,
+        /*[in]*/ unsigned long mode,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_VMEReadValue (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ unsigned long word_size,
+        /*[out]*/ unsigned long * value,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_sumAllSpectra (
+        /*[out]*/ long * counts,
+        /*[out]*/ long * bin0_counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_sumAllHistogramMemory (
+        /*[out]*/ long * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_VMEReadArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[out]*/ VARIANT * values,
+        /*[in]*/ unsigned long num_values,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_VMEWriteArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ VARIANT values,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_VMEReadValuesToString (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ unsigned long word_size,
+        /*[in]*/ unsigned long num_values,
+        /*[out]*/ BSTR * values,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_refreshCachedValues (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setOptions (
+        /*[in]*/ BSTR options_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getOptions (
+        /*[in,out]*/ BSTR * options_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getArrayValue (
+        /*[in]*/ BSTR name,
+        /*[in]*/ VARIANT arg,
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ VARIANT * result ) = 0;
+      virtual HRESULT __stdcall raw_updateCRPT (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_storeCRPT (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setICPValueLong (
+        /*[in]*/ BSTR name,
+        /*[in]*/ long value,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_notifyICP (
+        /*[in]*/ long event_id,
+        /*[in]*/ BSTR param,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setBlocksTable (
+        /*[in]*/ VARIANT table,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setSampleParameters (
+        /*[in]*/ VARIANT table,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setBeamlineParameters (
+        /*[in]*/ VARIANT table,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setUserParameters (
+        /*[in]*/ long rbno,
+        /*[in]*/ VARIANT table,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_areYouThere ( ) = 0;
+      virtual HRESULT __stdcall raw_changeUpdateSettings (
+        /*[in]*/ BSTR update_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getNPRatio (
+        /*[out]*/ float * current,
+        /*[out]*/ float * average,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getTotalCounts (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * counts ) = 0;
+      virtual HRESULT __stdcall raw_getMEvents (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * mevents ) = 0;
+      virtual HRESULT __stdcall raw_getCurrentPeriodNumber (
+        /*[out]*/ long * period,
+        /*[out]*/ long * daq_period,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_snapshotCRPT (
+        /*[in]*/ BSTR filename,
+        /*[in]*/ long do_update,
+        /*[in]*/ long do_pause,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changePeriodWhileRunning (
+        /*[in]*/ long period,
+        /*[in]*/ long pause_first,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getDAEsettings (
+        /*[in]*/ BSTR dae_xml_in,
+        /*[out]*/ BSTR * dae_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getHardwarePeriods (
+        /*[in]*/ BSTR periods_xml_in,
+        /*[out]*/ BSTR * periods_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getTCB (
+        /*[in]*/ BSTR tcb_xml_in,
+        /*[out]*/ BSTR * tcb_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getUpdateSettings (
+        /*[in]*/ BSTR update_xml_in,
+        /*[out]*/ BSTR * update_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_changeNumberOfSoftwarePeriods (
+        /*[in]*/ long nperiod,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getRunState (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * state ) = 0;
+      virtual HRESULT __stdcall raw_beginRunEx (
+        /*[in]*/ long options,
+        /*[in]*/ long period,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_fillWithTestPattern (
+        /*[in]*/ unsigned long pattern,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getVetoStatus (
+        /*[out]*/ BSTR * veto_status,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_loadDAEWithData (
+        /*[in]*/ BSTR file_name,
+        /*[in]*/ long options,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setVeto (
+        /*[in]*/ BSTR name,
+        /*[in]*/ long enable,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_checkTestPattern (
+        /*[in]*/ unsigned long pattern,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getRunNumber (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * run_number ) = 0;
+      virtual HRESULT __stdcall raw_changeMonitoringSettings (
+        /*[in]*/ BSTR monitor_xml,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getMonitoringSettings (
+        /*[in]*/ BSTR monitor_xml_in,
+        /*[out]*/ BSTR * monitor_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getStatusMessages (
+        /*[in]*/ long stream,
+        /*[out]*/ VARIANT * messages ) = 0;
+      virtual HRESULT __stdcall raw_getGoodFramesPeriod (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * value ) = 0;
+      virtual HRESULT __stdcall raw_getGoodUAmpHPeriod (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * value ) = 0;
+      virtual HRESULT __stdcall raw_getFramesAllPeriods (
+        /*[out]*/ VARIANT * good_frames,
+        /*[out]*/ VARIANT * raw_frames,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getUAmpHAllPeriods (
+        /*[out]*/ VARIANT * good_uamph,
+        /*[out]*/ VARIANT * raw_uamph,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getMEventsPeriod (
+        /*[in]*/ long period,
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * mevents ) = 0;
+      virtual HRESULT __stdcall raw_updateCRPTSpectra (
+        /*[in]*/ long period,
+        /*[in]*/ long spec_start,
+        /*[in]*/ long nspec,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getCRPTSpectraIntegral (
+        /*[in]*/ VARIANT spectrum_numbers,
+        /*[in]*/ long period,
+        /*[in]*/ VARIANT time_low,
+        /*[in]*/ VARIANT time_high,
+        /*[out]*/ VARIANT * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_quit (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_requestEndRunAfterNextSequenceCompletes (
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_isFinalSequenceComplete (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * complete ) = 0;
+      virtual HRESULT __stdcall raw_getSpectrumNumbersForTR (
+        /*[in]*/ long time_regime,
+        /*[out]*/ long * spec_min,
+        /*[out]*/ long * spec_max,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getSpectraIntegral2 (
+        /*[in]*/ long spec_start,
+        /*[in]*/ long nspectra,
+        /*[in]*/ long period,
+        /*[in]*/ float time_low,
+        /*[in]*/ float time_high,
+        /*[out]*/ VARIANT * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getNumberOfPeriods (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * nperiod ) = 0;
+      virtual HRESULT __stdcall raw_updateStatusXML2 (
+        /*[in]*/ BSTR status_xml_in,
+        /*[out]*/ BSTR * status_xml_out,
+        /*[out]*/ BSTR * messages ) = 0;
+};
+
+//
+// Named GUID constants initializations
+//
+
+extern "C" const GUID __declspec(selectany) LIBID_isisicpLib =
+    {0x0b6b0621,0x375d,0x44b4,{0x9a,0x89,0x1e,0x5d,0x2f,0x4b,0x46,0x04}};
+extern "C" const GUID __declspec(selectany) DIID__IdaeEvents =
+    {0x39775b02,0xbf4c,0x4ae3,{0x83,0x8c,0xe2,0xd8,0xa7,0x18,0x32,0x9e}};
+extern "C" const GUID __declspec(selectany) CLSID_dae =
+    {0x884be537,0x33b9,0x400a,{0xb3,0x8b,0xa7,0x67,0x4a,0x8c,0x8b,0x96}};
+extern "C" const GUID __declspec(selectany) IID_Idae =
+    {0xeabe9ffe,0x225a,0x4977,{0x99,0x8e,0x5f,0xe4,0xf0,0x24,0x43,0xdc}};
+
+//
+// Wrapper method implementations
+//
+
+#include "isisicp.tli"
+
+} // namespace isisicpLib
+
+#pragma pack(pop)

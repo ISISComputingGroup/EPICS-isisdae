@@ -1,0 +1,440 @@
+record(stringin, "$(P):TITLE")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)RUNTITLE")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):RBNUMBER")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)RBNUMBER")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):RUNNUMBER")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)RUNNUMBER")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):USERNAME")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)USERNAME")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):INSTNAME")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)INSTNAME")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):STARTTIME")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)STARTTIME")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):NPRATIO")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)NPRATIO")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):DAETIMINGSOURCE")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)DAETIMINGSOURCE")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):PERIODTYPE")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)PERIODTYPE")
+    field(SCAN, "I/O Intr")
+}
+
+record(stringin, "$(P):ISISCYCLE")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)ISISCYCLE")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):RAWFRAMES")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)RAWFRAMES")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):RAWFRAMES_PD")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)RAWFRAMESPD")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):GOODFRAMES")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)GOODFRAMES")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):GOODFRAMES_PD")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)GOODFRAMESPD")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):RUNDURATION")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)RUNDURATION")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):RUNDURATION_PD")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):NUMTIMECHANNELS")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)NUMTIMECHANNELS")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):DAEMEMORYUSED")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DAEMEMORYUSED")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):NUMSPECTRA")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)NUMSPECTRA")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):MONITORCOUNTS")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)MONITORCOUNTS")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):MONITORSPECTRUM")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)MONITORSPECTRUM")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P):PERIODSEQ")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)PERIODSEQ")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):BEAMCURRENT")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)BEAMCURRENT")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):TOTALUAMPS")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)TOTALUAMPS")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):TOTALDAECOUNTS")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)TOTALDAECOUNTS")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):MONITORTO")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)MONITORTO")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):MONITORFROM")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)MONITORFROM")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):COUNTRATE")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)COUNTRATE")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):EVENTMODEFRACTION")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)EVENTMODEFRACTION")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):GOODUAH")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)GOODUAH")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):GOODUAH_PD")
+{
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)GOODUAHPD")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
+record(bo, "$(P):BEGINRUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BEGINRUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):BEGINRUNEX")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):ABORTRUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)ABORTRUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):PAUSERUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)PAUSERUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):RESUMERUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)RESUMERUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):ENDRUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)ENDRUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):RECOVERRUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)RECOVERRUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):SAVERUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)SAVERUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):UPDATERUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)UPDATERUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P):STORERUN")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)STORERUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(ai, "$(P):RUNSTATE")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)RUNSTATUS")
+    field(SCAN, "I/O Intr")
+    field(FLNK, "$(P):RUNSTATE_STR")
+}
+
+record(mbbi, "$(P):RUNSTATE_STR")
+{
+    field(INP,  "$(P):RUNSTATE")
+    field(ZRVL, 0)
+    field(ZRST, "PROCESSING")
+    field(ONVL, 1)
+    field(ONST, "SETUP")
+    field(TWVL, 2)
+    field(TWST, "RUNNING")
+    field(THVL, 3)
+    field(THST, "PAUSED")
+    field(FRVL, 4)
+    field(FRST, "WAITING")
+    field(FVVL, 5)
+    field(FVST, "VETOING")
+    field(SXVL, 6)
+    field(SXST, "ENDING")
+    field(SVVL, 7)
+    field(SVST, "SAVING")
+}
+
+record(ai, "$(P):PERIOD")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)PERIOD")
+    field(SCAN, "I/O Intr")
+}
+
+record(ao, "$(P):PERIOD:SP")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)PERIOD")
+}
+
+alias("$(P):PERIOD", "$(P)::PERIOD:SP:RBV")
+
+record(ai, "$(P):NUMPERIODS")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)NUMPERIODS")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P):TOTALCOUNTS")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P):DAESETTINGS")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)DAESETTINGS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P):DAESETTINGS:SP")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)DAESETTINGS")
+}
+
+record(waveform, "$(P):TCBSETTINGS")
+{
+    field(NELM, "10000")
+    field(FTVL, "UCHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)TCBSETTINGS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P):TCBSETTINGS:SP")
+{
+    field(NELM, "10000")
+    field(FTVL, "UCHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)TCBSETTINGS")
+}
+
+record(waveform, "$(P):HARDWAREPERIODS")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)HARDWAREPERIODSSETTINGS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P):HARDWAREPERIODS:SP")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)HARDWAREPERIODSSETTINGS")
+}
+
+record(waveform, "$(P):UPDATESETTINGS")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)UPDATESETTINGS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P):UPDATESETTINGS:SP")
+{
+    field(NELM, "10000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)UPDATESETTINGS")
+}
+
+record(waveform, "$(P):VETOSTATUS")
+{
+    field(NELM, "3000")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)VETOSTATUS")
+    field(SCAN, "I/O Intr")
+}

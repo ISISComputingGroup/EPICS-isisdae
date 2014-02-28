@@ -1,0 +1,112 @@
+<Cluster>
+<Name>DAE Integral Expression</Name>
+<NumElts>11</NumElts>
+<String>
+<Name>Expression</Name>
+<Val></Val>
+</String>
+<DBL>
+<Name>Lower Limit</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<DBL>
+<Name>Higher Limit</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<DBL>
+<Name>Calculation Frequency</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<Array>
+<Name>Table</Name>
+<Dimsize>5</Dimsize>
+<Dimsize>3</Dimsize>
+<String>
+<Name></Name>
+<Val>0</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+<String>
+<Name></Name>
+<Val>0.000000</Val>
+</String>
+</Array>
+<DBL>
+<Name>Specified Period</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<EW>
+<Name>Out of range action</Name>
+<Choice>Do nothing</Choice>
+<Choice>Change to specified period</Choice>
+<Choice>Change to last period</Choice>
+<Val>0</Val>
+</EW>
+<Boolean>
+<Name>Enable Monitoring</Name>
+<Val>0</Val>
+</Boolean>
+<DBL>
+<Name>File Logging Frequency</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<Path>
+<Name>Load Table From File</Name>
+<Val></Val>
+</Path>
+<Boolean>
+<Name>Enable Alerts</Name>
+<Val>0</Val>
+</Boolean>
+</Cluster>

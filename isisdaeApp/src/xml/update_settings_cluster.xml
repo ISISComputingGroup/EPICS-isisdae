@@ -1,0 +1,20 @@
+<Cluster>
+<Name>DAE Updates</Name>
+<NumElts>3</NumElts>
+<U32>
+<Name> Frequency</Name>
+<Val>5000</Val>
+</U32>
+<EW>
+<Name>Units</Name>
+<Choice>Frames</Choice>
+<Choice>Events</Choice>
+<Choice>Dashboard Polls</Choice>
+<Choice>Microamps</Choice>
+<Val>0</Val>
+</EW>
+<U32>
+<Name>Dashboard Update Interval</Name>
+<Val>5</Val>
+</U32>
+</Cluster>

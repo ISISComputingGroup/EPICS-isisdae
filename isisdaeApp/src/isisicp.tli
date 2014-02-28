@@ -1,0 +1,526 @@
+﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2d5a9df1).
+//
+// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tli
+//
+// Wrapper implementations for Win32 type library isisicp.tlb
+// compiler-generated file created 02/15/14 at 01:05:47 - DO NOT EDIT!
+
+#pragma once
+
+//
+// interface Idae wrapper method implementations
+//
+
+inline HRESULT Idae::updateStatusXML ( BSTR * cluster_xml, BSTR * messages ) {
+    HRESULT _hr = raw_updateStatusXML(cluster_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::beginRun ( BSTR * messages ) {
+    HRESULT _hr = raw_beginRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::endRun ( BSTR * messages ) {
+    HRESULT _hr = raw_endRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::pauseRun ( BSTR * messages ) {
+    HRESULT _hr = raw_pauseRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::resumeRun ( BSTR * messages ) {
+    HRESULT _hr = raw_resumeRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::saveRun ( BSTR * messages ) {
+    HRESULT _hr = raw_saveRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::abortRun ( BSTR * messages ) {
+    HRESULT _hr = raw_abortRun(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::startSEWait ( BSTR * messages ) {
+    HRESULT _hr = raw_startSEWait(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::endSEWait ( BSTR * messages ) {
+    HRESULT _hr = raw_endSEWait(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getSpectrum ( long spectrum_number, long period, VARIANT * time_channels, VARIANT * signal, long as_histogram, long as_distribution, long * sum, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectrum(spectrum_number, period, time_channels, signal, as_histogram, as_distribution, sum, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeTCB ( _bstr_t tcb_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeTCB(tcb_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeDAEsettings ( _bstr_t dae_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeDAEsettings(dae_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getSpectrumIntegral ( long spectrum_number, long period, float time_low, float time_high, long * counts, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectrumIntegral(spectrum_number, period, time_low, time_high, counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getSpectraIntegral ( const _variant_t & spectrum_numbers, long period, const _variant_t & time_low, const _variant_t & time_high, VARIANT * counts, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectraIntegral(spectrum_numbers, period, time_low, time_high, counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getsect ( long start, long length, VARIANT * values, BSTR * messages ) {
+    HRESULT _hr = raw_getsect(start, length, values, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::rio ( long address, long * value, BSTR * messages ) {
+    HRESULT _hr = raw_rio(address, value, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline _variant_t Idae::getValue ( _bstr_t name, BSTR * messages ) {
+    VARIANT _result;
+    VariantInit(&_result);
+    HRESULT _hr = raw_getValue(name, messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _variant_t(_result, false);
+}
+
+inline long Idae::getRawFramesTotal ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getRawFramesTotal(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline long Idae::getGoodFramesTotal ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getGoodFramesTotal(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline double Idae::getGoodUAmpH ( BSTR * messages ) {
+    double _result = 0;
+    HRESULT _hr = raw_getGoodUAmpH(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::getSpectraSum ( long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, VARIANT * sums, VARIANT * max_vals, VARIANT * spec_nums, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectraSum(period, first_spec, num_spec, spec_type, time_low, time_high, sums, max_vals, spec_nums, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeSample ( _bstr_t sample_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeSample(sample_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeUser ( _bstr_t user_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeUser(user_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeHardwarePeriods ( _bstr_t periods_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeHardwarePeriods(periods_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changePeriod ( long period_number, BSTR * messages ) {
+    HRESULT _hr = raw_changePeriod(period_number, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::dumpDebugInfo ( BSTR * messages ) {
+    HRESULT _hr = raw_dumpDebugInfo(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::VMEWriteValue ( unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long value, unsigned long mode, BSTR * messages ) {
+    HRESULT _hr = raw_VMEWriteValue(card_id, card_address, word_size, value, mode, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::VMEReadValue ( unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long * value, BSTR * messages ) {
+    HRESULT _hr = raw_VMEReadValue(card_id, card_address, word_size, value, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::sumAllSpectra ( long * counts, long * bin0_counts, BSTR * messages ) {
+    HRESULT _hr = raw_sumAllSpectra(counts, bin0_counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::sumAllHistogramMemory ( long * counts, BSTR * messages ) {
+    HRESULT _hr = raw_sumAllHistogramMemory(counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::VMEReadArray ( unsigned long card_id, unsigned long card_address, VARIANT * values, unsigned long num_values, BSTR * messages ) {
+    HRESULT _hr = raw_VMEReadArray(card_id, card_address, values, num_values, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::VMEWriteArray ( unsigned long card_id, unsigned long card_address, const _variant_t & values, BSTR * messages ) {
+    HRESULT _hr = raw_VMEWriteArray(card_id, card_address, values, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::VMEReadValuesToString ( unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long num_values, BSTR * values, BSTR * messages ) {
+    HRESULT _hr = raw_VMEReadValuesToString(card_id, card_address, word_size, num_values, values, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::refreshCachedValues ( BSTR * messages ) {
+    HRESULT _hr = raw_refreshCachedValues(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setOptions ( _bstr_t options_xml, BSTR * messages ) {
+    HRESULT _hr = raw_setOptions(options_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getOptions ( BSTR * options_xml, BSTR * messages ) {
+    HRESULT _hr = raw_getOptions(options_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline _variant_t Idae::getArrayValue ( _bstr_t name, const _variant_t & arg, BSTR * messages ) {
+    VARIANT _result;
+    VariantInit(&_result);
+    HRESULT _hr = raw_getArrayValue(name, arg, messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _variant_t(_result, false);
+}
+
+inline HRESULT Idae::updateCRPT ( BSTR * messages ) {
+    HRESULT _hr = raw_updateCRPT(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::storeCRPT ( BSTR * messages ) {
+    HRESULT _hr = raw_storeCRPT(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setICPValueLong ( _bstr_t name, long value, BSTR * messages ) {
+    HRESULT _hr = raw_setICPValueLong(name, value, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::notifyICP ( long event_id, _bstr_t param, BSTR * messages ) {
+    HRESULT _hr = raw_notifyICP(event_id, param, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setBlocksTable ( const _variant_t & table, BSTR * messages ) {
+    HRESULT _hr = raw_setBlocksTable(table, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setSampleParameters ( const _variant_t & table, BSTR * messages ) {
+    HRESULT _hr = raw_setSampleParameters(table, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setBeamlineParameters ( const _variant_t & table, BSTR * messages ) {
+    HRESULT _hr = raw_setBeamlineParameters(table, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setUserParameters ( long rbno, const _variant_t & table, BSTR * messages ) {
+    HRESULT _hr = raw_setUserParameters(rbno, table, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::areYouThere ( ) {
+    HRESULT _hr = raw_areYouThere();
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeUpdateSettings ( _bstr_t update_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeUpdateSettings(update_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getNPRatio ( float * current, float * average, BSTR * messages ) {
+    HRESULT _hr = raw_getNPRatio(current, average, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::getTotalCounts ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getTotalCounts(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline double Idae::getMEvents ( BSTR * messages ) {
+    double _result = 0;
+    HRESULT _hr = raw_getMEvents(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::getCurrentPeriodNumber ( long * period, long * daq_period, BSTR * messages ) {
+    HRESULT _hr = raw_getCurrentPeriodNumber(period, daq_period, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::snapshotCRPT ( _bstr_t filename, long do_update, long do_pause, BSTR * messages ) {
+    HRESULT _hr = raw_snapshotCRPT(filename, do_update, do_pause, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changePeriodWhileRunning ( long period, long pause_first, BSTR * messages ) {
+    HRESULT _hr = raw_changePeriodWhileRunning(period, pause_first, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getDAEsettings ( _bstr_t dae_xml_in, BSTR * dae_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_getDAEsettings(dae_xml_in, dae_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getHardwarePeriods ( _bstr_t periods_xml_in, BSTR * periods_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_getHardwarePeriods(periods_xml_in, periods_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getTCB ( _bstr_t tcb_xml_in, BSTR * tcb_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_getTCB(tcb_xml_in, tcb_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getUpdateSettings ( _bstr_t update_xml_in, BSTR * update_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_getUpdateSettings(update_xml_in, update_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::changeNumberOfSoftwarePeriods ( long nperiod, BSTR * messages ) {
+    HRESULT _hr = raw_changeNumberOfSoftwarePeriods(nperiod, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::getRunState ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getRunState(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::beginRunEx ( long options, long period, BSTR * messages ) {
+    HRESULT _hr = raw_beginRunEx(options, period, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::fillWithTestPattern ( unsigned long pattern, BSTR * messages ) {
+    HRESULT _hr = raw_fillWithTestPattern(pattern, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getVetoStatus ( BSTR * veto_status, BSTR * messages ) {
+    HRESULT _hr = raw_getVetoStatus(veto_status, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::loadDAEWithData ( _bstr_t file_name, long options, BSTR * messages ) {
+    HRESULT _hr = raw_loadDAEWithData(file_name, options, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::setVeto ( _bstr_t name, long enable, BSTR * messages ) {
+    HRESULT _hr = raw_setVeto(name, enable, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::checkTestPattern ( unsigned long pattern, BSTR * messages ) {
+    HRESULT _hr = raw_checkTestPattern(pattern, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::getRunNumber ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getRunNumber(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::changeMonitoringSettings ( _bstr_t monitor_xml, BSTR * messages ) {
+    HRESULT _hr = raw_changeMonitoringSettings(monitor_xml, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getMonitoringSettings ( _bstr_t monitor_xml_in, BSTR * monitor_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_getMonitoringSettings(monitor_xml_in, monitor_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getStatusMessages ( long stream, VARIANT * messages ) {
+    HRESULT _hr = raw_getStatusMessages(stream, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::getGoodFramesPeriod ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getGoodFramesPeriod(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline double Idae::getGoodUAmpHPeriod ( BSTR * messages ) {
+    double _result = 0;
+    HRESULT _hr = raw_getGoodUAmpHPeriod(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::getFramesAllPeriods ( VARIANT * good_frames, VARIANT * raw_frames, BSTR * messages ) {
+    HRESULT _hr = raw_getFramesAllPeriods(good_frames, raw_frames, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getUAmpHAllPeriods ( VARIANT * good_uamph, VARIANT * raw_uamph, BSTR * messages ) {
+    HRESULT _hr = raw_getUAmpHAllPeriods(good_uamph, raw_uamph, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline double Idae::getMEventsPeriod ( long period, BSTR * messages ) {
+    double _result = 0;
+    HRESULT _hr = raw_getMEventsPeriod(period, messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::updateCRPTSpectra ( long period, long spec_start, long nspec, BSTR * messages ) {
+    HRESULT _hr = raw_updateCRPTSpectra(period, spec_start, nspec, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getCRPTSpectraIntegral ( const _variant_t & spectrum_numbers, long period, const _variant_t & time_low, const _variant_t & time_high, VARIANT * counts, BSTR * messages ) {
+    HRESULT _hr = raw_getCRPTSpectraIntegral(spectrum_numbers, period, time_low, time_high, counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::quit ( BSTR * messages ) {
+    HRESULT _hr = raw_quit(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::requestEndRunAfterNextSequenceCompletes ( BSTR * messages ) {
+    HRESULT _hr = raw_requestEndRunAfterNextSequenceCompletes(messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::isFinalSequenceComplete ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_isFinalSequenceComplete(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::getSpectrumNumbersForTR ( long time_regime, long * spec_min, long * spec_max, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectrumNumbersForTR(time_regime, spec_min, spec_max, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getSpectraIntegral2 ( long spec_start, long nspectra, long period, float time_low, float time_high, VARIANT * counts, BSTR * messages ) {
+    HRESULT _hr = raw_getSpectraIntegral2(spec_start, nspectra, period, time_low, time_high, counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline long Idae::getNumberOfPeriods ( BSTR * messages ) {
+    long _result = 0;
+    HRESULT _hr = raw_getNumberOfPeriods(messages, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT Idae::updateStatusXML2 ( _bstr_t status_xml_in, BSTR * status_xml_out, BSTR * messages ) {
+    HRESULT _hr = raw_updateStatusXML2(status_xml_in, status_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
