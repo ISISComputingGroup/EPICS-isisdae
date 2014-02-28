@@ -11,3 +11,9 @@ xcopy /i /q /d /y "%ICPDIR%\release\*.manifest" "%MYDIR%..\bin\windows-x64"
 xcopy /i /q /d /y "%ICPDIR%\release\*.pdb" "%MYDIR%..\bin\windows-x64"
 
 xcopy /i /q /d /y "%ICPDIR%\crt_manifest_for_dae3\*.*" "%MYDIR%..\bin\windows-x64-debug"
+
+REM need visa64.dll, visaConfMgr.dll and visaUtilities.dll  
+if not exist "c:\windows\system32\visa64.dll" (
+    xcopy /i /q /d /y "%ICPDIR%\visa\*.dll" "%MYDIR%..\bin\windows-x64-debug"
+    xcopy /i /q /d /y "%ICPDIR%\visa\*.dll" "%MYDIR%..\bin\windows-x64"
+)
