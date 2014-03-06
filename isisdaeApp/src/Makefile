@@ -43,6 +43,10 @@ isisdae_LIBS_WIN32 += isisicpint
 # see isisdaeInclude.dbd
 DBD += isisdae.dbd
 
+DATA += xml/cluster.xml xml/dae_settings_cluster.xml xml/hardware_periods_cluster.xml xml/monitoring_settings_cluster.xml
+DATA += xml/run_data_cluster.xml xml/tcb_settings_cluster.xml xml/update_settings_cluster.xml
+
+
 #===========================
 
 include $(TOP)/configure/RULES

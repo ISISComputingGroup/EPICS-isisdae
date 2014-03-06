@@ -41,5 +41,7 @@ SNCSEQ=$(SUPPORT)/seq/2-1-11
 CAPUTLOG=$(SUPPORT)/caPutLog/3-3-3
 TINYXML=$(SUPPORT)/TinyXML
 PCRE=$(SUPPORT)/pcre
+# we need to define ISISDAE as it is used to load data/xml by the test/example program
+ISISDAE=$(SUPPORT)/isisdae
 
 include $(TOP)/../../ISIS_CONFIG.$(EPICS_HOST_ARCH)

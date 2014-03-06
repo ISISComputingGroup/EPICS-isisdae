@@ -423,7 +423,7 @@ int isisdaeInterface::getXMLSettingsI(std::string& result, const std::string& te
 	static std::map<std::string,std::string> xml_templates;
 	if (xml_templates[template_file].size() == 0)
 	{
-	    std::string template_file_path = macEnvExpand("$(TOP)/isisdaeApp/src/xml/") + template_file;
+	    std::string template_file_path = macEnvExpand("$(ISISDAE)/data/xml/") + template_file;
         loadFromFile(template_file_path, xml_templates[template_file]);
 	}
 	return callI<int>(boost::bind(func, boost::cref(xml_templates[template_file]), boost::ref(result), _1));
@@ -435,7 +435,7 @@ int isisdaeInterface::getXMLSettingsD(std::string& result, const std::string& te
 	BSTR xml_out = NULL;
 	if (xml_templates[template_file].length() == 0)
 	{
-	    std::string template_file_path = macEnvExpand("$(TOP)/isisdaeApp/src/xml/") + template_file;
+	    std::string template_file_path = macEnvExpand("$(ISISDAE)/data/xml/") + template_file;
 		std::string tstr;
         loadFromFile(template_file_path, tstr);
 		xml_templates[template_file] = CComBSTR(tstr.c_str()).Detach();
