@@ -94,9 +94,9 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 			m_iface->setPeriod(value);
 		}
-		else
+        else if (function == P_NumPeriods)
 		{
-//		    asynPortDriver::writeValue(pasynUser, functionName, value);
+			m_iface->setNumPeriods(value);
 		}
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -125,11 +125,11 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
 		{
 			throw std::runtime_error("m_iface is NULL");
 		}
-		asynPortDriver::readValue(pasynUser, functionName, &value);
+		status = asynPortDriver::readValue(pasynUser, functionName, &value);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(*value).c_str());
-		return asynSuccess;
+		return status;
 	}
 	catch(const std::exception& ex)
 	{
@@ -154,11 +154,11 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 		{
 			throw std::runtime_error("m_iface is NULL");
 		}
-//		asynPortDriver::readArray(pasynUser, functionName, value, nElements, nIn);
+//		status = asynPortDriver::readArray(pasynUser, functionName, value, nElements, nIn);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s\n", 
               driverName, functionName, function, paramName);
-		return asynSuccess;
+		return status;
 	}
 	catch(const std::exception& ex)
 	{
@@ -172,12 +172,22 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 
 asynStatus isisdaeDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 {
-	return writeValue(pasynUser, "writeFloat64", value);
+	asynStatus stat = writeValue(pasynUser, "writeFloat64", value);
+    if (stat == asynSuccess)
+    {
+        stat = asynPortDriver::writeFloat64(pasynUser, value);
+    }
+    return stat;
 }
 
 asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
-	return writeValue(pasynUser, "writeInt32", value);
+    asynStatus stat = writeValue(pasynUser, "writeInt32", value);
+    if (stat == asynSuccess)
+    {
+        stat = asynPortDriver::writeInt32(pasynUser, value);
+    }
+    return stat;
 }
 
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
@@ -209,6 +219,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	getParamName(function, &paramName);
 	// we don't do much yet
 	return asynPortDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
+
 	std::string value_s;
 	try
 	{
@@ -262,6 +273,22 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		{
 			throw std::runtime_error("m_iface is NULL");
 		}
+        else if (function == P_RunTitle)
+        {
+			m_iface->setRunTitle(value_s);
+        }
+        else if (function == P_RBNumber)
+        {
+            char user[256];
+            getStringParam(P_UserName, sizeof(user), user);
+            m_iface->setUserParameters(atol(value_s.c_str()), user, "", "");
+        }
+        else if (function == P_UserName)
+        {
+            char rbno[16];
+            getStringParam(P_RBNumber, sizeof(rbno), rbno);
+            m_iface->setUserParameters(atol(rbno), value_s, "", "");
+        }
         else if (function == P_DAESettings)
 		{
 			m_iface->setDAESettingsXML(value_s);
@@ -283,15 +310,12 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}
-		else
-		{
-		    asynPortDriver::writeOctet(pasynUser, value, maxChars, nActual);
-		}
+		status = asynPortDriver::writeOctet(pasynUser, value, maxChars, nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, value_s.c_str());
 		*nActual = value_s.size();
-		return asynSuccess;
+		return status;
 	}
 	catch(const std::exception& ex)
 	{
@@ -506,7 +530,7 @@ void isisdaeDriver::pollerThread()
                 
 		callParamCallbacks();        
 		unlock();
-		epicsThreadSleep(1.0);
+		epicsThreadSleep(3.0);
 	}
 }	
 

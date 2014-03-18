@@ -382,6 +382,50 @@ std::string isisdaeInterface::getValue(const std::string& name)
 	}
 }
 
+int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& value)
+{
+    ISISICPINT::string_table_t table;
+    table.resize(1);
+    table[0].push_back(name);   // name
+    table[0].push_back("String"); // type
+    table[0].push_back("");  // units
+    table[0].push_back(value);  // value
+    if (m_dcom)
+    {
+        CComVariant v;
+        stringTableToVariant(table, &v);
+	    return callD<int>(boost::bind(&ICPDCOM::setSampleParameters, _1, v, _2));
+    }
+    else
+    {
+	    return callI<int>(boost::bind(&ISISICPINT::setSampleParameters, boost::cref(table), _1));
+    }
+}
+
+int isisdaeInterface::setRunTitle(const std::string& title)
+{
+    return setSampleParameter("Run Title", title);
+}
+
+int isisdaeInterface::setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role)
+{
+    ISISICPINT::string_table_t table;
+    table.resize(1);
+    table[0].push_back(name);
+    table[0].push_back(institute);
+    table[0].push_back(role);
+    if (m_dcom)
+    {
+        CComVariant v;
+        stringTableToVariant(table, &v);
+	    return callD<int>(boost::bind(&ICPDCOM::setUserParameters, _1, rbno, v, _2));
+    }
+    else
+    {
+	    return callI<int>(boost::bind(&ISISICPINT::setUserParameters, rbno, boost::cref(table), _1));
+    }
+    return 0;
+}
 
 long isisdaeInterface::getNumPeriods()
 {
@@ -391,6 +435,11 @@ long isisdaeInterface::getNumPeriods()
 int isisdaeInterface::setPeriod(long period)
 {
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::changePeriod, _1, period, _2)) : callI<int>(boost::bind(&ISISICPINT::changePeriod, period, _1)));
+}
+
+int isisdaeInterface::setNumPeriods(long nperiods)
+{
+	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::changeNumberOfSoftwarePeriods, _1, nperiods, _2)) : callI<int>(boost::bind(&ISISICPINT::changeNumberOfSoftwarePeriods, nperiods, _1)));
 }
 
 double isisdaeInterface::getMEvents()

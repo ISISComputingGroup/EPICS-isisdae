@@ -231,3 +231,25 @@ int makeVariantFromArray(VARIANT* v, const char* the_array, int n)
 
 template int makeVariantFromArray(VARIANT* v, const std::vector<float>& the_array);
 
+/// we need to imitate a DCOM array coming from labview, which has column index fastest varying rather than row  
+int stringTableToVariant(const std::vector< std::vector<std::string> >& string_table, VARIANT* v)
+{
+	int dims_array[2], ndims, i, j, k;
+    // create column major DCOM table from row major row major string_table
+	dims_array[0] = string_table[0].size();
+    dims_array[1] = string_table.size();
+	allocateArrayVariant(v, VT_BSTR, dims_array, 2);
+	BSTR* v_array = NULL;
+	accessArrayVariant(v, &v_array);
+	for(j=0, k=0; j<dims_array[0]; j++)
+	{
+		for(i=0; i<dims_array[1]; i++)
+		{
+            CComBSTR bstr_wrapper(string_table[i][j].c_str());
+            v_array[k] = bstr_wrapper.Detach();
+            ++k;
+		}
+	}
+	unaccessArrayVariant(v);
+	return 0;
+}

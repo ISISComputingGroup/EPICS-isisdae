@@ -33,4 +33,6 @@ int makeVariantFromArray(VARIANT* v, const T* the_array, int n);
 template <typename T> 
 int makeVariantFromArray(VARIANT* v, const std::vector<T>& the_array);
 
+int stringTableToVariant(const std::vector< std::vector<std::string> >& string_table, VARIANT* v);
+
 #endif /* VARIANT_UTILS_H */
