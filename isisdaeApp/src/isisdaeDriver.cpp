@@ -303,6 +303,11 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		}
         else if (function == P_TCBSettings)
 		{
+			if (value[maxChars - 1] == '\0')
+			{
+				value_s = std::string(value, maxChars - 1);
+			}		
+
 		    std::string tcb_xml;
 		    if (uncompressString(value_s, tcb_xml) == 0)
 			{
