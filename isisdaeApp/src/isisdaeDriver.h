@@ -75,8 +75,10 @@ private:
     int P_RawFramesTotal; //long
     int P_GoodFramesPeriod; //long
     int P_RawFramesPeriod; //long
+    int P_AllMsgs; // char
+    int P_ErrMsgs; // char
 	#define FIRST_ISISDAE_PARAM P_GoodUAH
-	#define LAST_ISISDAE_PARAM P_RawFramesPeriod
+	#define LAST_ISISDAE_PARAM P_ErrMsgs
 
 	isisdaeInterface* m_iface;
 	
@@ -143,5 +145,7 @@ private:
 #define P_HardwarePeriodsSettingsString	"HARDWAREPERIODSSETTINGS"
 #define P_UpdateSettingsString	"UPDATESETTINGS"
 #define P_VetoStatusString	"VETOSTATUS"
+#define P_AllMsgsString	"ALLMSGS"
+#define P_ErrMsgsString	"ERRMSGS"
 
 #endif /* ISISDAEDRIVER_H */

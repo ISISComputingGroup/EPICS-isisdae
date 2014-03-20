@@ -303,11 +303,6 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		}
         else if (function == P_TCBSettings)
 		{
-			if (value[maxChars - 1] == '\0')
-			{
-				value_s = std::string(value, maxChars - 1);
-			}		
-
 		    std::string tcb_xml;
 		    if (uncompressString(value_s, tcb_xml) == 0)
 			{
@@ -398,6 +393,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
     createParam(P_RunTitleString, asynParamOctet, &P_RunTitle);
+    createParam(P_AllMsgsString, asynParamOctet, &P_AllMsgs);
+    createParam(P_ErrMsgsString, asynParamOctet, &P_ErrMsgs);
     createParam(P_RBNumberString, asynParamOctet, &P_RBNumber);
     createParam(P_RunNumberString, asynParamOctet, &P_RunNumber);
     createParam(P_UserNameString, asynParamOctet, &P_UserName);
