@@ -229,7 +229,7 @@ caStatus exPV::getLowLimit ( gdd & value )
 //
 caStatus exPV::getUnits( gdd & units )
 {
-    aitString str("furlongs", aitStrRefConstImortal);
+    aitString str("counts", aitStrRefConstImortal);
     units.put(str);
     return S_cas_success;
 }

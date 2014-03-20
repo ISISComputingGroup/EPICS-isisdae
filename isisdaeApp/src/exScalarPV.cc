@@ -14,6 +14,7 @@
 
 #include "exServer.h"
 #include "gddApps.h"
+#include "isisdaeInterface.h"
 
 #define myPI 3.14159265358979323846
 
@@ -89,7 +90,10 @@ void exScalarPV::scan()
 //    newValue = tsMin ( newValue, limit );
 //    limit = (float) this->info.getLopr ();
 //    newValue = tsMax ( newValue, limit );
-    *pDD = 100 * spec;
+
+    long counts = 0;
+    cas.iface()->getSpectrumIntegral(spec, 1, 0.0, -1.0, counts);
+    *pDD = counts;
     aitTimeStamp gddts ( this->currentTime );
     pDD->setTimeStamp ( & gddts );
     status = this->update ( *pDD );

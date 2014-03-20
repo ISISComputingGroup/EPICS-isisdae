@@ -342,7 +342,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
                     1, /* Autoconnect */
                     0, /* Default priority */
                     0),	/* Default stack size*/
-					m_iface(iface)
+					m_iface(iface), m_RunStatus(0)
 {
     int i;
     const char *functionName = "isisdaeDriver";
@@ -439,36 +439,83 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
 
     // Create the thread for background tasks (not used at present, could be used for I/O intr scanning) 
-    if (epicsThreadCreate("isisdaePoller",
+    if (epicsThreadCreate("isisdaePoller1",
                           epicsThreadPriorityMedium,
                           epicsThreadGetStackSize(epicsThreadStackMedium),
-                          (EPICSTHREADFUNC)pollerThreadC, this) == 0)
+                          (EPICSTHREADFUNC)pollerThreadC1, this) == 0)
+    {
+        printf("%s:%s: epicsThreadCreate failure\n", driverName, functionName);
+        return;
+    }
+    if (epicsThreadCreate("isisdaePoller2",
+                          epicsThreadPriorityMedium,
+                          epicsThreadGetStackSize(epicsThreadStackMedium),
+                          (EPICSTHREADFUNC)pollerThreadC2, this) == 0)
     {
         printf("%s:%s: epicsThreadCreate failure\n", driverName, functionName);
         return;
     }
 }
 
-void isisdaeDriver::pollerThreadC(void* arg)
+void isisdaeDriver::pollerThreadC1(void* arg)
 { 
     isisdaeDriver* driver = (isisdaeDriver*)arg; 
-	driver->pollerThread();
+	driver->pollerThread1();
 }
 
-void isisdaeDriver::pollerThread()
+void isisdaeDriver::pollerThreadC2(void* arg)
+{ 
+    isisdaeDriver* driver = (isisdaeDriver*)arg; 
+	driver->pollerThread2();
+}
+
+void isisdaeDriver::pollerThread1()
 {
-    static const char* functionName = "isisdaePoller";
-	std::map<std::string, DAEValue> values;
+    static const char* functionName = "isisdaePoller1";
+    unsigned long counter = 0;
+    double delay = 0.2;    
 	while(true)
 	{
 		lock();
-		setIntegerParam(P_RunStatus, m_iface->getRunState());
+        m_RunStatus = m_iface->getRunState();
+		setIntegerParam(P_RunStatus, m_RunStatus);
 		setDoubleParam(P_GoodUAH, m_iface->getGoodUAH());
         setDoubleParam(P_GoodUAHPeriod, m_iface->getGoodUAHPeriod());
         setIntegerParam(P_TotalCounts, m_iface->getTotalCounts());
-        
+        setIntegerParam(P_GoodFramesTotal, m_iface->getGoodFrames());
+        setIntegerParam(P_GoodFramesPeriod, m_iface->getGoodFramesPeriod());
+		setIntegerParam(P_RawFramesTotal, m_iface->getRawFrames());
+		callParamCallbacks();        
+		unlock();
+        ++counter;
+		epicsThreadSleep(delay);
+    }
+}
+
+void isisdaeDriver::pollerThread2()
+{
+    static const char* functionName = "isisdaePoller2";
+	std::map<std::string, DAEValue> values;
+    unsigned long counter = 0;
+    double delay = 2.0;    
+	while(true)
+	{
+        bool check_settings = ( (counter == 0) || (m_RunStatus == 1 && counter % 2 == 0) || (counter % 10 == 0) );
+        std::string daeSettings;
+        std::string tcbSettings, tcbSettingComp;
+        std::string hardwarePeriodsSettings;
+        std::string updateSettings;
+        std::string vetoStatus;
         m_iface->getRunDataFromDAE(values);
-        
+        m_iface->getVetoStatus(vetoStatus);
+        if (check_settings)
+        {
+            m_iface->getDAESettingsXML(daeSettings);
+            m_iface->getTCBSettingsXML(tcbSettings);
+            m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
+            m_iface->getUpdateSettingsXML(updateSettings);
+        }
+		lock();
         setStringParam(P_RunTitle, values["RunTitle"]); 
         setStringParam(P_RBNumber, values["RBNumber"]); 
         setStringParam(P_RunNumber, values["RunNumber"]);
@@ -482,9 +529,6 @@ void isisdaeDriver::pollerThread()
         setStringParam(P_RunStatusStr, values["RunStatus"]);
         setStringParam(P_PeriodType, values["Period Type"]);
         
-        setIntegerParam(P_GoodFramesTotal, values["GoodFramesTotal"]);
-        setIntegerParam(P_GoodFramesPeriod, values["GoodFramesPeriod"]);
-		setIntegerParam(P_RawFramesTotal, values["RawFramesTotal"]);
         setIntegerParam(P_RawFramesPeriod, values["RawFramesPeriod"]);
         
         setIntegerParam(P_RunDurationTotal, values["RunDurationTotal"]);
@@ -507,32 +551,21 @@ void isisdaeDriver::pollerThread()
         setDoubleParam(P_CountRate, values["CountRate"]);
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
         
-        std::string daeSettings;
-        m_iface->getDAESettingsXML(daeSettings);
-        setStringParam(P_DAESettings, daeSettings.c_str());
-        
-        std::string tcbSettings, tcbSettingComp;
-        m_iface->getTCBSettingsXML(tcbSettings);
-		if (compressString(tcbSettings, tcbSettingComp) == 0)
-		{
-            setStringParam(P_TCBSettings, tcbSettingComp.c_str());
-		}
-        
-        std::string hardwarePeriodsSettings;
-        m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
-        setStringParam(P_HardwarePeriodsSettings, hardwarePeriodsSettings.c_str() );
-        
-        std::string updateSettings;
-        m_iface->getUpdateSettingsXML(updateSettings);
-        setStringParam(P_UpdateSettings, updateSettings.c_str() );
-        
-        std::string vetoStatus;
-        m_iface->getVetoStatus(vetoStatus);
         setStringParam(P_VetoStatus, vetoStatus.c_str() );
-                
+        if (check_settings) 
+        {
+            setStringParam(P_DAESettings, daeSettings.c_str());
+		    if (compressString(tcbSettings, tcbSettingComp) == 0)
+		    {
+                setStringParam(P_TCBSettings, tcbSettingComp.c_str());
+		    }
+            setStringParam(P_HardwarePeriodsSettings, hardwarePeriodsSettings.c_str() );
+            setStringParam(P_UpdateSettings, updateSettings.c_str() );
+        }          
 		callParamCallbacks();        
 		unlock();
-		epicsThreadSleep(3.0);
+        ++counter;
+		epicsThreadSleep(delay);
 	}
 }	
 

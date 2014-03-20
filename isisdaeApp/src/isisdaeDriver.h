@@ -9,7 +9,8 @@ class isisdaeDriver : public asynPortDriver
 {
 public:
     isisdaeDriver(isisdaeInterface* iface, const char *portName);
- 	static void pollerThreadC(void* arg);
+ 	static void pollerThreadC1(void* arg);
+ 	static void pollerThreadC2(void* arg);
                 
     // These are the methods that we override from asynPortDriver
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
@@ -81,8 +82,10 @@ private:
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
 
 	isisdaeInterface* m_iface;
+    int m_RunStatus;  // cached value used in poller thread
 	
-	void pollerThread();
+	void pollerThread1();
+	void pollerThread2();
 	
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);

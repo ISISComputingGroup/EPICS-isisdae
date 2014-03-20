@@ -754,3 +754,17 @@ long isisdaeInterface::getSpectrum(int spec, float* time_channels, float* signal
 	}
     return n;
 }
+
+long isisdaeInterface::getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::getSpectrumIntegral, _1, spectrum_number, period, time_low, time_high, &counts, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::getSpectrumIntegral, spectrum_number, period, time_low, time_high, boost::ref(counts), _1));
+	}
+    return 0;
+}
+
