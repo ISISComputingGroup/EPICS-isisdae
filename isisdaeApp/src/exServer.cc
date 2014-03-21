@@ -136,7 +136,7 @@ pvExistReturn exServer::pvExistTest // X aCC 361
 		}
 		else
 		{
-		    int ntc = 4000; //m_iface->getNumTimeChannels(spec);
+		    int ntc = 8000; //m_iface->getNumTimeChannels(spec);
 		    pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, ntc);
 		}
         m_pvList[pvStr] = pPVI;

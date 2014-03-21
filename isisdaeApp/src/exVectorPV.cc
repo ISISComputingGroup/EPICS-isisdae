@@ -150,6 +150,7 @@ void exVectorPV::scan()
     status = this->update ( *pDD );
     if ( status != S_casApp_success ) {
         errMessage (status, "vector scan update failed\n");
+        std::cerr << "num points was " << n << std::endl;
     }
 }
 

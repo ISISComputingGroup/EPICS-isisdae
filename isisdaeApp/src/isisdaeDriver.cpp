@@ -266,7 +266,16 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
     const char *paramName = NULL;
 	getParamName(function, &paramName);
     const char* functionName = "writeOctet";
-	std::string value_s(value, maxChars);
+	std::string value_s;
+    // we might get an embedded NULL from channel access char waveform records
+    if ( (maxChars > 0) && (value[maxChars-1] == '\0') )
+    {
+        value_s.assign(value, maxChars-1);
+    }
+    else
+    {
+        value_s.assign(value, maxChars);
+    }
 	try
 	{
 		if (m_iface == NULL)
@@ -310,11 +319,14 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}
-		status = asynPortDriver::writeOctet(pasynUser, value, maxChars, nActual);
+		status = asynPortDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, value_s.c_str());
-		*nActual = value_s.size();
+        if (status == asynSuccess)
+        {
+		    *nActual = maxChars;   // to keep result happy in case we skipped an embedded trailing NULL
+        }
 		return status;
 	}
 	catch(const std::exception& ex)
