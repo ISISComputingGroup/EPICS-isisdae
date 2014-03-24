@@ -474,3 +474,21 @@ record(waveform, "$(P)VETOSTATUS")
     field(INP,  "@asyn(icp,0,0)VETOSTATUS")
     field(SCAN, "I/O Intr")
 }
+
+record(waveform, "$(P)ALLMSGS")
+{
+    field(NELM, "512")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)ALLMSGS")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)ERRMSGS")
+{
+    field(NELM, "512")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)ERRMSGS")
+    field(SCAN, "I/O Intr")
+}
