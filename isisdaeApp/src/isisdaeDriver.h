@@ -48,7 +48,6 @@ private:
     int P_NPRatio; //char*
     int P_ISISCycle; //char*
     int P_DAETimingSource; //char*
-    int P_RunStatusStr; //char*
     int P_PeriodType; //char*
     int P_DAESettings; //char*
     int P_TCBSettings; //char*
@@ -86,7 +85,8 @@ private:
 	
 	void pollerThread1();
 	void pollerThread2();
-	
+    void zeroRunCounters();	
+    void updateRunStatus();
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
@@ -141,7 +141,6 @@ private:
 #define P_EventModeFractionString	"EVENTMODEFRACTION"
 #define P_MonitorSpectrumString	"MONITORSPECTRUM"
 #define P_DAETimingSourceString	"DAETIMINGSOURCE"
-#define P_RunStatusStrString	"RUNSTATUSSTR"
 #define P_PeriodTypeString	"PERIODTYPE"
 #define P_DAESettingsString	"DAESETTINGS"
 #define P_TCBSettingsString	"TCBSETTINGS"

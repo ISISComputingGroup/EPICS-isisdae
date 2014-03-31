@@ -53,10 +53,12 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		else if (function == P_BeginRun)
 		{
 			m_iface->beginRun();
+//            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
         else if (function == P_BeginRunEx)
 		{
 			m_iface->beginRunEx(value, -1);
+//            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
 		else if (function == P_AbortRun)
 		{
@@ -98,6 +100,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 			m_iface->setNumPeriods(value);
 		}
+        updateRunStatus();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(value).c_str());
@@ -421,7 +424,6 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_NPRatioString, asynParamOctet, &P_NPRatio);
     createParam(P_ISISCycleString, asynParamOctet, &P_ISISCycle);
     createParam(P_DAETimingSourceString, asynParamOctet, &P_DAETimingSource);
-    createParam(P_RunStatusStrString, asynParamOctet, &P_RunStatusStr);
     createParam(P_PeriodTypeString, asynParamOctet, &P_PeriodType);
     
     createParam(P_DAESettingsString, asynParamOctet, &P_DAESettings);
@@ -494,6 +496,16 @@ void isisdaeDriver::pollerThread1()
 	while(true)
 	{
 		lock();
+        updateRunStatus();
+		callParamCallbacks();        
+		unlock();
+        ++counter;
+		epicsThreadSleep(delay);
+    }
+}
+
+void isisdaeDriver::updateRunStatus()
+{
         m_RunStatus = m_iface->getRunState();
 		setIntegerParam(P_RunStatus, m_RunStatus);
 		setDoubleParam(P_GoodUAH, m_iface->getGoodUAH());
@@ -502,11 +514,25 @@ void isisdaeDriver::pollerThread1()
         setIntegerParam(P_GoodFramesTotal, m_iface->getGoodFrames());
         setIntegerParam(P_GoodFramesPeriod, m_iface->getGoodFramesPeriod());
 		setIntegerParam(P_RawFramesTotal, m_iface->getRawFrames());
-		callParamCallbacks();        
-		unlock();
-        ++counter;
-		epicsThreadSleep(delay);
-    }
+        ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod,P_TotalDaeCounts, P_MonitorCounts
+}
+
+// should not be needed as call updateRunStatus() at appropriate point
+void isisdaeDriver::zeroRunCounters()
+{
+		setDoubleParam(P_GoodUAH, 0.0);
+        setDoubleParam(P_GoodUAHPeriod, 0.0);
+        setDoubleParam(P_TotalUAmps, 0.0);
+        setIntegerParam(P_TotalCounts, 0);
+        setIntegerParam(P_GoodFramesTotal, 0);
+        setIntegerParam(P_GoodFramesPeriod, 0);
+		setIntegerParam(P_RawFramesTotal, 0);
+        setIntegerParam(P_RawFramesPeriod, 0);  
+        setIntegerParam(P_RunDurationTotal, 0);
+        setIntegerParam(P_RunDurationPeriod, 0);
+        setIntegerParam(P_MonitorCounts, 0);
+        setDoubleParam(P_TotalDaeCounts, 0.0);
+        setDoubleParam(P_CountRate, 0.0);
 }
 
 void isisdaeDriver::pollerThread2()
@@ -543,7 +569,6 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_NPRatio, values["N/P Ratio"]);
         setStringParam(P_ISISCycle, values["ISISCycle"]);
         setStringParam(P_DAETimingSource, values["DAETimingSource"]);
-        setStringParam(P_RunStatusStr, values["RunStatus"]);
         setStringParam(P_PeriodType, values["Period Type"]);
         
         setIntegerParam(P_RawFramesPeriod, values["RawFramesPeriod"]);
