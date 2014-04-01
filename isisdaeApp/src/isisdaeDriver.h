@@ -45,7 +45,7 @@ private:
     int P_RunNumber; //char*
     int P_UserTelephone; //char*
     int P_StartTime; //char*
-    int P_NPRatio; //char*
+    int P_NPRatio; //double
     int P_ISISCycle; //char*
     int P_DAETimingSource; //char*
     int P_PeriodType; //char*

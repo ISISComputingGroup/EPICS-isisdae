@@ -68,9 +68,9 @@ record(stringin, "$(P)STARTTIME")
     field(SCAN, "I/O Intr")
 }
 
-record(stringin, "$(P)NPRATIO")
+record(ai, "$(P)NPRATIO")
 {
-    field(DTYP, "asynOctetRead")
+    field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)NPRATIO")
     field(SCAN, "I/O Intr")
 }

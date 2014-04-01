@@ -421,7 +421,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_InstNameString, asynParamOctet, &P_InstName);
     createParam(P_UserTelephoneString, asynParamOctet, &P_UserTelephone);
     createParam(P_StartTimeString, asynParamOctet, &P_StartTime);
-    createParam(P_NPRatioString, asynParamOctet, &P_NPRatio);
+    createParam(P_NPRatioString, asynParamFloat64, &P_NPRatio);
     createParam(P_ISISCycleString, asynParamOctet, &P_ISISCycle);
     createParam(P_DAETimingSourceString, asynParamOctet, &P_DAETimingSource);
     createParam(P_PeriodTypeString, asynParamOctet, &P_PeriodType);
@@ -566,7 +566,7 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_UserName, values["UserName"]);
         setStringParam(P_UserTelephone, values["UserTelephone"]);
         setStringParam(P_StartTime, values["StartTime"]);
-        setStringParam(P_NPRatio, values["N/P Ratio"]);
+        setDoubleParam(P_NPRatio, values["N/P Ratio"]);
         setStringParam(P_ISISCycle, values["ISISCycle"]);
         setStringParam(P_DAETimingSource, values["DAETimingSource"]);
         setStringParam(P_PeriodType, values["Period Type"]);
