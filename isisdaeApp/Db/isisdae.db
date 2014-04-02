@@ -332,17 +332,11 @@ record(bo, "$(P)STORERUN")
     field(ONAM, "1")
 }
 
-record(longin, "$(P)RUNSTATE")
+record(mbbi, "$(P)RUNSTATE")
 {
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNSTATUS")
     field(SCAN, "I/O Intr")
-    field(FLNK, "$(P)RUNSTATE_STR")
-}
-
-record(mbbi, "$(P)RUNSTATE_STR")
-{
-    field(INP,  "$(P)RUNSTATE")
     field(ZRVL, 0)
     field(ZRST, "PROCESSING")
     field(ONVL, 1)
@@ -360,6 +354,8 @@ record(mbbi, "$(P)RUNSTATE_STR")
     field(SVVL, 7)
     field(SVST, "SAVING")
 }
+
+alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
 
 record(longin, "$(P)PERIOD")
 {
