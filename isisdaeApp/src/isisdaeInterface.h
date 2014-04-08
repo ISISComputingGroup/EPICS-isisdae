@@ -96,7 +96,7 @@ public:
     int getPeriod();
     long getNumPeriods();
 	long getNumTimeChannels(int spec);
-	long getSpectrum(int spec, float* time_channels, float* signal, long nvals);
+	long getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals);
     long getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
     double getMEvents();
     unsigned long getTotalCounts();

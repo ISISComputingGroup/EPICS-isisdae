@@ -122,7 +122,7 @@ pvExistReturn exServer::pvExistTest // X aCC 361
         return pverDoesNotExistHere;
 	}
 	
-	// as we create the PV on the fly, we need to protext against multiple access (and hence multiple create)
+	// as we create the PV on the fly, we need to protect against multiple access (and hence multiple create)
 	epicsGuard<epicsMutex> _guard (m_lock);
     //
     // Look in hash table for PV name (or PV alias name)
@@ -410,13 +410,21 @@ epicsTimerNotify::expireStatus exAsyncCreateIO::expire ( const epicsTime & /*cur
 
 
 // -1 on error, 0 for scalar, 1 for array
-int parseSpecPV(const std::string& pvStr, int& spec, char& axis)
+int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 {
+    //Assumes period then spectrum
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYC])");
     pcrecpp::RE spec_re("SPEC:(\\d+):([XYC])");
-	if (!spec_re.FullMatch(pvStr, &spec, &axis))
-	{
-        return -1;
-	}
+    
+    if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis))
+    {
+        if (!spec_re.FullMatch(pvStr, &spec, &axis))
+        {
+            return -1;
+        }
+        //If not specified assume the period is 1
+        period = 1;
+    }
 	if (axis == 'C')
 	{
 		return 0;
@@ -448,9 +456,9 @@ int parseMonitorPV(const std::string& pvStr, int& mon, char& axis)
 // -1 on error, 0 for scalar, 1 for array
 int getPVType(const std::string& pvStr)
 {
-	int i, pvtype;
+	int i, pvtype, p;
 	char c;
-    if ( (pvtype = parseSpecPV(pvStr, i, c)) != -1 )
+    if ( (pvtype = parseSpecPV(pvStr, i, p, c)) != -1 )
 	{
 		return pvtype;
 	}

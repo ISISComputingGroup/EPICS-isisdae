@@ -722,9 +722,9 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
     return 0;
 }
 
-long isisdaeInterface::getSpectrum(int spec, float* time_channels, float* signal, long nvals)
+long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals)
 {
-	long period = 0, sum = 0, n;
+	long sum = 0, n;
 	if (m_dcom)
 	{
 		variant_t time_channels_v, signal_v;

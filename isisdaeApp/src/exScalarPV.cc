@@ -64,9 +64,9 @@ void exScalarPV::scan()
     assert ( ! gddStatus );
 
 	std::string pvName(getName());
-	int spec, mon;
+	int spec, mon, period;
 	char axis;
-	if (parseSpecPV(pvName, spec, axis) != 0)
+	if (parseSpecPV(pvName, spec, period, axis) != 0)
 	{
 		if (parseMonitorPV(pvName, mon, axis) != 0)
 		{
@@ -92,7 +92,7 @@ void exScalarPV::scan()
 //    newValue = tsMax ( newValue, limit );
 
     long counts = 0;
-    cas.iface()->getSpectrumIntegral(spec, 1, 0.0, -1.0, counts);
+    cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
     *pDD = counts;
     aitTimeStamp gddts ( this->currentTime );
     pDD->setTimeStamp ( & gddts );

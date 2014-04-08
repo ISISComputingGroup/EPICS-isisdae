@@ -99,20 +99,21 @@ void exVectorPV::scan()
     }
 
 	std::string pvName(getName());
-	int spec, mon;
+	int spec, mon, period;
 	char axis;
-	if (parseSpecPV(pvName, spec, axis) < 0)
+	if (parseSpecPV(pvName, spec, period, axis) < 0)
 	{
 		if (parseMonitorPV(pvName, mon, axis) < 0)
 		{
 			return;
 		}
 		spec = 1;
+        period = 1;
 	}
 	int n = 0;
 	if (axis == 'Y')
 	{
-        n = cas.iface()->getSpectrum(spec, pX, pY, this->info.getElementCount());
+        n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
         if ( ! pDD.valid () ) {
             return;
@@ -126,7 +127,7 @@ void exVectorPV::scan()
 	}
 	else if (axis == 'X')
 	{
-        n = cas.iface()->getSpectrum(spec, pX, pY, this->info.getElementCount());
+        n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
         if ( ! pDD.valid () ) {
             return;

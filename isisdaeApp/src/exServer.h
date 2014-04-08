@@ -54,7 +54,7 @@
 #   define NELEMENTS(A) (sizeof(A)/sizeof(A[0]))
 #endif
 
-int parseSpecPV(const std::string& pvStr, int& spec, char& axis); // -1 error, 0=scalar, 1=array
+int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis); // -1 error, 0=scalar, 1=array
 int parseMonitorPV(const std::string& pvStr, int& mon, char& axis); // -1 error, 0=scalar, 1=array
 int getPVType(const std::string& pvStr); // -1 error, 0=scalar, 1=array
 //
