@@ -54,9 +54,13 @@
 #   define NELEMENTS(A) (sizeof(A)/sizeof(A[0]))
 #endif
 
-int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis); // -1 error, 0=scalar, 1=array
-int parseMonitorPV(const std::string& pvStr, int& mon, char& axis); // -1 error, 0=scalar, 1=array
-int getPVType(const std::string& pvStr); // -1 error, 0=scalar, 1=array
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
+int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis);
+int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis);
+int parseSamplePV(const std::string& pvStr, std::string& param); 
+int parseBeamlinePV(const std::string& pvStr, std::string& param); 
+int getPVType(const std::string& pvStr); 
+
 //
 // info about all pv in this server
 //

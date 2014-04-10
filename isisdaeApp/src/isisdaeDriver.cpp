@@ -8,6 +8,8 @@
 #include <map>
 #include <iomanip>
 
+#include <boost/algorithm/string.hpp>
+
 #include <epicsTypes.h>
 #include <epicsTime.h>
 #include <epicsThread.h>
@@ -266,6 +268,23 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	}
 }
 
+// convert an EPICS waveform data type into what beamline/sample parameters would expect
+void isisdaeDriver::translateBeamlineType(std::string& str)
+{
+	if (str == "CHAR" || str == "UCHAR" || str == "ENUM" || str == "STRING")
+	{
+		str = "String";
+	}
+	else if (str == "FLOAT" || str == "DOUBLE")
+	{
+		str = "Real";
+	}
+	else if (str == "SHORT" || str == "USHORT" || str == "LONG" || str == "ULONG")
+	{
+		str = "Integer";
+	}
+}
+
 asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual)
 {
     int function = pasynUser->reason;
@@ -292,6 +311,34 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         else if (function == P_RunTitle)
         {
 			m_iface->setRunTitle(value_s);
+        }
+        else if (function == P_SamplePar)
+        {
+            std::vector<std::string> tokens;
+            boost::split(tokens, value_s, boost::is_any_of("\2")); //  name, type, units, value
+            if (tokens.size() == 4)
+            {
+				translateBeamlineType(tokens[1]);
+                m_iface->setSampleParameter(tokens[0], tokens[1], tokens[2], tokens[3]);
+            }
+            else
+            {
+                throw std::runtime_error("SampleParameter: not enough tokens");
+            }
+        }
+        else if (function == P_BeamlinePar)
+        {
+            std::vector<std::string> tokens;
+            boost::split(tokens, value_s, boost::is_any_of("\2")); //  name, type, units, value
+            if (tokens.size() == 4)
+            {
+				translateBeamlineType(tokens[1]);
+                m_iface->setBeamlineParameter(tokens[0], tokens[1], tokens[2], tokens[3]);
+            }
+            else
+            {
+                throw std::runtime_error("BeamlineParameter: not enough tokens");
+            }
         }
         else if (function == P_RBNumber)
         {
@@ -457,6 +504,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
 
+    createParam(P_SampleParString, asynParamOctet, &P_SamplePar);
+    createParam(P_BeamlineParString, asynParamOctet, &P_BeamlinePar);
     // Create the thread for background tasks (not used at present, could be used for I/O intr scanning) 
     if (epicsThreadCreate("isisdaePoller1",
                           epicsThreadPriorityMedium,

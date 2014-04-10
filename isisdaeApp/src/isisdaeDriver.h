@@ -75,6 +75,8 @@ private:
     int P_RawFramesTotal; //long
     int P_GoodFramesPeriod; //long
     int P_RawFramesPeriod; //long
+    int P_SamplePar; //string
+    int P_BeamlinePar; //string
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define FIRST_ISISDAE_PARAM P_GoodUAH
@@ -87,6 +89,7 @@ private:
 	void pollerThread2();
     void zeroRunCounters();	
     void updateRunStatus();
+	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
@@ -147,6 +150,8 @@ private:
 #define P_HardwarePeriodsSettingsString	"HARDWAREPERIODSSETTINGS"
 #define P_UpdateSettingsString	"UPDATESETTINGS"
 #define P_VetoStatusString	"VETOSTATUS"
+#define P_SampleParString	"SAMPLEPAR"
+#define P_BeamlineParString	"BEAMLINEPAR"
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
 

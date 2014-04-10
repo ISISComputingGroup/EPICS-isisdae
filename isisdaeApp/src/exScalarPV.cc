@@ -52,7 +52,7 @@ void exScalarPV::scan()
     //
     this->currentTime = epicsTime::getCurrent ();
 
-    pDD = new gddScalar ( gddAppType_value, aitEnumInt32 );
+    pDD = new gddScalar ( gddAppType_value, this->info.getType() ); 
     if ( ! pDD.valid () ) {
         return;
     }
@@ -64,36 +64,50 @@ void exScalarPV::scan()
     assert ( ! gddStatus );
 
 	std::string pvName(getName());
-	int spec, mon, period;
-	char axis;
-	if (parseSpecPV(pvName, spec, period, axis) != 0)
-	{
-		if (parseMonitorPV(pvName, mon, axis) != 0)
-		{
-			return;
-		}
-		spec = mon;
-	}
-	if (axis != 'C')
-	{
-		return;
-	}
+//	std::string param_name, param_type, param_units, param_value;
+//	if (parseBeamlinePV(pvName, param_name) != 0x0)
+//	{
+//        cas.iface()->getBeamlineParameter(param_name, param_type, param_units, param_value);
+//        *pDD = param_value.c_str();
+//	}
+//	else if (parseSamplePV(pvName, param_name) != 0x0)
+//	{
+//       cas.iface()->getSampleParameter(param_name, param_type, param_units, param_value);
+//        *pDD = param_value.c_str();
+//	}
+//	else
+//	{
+	    int spec, mon, period;
+	    char axis;
+	    if (parseSpecPV(pvName, spec, period, axis) == 0x0)
+	    {
+		    if (parseMonitorPV(pvName, mon, period, axis) == 0x0)
+		    {
+			    return;
+		    }
+		    spec = mon;
+	    }
+	    if (axis != 'C')
+	    {
+		    return;
+	    }
 
-//    if ( this->pValue.valid () ) {
-//       this->pValue->getConvert(newValue);
-//    }
-//    else {
-//        newValue = 0.0f;
-//    }
-//    newValue += (float) ( sin (radians) / 10.0 );
-//    limit = (float) this->info.getHopr ();
-//    newValue = tsMin ( newValue, limit );
-//    limit = (float) this->info.getLopr ();
-//    newValue = tsMax ( newValue, limit );
+////    if ( this->pValue.valid () ) {
+////       this->pValue->getConvert(newValue);
+////    }
+////    else {
+////        newValue = 0.0f;
+////    }
+////    newValue += (float) ( sin (radians) / 10.0 );
+////    limit = (float) this->info.getHopr ();
+////    newValue = tsMin ( newValue, limit );
+////    limit = (float) this->info.getLopr ();
+////    newValue = tsMax ( newValue, limit );
 
-    long counts = 0;
-    cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
-    *pDD = counts;
+        long counts = 0;
+        cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
+        *pDD = counts;
+//	}
     aitTimeStamp gddts ( this->currentTime );
     pDD->setTimeStamp ( & gddts );
     status = this->update ( *pDD );

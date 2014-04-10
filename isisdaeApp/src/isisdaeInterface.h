@@ -93,6 +93,8 @@ public:
     int setNumPeriods(long nperiods);
     int setRunTitle(const std::string& title);
     int setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role);
+    int setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value);
+    int setBeamlineParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value);
     int getPeriod();
     long getNumPeriods();
 	long getNumTimeChannels(int spec);
@@ -138,7 +140,6 @@ private:
     int loadFromFile(const std::string& filename, std::string& xml);
     CComPtr<IXMLDOMDocument> createXmlDom(const std::string& xml);
     void getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* name, BSTR* value, DAEValue::DAEType);
-    int setSampleParameter(const std::string& name, const std::string& value);
 	std::string getValue(const std::string& name);
 	// call ISISICPINT functions
 	template <typename T> T callI( boost::function<T(std::string&)> func );

@@ -382,13 +382,13 @@ std::string isisdaeInterface::getValue(const std::string& name)
 	}
 }
 
-int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& value)
+int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value)
 {
     ISISICPINT::string_table_t table;
     table.resize(1);
     table[0].push_back(name);   // name
-    table[0].push_back("String"); // type
-    table[0].push_back("");  // units
+    table[0].push_back(type); // type
+    table[0].push_back(units);  // units
     table[0].push_back(value);  // value
     if (m_dcom)
     {
@@ -402,9 +402,29 @@ int isisdaeInterface::setSampleParameter(const std::string& name, const std::str
     }
 }
 
+int isisdaeInterface::setBeamlineParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value)
+{
+    ISISICPINT::string_table_t table;
+    table.resize(1);
+    table[0].push_back(name);   // name
+    table[0].push_back(type); // type
+    table[0].push_back(units);  // units
+    table[0].push_back(value);  // value
+    if (m_dcom)
+    {
+        CComVariant v;
+        stringTableToVariant(table, &v);
+	    return callD<int>(boost::bind(&ICPDCOM::setBeamlineParameters, _1, v, _2));
+    }
+    else
+    {
+	    return callI<int>(boost::bind(&ISISICPINT::setBeamlineParameters, boost::cref(table), _1));
+    }
+}
+
 int isisdaeInterface::setRunTitle(const std::string& title)
 {
-    return setSampleParameter("Run Title", title);
+    return setSampleParameter("Run Title", "String", "", title);
 }
 
 int isisdaeInterface::setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role)

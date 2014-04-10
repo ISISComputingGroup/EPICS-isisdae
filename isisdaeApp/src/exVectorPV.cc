@@ -101,9 +101,9 @@ void exVectorPV::scan()
 	std::string pvName(getName());
 	int spec, mon, period;
 	char axis;
-	if (parseSpecPV(pvName, spec, period, axis) < 0)
+	if (parseSpecPV(pvName, spec, period, axis) == 0x0)
 	{
-		if (parseMonitorPV(pvName, mon, axis) < 0)
+		if (parseMonitorPV(pvName, mon, period, axis) == 0x0)
 		{
 			return;
 		}

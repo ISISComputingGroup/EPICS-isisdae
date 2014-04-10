@@ -488,3 +488,23 @@ record(waveform, "$(P)ERRMSGS")
     field(INP,  "@asyn(icp,0,0)ERRMSGS")
     field(SCAN, "I/O Intr")
 }
+
+# this is used by INSTETC
+record(waveform, "$(P)SAMPLEPAR:SP")
+{
+    field(DESC, "Set sample parameter")
+    field(NELM, "512")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)SAMPLEPAR")
+}
+
+# this is used by INSTETC
+record(waveform, "$(P)BEAMLINEPAR:SP")
+{
+    field(DESC, "Set beamline parameter")
+    field(NELM, "512")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)BEAMLINEPAR")
+}

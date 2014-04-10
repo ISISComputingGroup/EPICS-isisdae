@@ -117,7 +117,7 @@ pvExistReturn exServer::pvExistTest // X aCC 361
 	pvStr.erase(0, m_pvPrefix.size());
 
 	int pvtype = getPVType(pvStr);
-	if (pvtype == -1)
+	if (pvtype == 0x0)
 	{
         return pverDoesNotExistHere;
 	}
@@ -130,15 +130,19 @@ pvExistReturn exServer::pvExistTest // X aCC 361
     pPVE = this->stringResTbl.lookup ( id );
     if ( ! pPVE ) {
 		pvInfo *pPVI = NULL;
-		if (pvtype == 0)
-		{
-		    pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumInt32, excasIoSync, 1);
-		}
-		else
-		{
-		    int ntc = 8000; //m_iface->getNumTimeChannels(spec);
-		    pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, ntc);
-		}
+		int ntc = 8000; //m_iface->getNumTimeChannels(spec);
+        switch(pvtype & 0xff)
+        {
+            case 0x1:
+                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumInt32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                break;
+            case 0x2:
+                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                break;
+            case 0x4:
+                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumString, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                break;
+        }
         m_pvList[pvStr] = pPVI;
         exPV *pPV = pPVI->createPV (*this, true, scanOn,  this->asyncDelay );
         if (!pPV) {
@@ -409,7 +413,7 @@ epicsTimerNotify::expireStatus exAsyncCreateIO::expire ( const epicsTime & /*cur
 }
 
 
-// -1 on error, 0 for scalar, 1 for array
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
 int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 {
     //Assumes period then spectrum
@@ -420,51 +424,88 @@ int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
     {
         if (!spec_re.FullMatch(pvStr, &spec, &axis))
         {
-            return -1;
+            return 0x0;
         }
         //If not specified assume the period is 1
         period = 1;
     }
 	if (axis == 'C')
 	{
-		return 0;
+		return 0x1;
 	}
 	else
 	{
-		return 1;
+		return 0x2 | 0x100;
 	}
 }
 
-// -1 on error, 0 for scalar, 1 for array
-int parseMonitorPV(const std::string& pvStr, int& mon, char& axis)
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
+int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis)
 {
     pcrecpp::RE monitor_re("MON:(\\d+):([XYC])");
-	if (!monitor_re.FullMatch(pvStr, &mon, &axis))
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYC])");
+	if (!monitor_re.FullMatch(pvStr, &period, &mon, &axis))
 	{
-        return -1;
+        if (!monitor_re.FullMatch(pvStr, &mon, &axis))
+        {
+            return 0x0;
+        }
+        //If not specified assume the period is 1
+        period = 1;
 	}
 	if (axis == 'C')
 	{
-		return 0;
+		return 0x1;
 	}
 	else
 	{
-		return 1;
+		return 0x2 | 0x100;
 	}
 }
 
-// -1 on error, 0 for scalar, 1 for array
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
+int parseBeamlinePV(const std::string& pvStr, std::string& param)
+{
+    pcrecpp::RE beamline_re("BLPAR:([^:]+).*");
+	if (!beamline_re.FullMatch(pvStr, &param))
+	{
+        return 0x0;
+	}
+	return 0x4;
+}
+
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
+int parseSamplePV(const std::string& pvStr, std::string& param)
+{
+    pcrecpp::RE sample_re("SMPLPAR:([^:]+).*");
+	if (!sample_re.FullMatch(pvStr, &param))
+	{
+        return 0x0;
+	}
+	return 0x4;
+}
+
+// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
 int getPVType(const std::string& pvStr)
 {
 	int i, pvtype, p;
 	char c;
-    if ( (pvtype = parseSpecPV(pvStr, i, p, c)) != -1 )
+    std::string s;
+    if ( (pvtype = parseSpecPV(pvStr, i, p, c)) != 0x0 )
 	{
 		return pvtype;
 	}
-    if ( (pvtype = parseMonitorPV(pvStr, i, c)) != -1 )
+    if ( (pvtype = parseMonitorPV(pvStr, i, p, c)) != 0x0 )
 	{
 		return pvtype;
 	}
-	return -1;
+    if ( (pvtype = parseSamplePV(pvStr, s)) != 0x0 )
+	{
+		return pvtype;
+	}
+    if ( (pvtype = parseBeamlinePV(pvStr, s)) != 0x0 )
+	{
+		return pvtype;
+	}
+	return 0x0;
 }
