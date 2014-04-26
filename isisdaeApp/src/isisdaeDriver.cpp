@@ -545,7 +545,14 @@ void isisdaeDriver::pollerThread1()
 	while(true)
 	{
 		lock();
-        updateRunStatus();
+        try
+        {
+            updateRunStatus();
+        }
+        catch(const std::exception& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+        }
 		callParamCallbacks();        
 		unlock();
         ++counter;
@@ -598,14 +605,23 @@ void isisdaeDriver::pollerThread2()
         std::string hardwarePeriodsSettings;
         std::string updateSettings;
         std::string vetoStatus;
-        m_iface->getRunDataFromDAE(values);
-        m_iface->getVetoStatus(vetoStatus);
-        if (check_settings)
+		epicsThreadSleep(delay);
+        try
         {
-            m_iface->getDAESettingsXML(daeSettings);
-            m_iface->getTCBSettingsXML(tcbSettings);
-            m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
-            m_iface->getUpdateSettingsXML(updateSettings);
+            m_iface->getRunDataFromDAE(values);
+            m_iface->getVetoStatus(vetoStatus);
+            if (check_settings)
+            {
+                m_iface->getDAESettingsXML(daeSettings);
+                m_iface->getTCBSettingsXML(tcbSettings);
+                m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
+                m_iface->getUpdateSettingsXML(updateSettings);
+            }
+        }
+        catch(const std::exception& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            continue;
         }
 		lock();
         setStringParam(P_RunTitle, values["RunTitle"]); 
@@ -656,7 +672,6 @@ void isisdaeDriver::pollerThread2()
 		callParamCallbacks();        
 		unlock();
         ++counter;
-		epicsThreadSleep(delay);
 	}
 }	
 
@@ -686,9 +701,16 @@ static void daeCASThread(void* arg)
     }
     
     pCAS->setDebugLevel(debugLevel);
-
-        while (true) {
+    try
+    {
+        while (true) 
+        {
             fileDescriptorManager.process(1000.0);
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        std::cerr << ex.what() << std::endl;
     }
     //pCAS->show(2u);
     delete pCAS;
