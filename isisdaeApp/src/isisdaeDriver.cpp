@@ -94,6 +94,14 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 			m_iface->storeRun();
 		}
+        else if (function == P_StartSEWait)
+		{
+			m_iface->startSEWait();
+		}
+        else if (function == P_EndSEWait)
+		{
+			m_iface->endSEWait();
+		}
         else if (function == P_Period)
 		{
 			m_iface->setPeriod(value);
@@ -455,6 +463,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_RecoverRunString, asynParamInt32, &P_RecoverRun);
     createParam(P_SaveRunString, asynParamInt32, &P_SaveRun);
     createParam(P_UpdateRunString, asynParamInt32, &P_UpdateRun);
+    createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
+    createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
+    createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);

@@ -332,6 +332,22 @@ record(bo, "$(P)STORERUN")
     field(ONAM, "1")
 }
 
+record(bo, "$(P)STARTSEWAIT")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)STARTSEWAIT")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
+record(bo, "$(P)ENDSEWAIT")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)ENDSEWAIT")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+}
+
 record(mbbi, "$(P)RUNSTATE")
 {
     field(DTYP, "asynInt32")

@@ -87,6 +87,8 @@ public:
     int saveRun();
     int updateRun();
     int storeRun();
+    int startSEWait();
+    int endSEWait();
 	int getRunState();
     long getRunNumber();
     int setPeriod(long period);

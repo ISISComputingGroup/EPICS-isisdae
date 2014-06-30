@@ -288,6 +288,17 @@ int isisdaeInterface::beginRun()
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::beginRun, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::beginRun, _1)));
 }
 
+int isisdaeInterface::startSEWait()
+{
+	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::startSEWait, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::startSEWait, _1)));
+}
+
+int isisdaeInterface::endSEWait()
+{
+	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::endSEWait, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::endSEWait, _1)));
+}
+
+
 int isisdaeInterface::beginRunEx(long options, long period)
 {
     //This method allows the dae to begin running in the paused and/or waiting states
