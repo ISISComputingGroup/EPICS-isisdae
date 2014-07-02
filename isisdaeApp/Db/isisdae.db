@@ -489,7 +489,7 @@ record(waveform, "$(P)VETOSTATUS")
 
 record(waveform, "$(P)ALLMSGS")
 {
-    field(NELM, "512")
+    field(NELM, "4096")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)ALLMSGS")
@@ -498,7 +498,7 @@ record(waveform, "$(P)ALLMSGS")
 
 record(waveform, "$(P)ERRMSGS")
 {
-    field(NELM, "512")
+    field(NELM, "4096")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)ERRMSGS")

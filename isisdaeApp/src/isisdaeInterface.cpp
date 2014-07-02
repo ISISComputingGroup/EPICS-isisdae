@@ -148,6 +148,7 @@ T isisdaeInterface::callI( boost::function<T(std::string&)> func )
 		if (messages.size() > 0)
 		{
 			std::cerr << messages << std::endl;
+			m_allMsgs += messages;
 		}
 		return res;
 }
@@ -161,9 +162,20 @@ T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
 	if (SysStringLen(messages) > 0)
 	{
 		std::cerr << COLE2CT(messages) << std::endl;
+		m_allMsgs += COLE2CT(messages);
 	}
 	SysFreeString(messages);
 	return res;
+}
+
+const std::string& isisdaeInterface::getAllMessages() const
+{
+    return m_allMsgs;
+}
+
+void isisdaeInterface::resetMessages()
+{
+    m_allMsgs.clear();
 }
 
 unsigned long isisdaeInterface::getGoodFrames()

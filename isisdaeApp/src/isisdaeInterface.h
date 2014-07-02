@@ -118,10 +118,13 @@ public:
     int getMonitoringSettingsXML(std::string& result);
     int setMonitoringSettingsXML(const std::string& settings);
     int getVetoStatus(std::string& result);
- 
+	const std::string& getAllMessages() const;
+	void resetMessages(); 
+	
 private:
 	std::string m_host;
 	std::string m_progid;
+	std::string m_allMsgs;
 	CLSID m_clsid;
 	std::string m_username;
 	std::string m_password;

@@ -46,13 +46,10 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
 	getParamName(function, &paramName);
+	m_iface->resetMessages();
 	try
 	{
-		if (m_iface == NULL)
-		{
-			throw std::runtime_error("m_iface is NULL");
-		}
-		else if (function == P_BeginRun)
+		if (function == P_BeginRun)
 		{
 			m_iface->beginRun();
 //            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
@@ -114,6 +111,9 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(value).c_str());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		return asynSuccess;
 	}
 	catch(const std::exception& ex)
@@ -121,7 +121,9 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, convertToString(value).c_str(), ex.what());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, ex.what());
+		m_iface->resetMessages();
 		return asynError;
 	}
 }
@@ -133,16 +135,16 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
 	getParamName(function, &paramName);
+	m_iface->resetMessages();
 	try
 	{
-		if (m_iface == NULL)
-		{
-			throw std::runtime_error("m_iface is NULL");
-		}
 		status = asynPortDriver::readValue(pasynUser, functionName, &value);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(*value).c_str());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -150,7 +152,9 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, convertToString(*value).c_str(), ex.what());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, ex.what());
+		m_iface->resetMessages();
 		return asynError;
 	}
 }
@@ -162,17 +166,16 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
   asynStatus status = asynSuccess;
   const char *paramName = NULL;
 	getParamName(function, &paramName);
-
+	m_iface->resetMessages();
 	try
 	{
-		if (m_iface == NULL)
-		{
-			throw std::runtime_error("m_iface is NULL");
-		}
 //		status = asynPortDriver::readArray(pasynUser, functionName, value, nElements, nIn);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s\n", 
               driverName, functionName, function, paramName);
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -181,7 +184,9 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, error=%s", 
                   driverName, functionName, status, function, paramName, ex.what());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, ex.what());
+		m_iface->resetMessages();
 		return asynError;
 	}
 }
@@ -233,6 +238,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	const char *functionName = "readOctet";
     const char *paramName = NULL;
 	getParamName(function, &paramName);
+	m_iface->resetMessages();
 	// we don't do much yet
 	return asynPortDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
 
@@ -261,6 +267,9 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 			  driverName, functionName, function, paramName, value_s.c_str());
 		}
 		strncpy(value, value_s.c_str(), maxChars); // maxChars  will NULL pad if possible, change to  *nActual  if we do not want this
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		return asynSuccess;
 	}
 	catch(const std::exception& ex)
@@ -268,7 +277,9 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=\"%s\", error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, ex.what());
+		m_iface->resetMessages();
 		*nActual = 0;
 		if (eomReason) { *eomReason = ASYN_EOM_END; }
 		value[0] = '\0';
@@ -310,13 +321,10 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
     {
         value_s.assign(value, maxChars);
     }
+	m_iface->resetMessages();
 	try
 	{
-		if (m_iface == NULL)
-		{
-			throw std::runtime_error("m_iface is NULL");
-		}
-        else if (function == P_RunTitle)
+        if (function == P_RunTitle)
         {
 			m_iface->setRunTitle(value_s);
         }
@@ -389,6 +397,9 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         {
 		    *nActual = maxChars;   // to keep result happy in case we skipped an embedded trailing NULL
         }
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -396,7 +407,9 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, ex.what());
+		m_iface->resetMessages();
 		*nActual = 0;
 		return asynError;
 	}
