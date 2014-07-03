@@ -16,6 +16,7 @@
 #include <comdef.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <string>
 #include <vector>
@@ -143,12 +144,13 @@ void isisdaeInterface::getParams(std::map<std::string,std::string>& res)
 template<typename T>
 T isisdaeInterface::callI( boost::function<T(std::string&)> func )
 {
-		std::string messages;
+		std::string messages, messages_t;
 		T res = func(messages);
 		if (messages.size() > 0)
 		{
-			std::cerr << messages << std::endl;
+			stripTimeStamp(messages, messages_t);
 			m_allMsgs += messages;
+			std::cerr << messages_t << std::endl;
 		}
 		return res;
 }
@@ -156,21 +158,42 @@ T isisdaeInterface::callI( boost::function<T(std::string&)> func )
 template <typename T>
 T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
 {
-    BSTR messages = NULL;
+    BSTR bmessages = NULL;
+	std::string messages, messages_t;
 	checkConnection();
-	T res = func(m_icp, &messages);
-	if (SysStringLen(messages) > 0)
+	T res = func(m_icp, &bmessages);
+	if (SysStringLen(bmessages) > 0)
 	{
-		std::cerr << COLE2CT(messages) << std::endl;
-		m_allMsgs += COLE2CT(messages);
+		messages = COLE2CT(bmessages);
+		stripTimeStamp(messages, messages_t);
+		std::cerr << messages_t << std::endl;
+		m_allMsgs += messages;
 	}
-	SysFreeString(messages);
+	SysFreeString(bmessages);
 	return res;
 }
 
 const std::string& isisdaeInterface::getAllMessages() const
 {
     return m_allMsgs;
+}
+
+// string strings of the form "2014-07-10 12:34:15 "
+// assumes we can look for 2014-07- and then remove 20 chars
+void isisdaeInterface::stripTimeStamp(const std::string& in, std::string& out)
+{
+    char time_str[64];
+    struct tm tmstr;
+	time_t now;
+	time(&now);
+	memcpy(&tmstr, localtime(&now), sizeof(tmstr));
+    strftime(time_str, sizeof(time_str), "%Y-%m-", &tmstr);
+    out = in;
+	int pos = 0;
+	while( (pos = out.find(time_str, pos)) != std::string::npos )
+	{
+	    out.erase(pos, 20);
+	}
 }
 
 void isisdaeInterface::resetMessages()

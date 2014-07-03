@@ -120,6 +120,7 @@ public:
     int getVetoStatus(std::string& result);
 	const std::string& getAllMessages() const;
 	void resetMessages(); 
+	static void stripTimeStamp(const std::string& in, std::string& out);
 	
 private:
 	std::string m_host;

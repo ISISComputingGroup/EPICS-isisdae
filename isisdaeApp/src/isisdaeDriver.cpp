@@ -39,6 +39,16 @@ static epicsThreadOnceId onceId = EPICS_THREAD_ONCE_INIT;
 
 static const char *driverName="isisdaeDriver";
 
+void isisdaeDriver::reportErrors(const char* exc_text)
+{
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, exc_text);
+		std::string mess_ts;
+		isisdaeInterface::stripTimeStamp(exc_text, mess_ts);
+		std::cerr << mess_ts << std::endl;		  
+		m_iface->resetMessages();
+}
+
 template<typename T>
 asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionName, T value)
 {
@@ -121,9 +131,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, convertToString(value).c_str(), ex.what());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, ex.what());
-		m_iface->resetMessages();
+		reportErrors(ex.what());
 		return asynError;
 	}
 }
@@ -152,9 +160,7 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, convertToString(*value).c_str(), ex.what());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, ex.what());
-		m_iface->resetMessages();
+		reportErrors(ex.what());
 		return asynError;
 	}
 }
@@ -184,9 +190,7 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, error=%s", 
                   driverName, functionName, status, function, paramName, ex.what());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, ex.what());
-		m_iface->resetMessages();
+		reportErrors(ex.what());
 		return asynError;
 	}
 }
@@ -277,9 +281,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=\"%s\", error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, ex.what());
-		m_iface->resetMessages();
+		reportErrors(ex.what());
 		*nActual = 0;
 		if (eomReason) { *eomReason = ASYN_EOM_END; }
 		value[0] = '\0';
@@ -407,9 +409,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, ex.what());
-		m_iface->resetMessages();
+		reportErrors(ex.what());
 		*nActual = 0;
 		return asynError;
 	}
