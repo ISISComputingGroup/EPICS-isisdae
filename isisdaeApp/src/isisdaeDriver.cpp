@@ -202,6 +202,10 @@ asynStatus isisdaeDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
     {
         stat = asynPortDriver::writeFloat64(pasynUser, value);
     }
+	else
+	{
+	    callParamCallbacks(); // this flushes P_ErrMsgs
+	}
     return stat;
 }
 
@@ -212,6 +216,10 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     {
         stat = asynPortDriver::writeInt32(pasynUser, value);
     }
+	else
+	{
+	    callParamCallbacks(); // this flushes P_ErrMsgs
+	}
     return stat;
 }
 
@@ -391,6 +399,9 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}
+        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+        setStringParam(P_ErrMsgs, "");
+		m_iface->resetMessages();
 		status = asynPortDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -399,9 +410,6 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         {
 		    *nActual = maxChars;   // to keep result happy in case we skipped an embedded trailing NULL
         }
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, "");
-		m_iface->resetMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -410,6 +418,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
 		reportErrors(ex.what());
+		callParamCallbacks();
 		*nActual = 0;
 		return asynError;
 	}
