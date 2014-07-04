@@ -175,7 +175,6 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 	m_iface->resetMessages();
 	try
 	{
-//		status = asynPortDriver::readArray(pasynUser, functionName, value, nElements, nIn);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s\n", 
               driverName, functionName, function, paramName);
@@ -225,12 +224,18 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
 {
-    return readArray(pasynUser, "readFloat64Array", value, nElements, nIn);
+    asynStatus stat = readArray(pasynUser, "readFloat64Array", value, nElements, nIn);
+	callParamCallbacks(); // this flushes P_ErrMsgs
+	doCallbacksFloat64Array(value, *nIn, pasynUser->reason, 0);
+    return stat;
 }
 
 asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn)
 {
-    return readArray(pasynUser, "readInt32Array", value, nElements, nIn);
+    asynStatus stat = readArray(pasynUser, "readInt32Array", value, nElements, nIn);
+	callParamCallbacks(); // this flushes P_ErrMsgs
+	doCallbacksInt32Array(value, *nIn, pasynUser->reason, 0);
+    return stat;
 }
 
 //asynStatus isisdaeDriver::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
@@ -282,6 +287,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
         setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
         setStringParam(P_ErrMsgs, "");
 		m_iface->resetMessages();
+		callParamCallbacks(); // this flushes P_ErrMsgs
 		return asynSuccess;
 	}
 	catch(const std::exception& ex)
@@ -290,6 +296,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
                   "%s:%s: status=%d, function=%d, name=%s, value=\"%s\", error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
 		reportErrors(ex.what());
+		callParamCallbacks(); // this flushes P_ErrMsgs
 		*nActual = 0;
 		if (eomReason) { *eomReason = ASYN_EOM_END; }
 		value[0] = '\0';
@@ -418,7 +425,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
 		reportErrors(ex.what());
-		callParamCallbacks();
+		callParamCallbacks(); // this flushes P_ErrMsgs
 		*nActual = 0;
 		return asynError;
 	}
