@@ -22,6 +22,7 @@ record(stringin, "$(P)RBNUMBER")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RBNUMBER")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringout, "$(P)RBNUMBER:SP")
@@ -37,6 +38,7 @@ record(stringin, "$(P)RUNNUMBER")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RUNNUMBER")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringin, "$(P)USERNAME")
@@ -44,6 +46,7 @@ record(stringin, "$(P)USERNAME")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringout, "$(P)USERNAME:SP")
@@ -59,6 +62,7 @@ record(stringin, "$(P)INSTNAME")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)INSTNAME")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringin, "$(P)STARTTIME")
@@ -66,6 +70,7 @@ record(stringin, "$(P)STARTTIME")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)STARTTIME")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)NPRATIO")
@@ -73,6 +78,7 @@ record(ai, "$(P)NPRATIO")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)NPRATIO")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringin, "$(P)DAETIMINGSOURCE")
@@ -80,6 +86,7 @@ record(stringin, "$(P)DAETIMINGSOURCE")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)DAETIMINGSOURCE")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringin, "$(P)PERIODTYPE")
@@ -87,6 +94,7 @@ record(stringin, "$(P)PERIODTYPE")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)PERIODTYPE")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(stringin, "$(P)ISISCYCLE")
@@ -94,6 +102,7 @@ record(stringin, "$(P)ISISCYCLE")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)ISISCYCLE")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)RAWFRAMES")
@@ -101,6 +110,7 @@ record(longin, "$(P)RAWFRAMES")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RAWFRAMES")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)RAWFRAMES_PD")
@@ -115,6 +125,7 @@ record(longin, "$(P)GOODFRAMES")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)GOODFRAMES")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)GOODFRAMES_PD")
@@ -129,6 +140,7 @@ record(longin, "$(P)RUNDURATION")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATION")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)RUNDURATION_PD")
@@ -143,6 +155,7 @@ record(longin, "$(P)NUMTIMECHANNELS")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMTIMECHANNELS")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)DAEMEMORYUSED")
@@ -150,6 +163,7 @@ record(longin, "$(P)DAEMEMORYUSED")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)DAEMEMORYUSED")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)NUMSPECTRA")
@@ -157,6 +171,7 @@ record(longin, "$(P)NUMSPECTRA")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMSPECTRA")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)MONITORCOUNTS")
@@ -164,6 +179,7 @@ record(longin, "$(P)MONITORCOUNTS")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)MONITORCOUNTS")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)MONITORSPECTRUM")
@@ -171,6 +187,7 @@ record(longin, "$(P)MONITORSPECTRUM")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)MONITORSPECTRUM")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)PERIODSEQ")
@@ -178,6 +195,7 @@ record(longin, "$(P)PERIODSEQ")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)PERIODSEQ")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)BEAMCURRENT")
@@ -186,6 +204,7 @@ record(ai, "$(P)BEAMCURRENT")
     field(INP,  "@asyn(icp,0,0)BEAMCURRENT")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)TOTALUAMPS")
@@ -194,6 +213,7 @@ record(ai, "$(P)TOTALUAMPS")
     field(INP,  "@asyn(icp,0,0)TOTALUAMPS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)TOTALDAECOUNTS")
@@ -202,6 +222,7 @@ record(ai, "$(P)TOTALDAECOUNTS")
     field(INP,  "@asyn(icp,0,0)TOTALDAECOUNTS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)MONITORTO")
@@ -226,6 +247,7 @@ record(ai, "$(P)COUNTRATE")
     field(INP,  "@asyn(icp,0,0)COUNTRATE")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)EVENTMODEFRACTION")
@@ -234,6 +256,7 @@ record(ai, "$(P)EVENTMODEFRACTION")
     field(INP,  "@asyn(icp,0,0)EVENTMODEFRACTION")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)GOODUAH")
@@ -242,6 +265,7 @@ record(ai, "$(P)GOODUAH")
     field(INP,  "@asyn(icp,0,0)GOODUAH")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)GOODUAH_PD")
@@ -369,6 +393,7 @@ record(mbbi, "$(P)RUNSTATE")
     field(SXST, "ENDING")
     field(SVVL, 7)
     field(SVST, "SAVING")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
@@ -378,6 +403,7 @@ record(longin, "$(P)PERIOD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)PERIOD")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longout, "$(P)PERIOD:SP")
@@ -393,6 +419,7 @@ record(longin, "$(P)NUMPERIODS")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMPERIODS")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(longout, "$(P)NUMPERIODS:SP")
@@ -408,6 +435,7 @@ record(longin, "$(P)TOTALCOUNTS")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(waveform, "$(P)DAESETTINGS")
