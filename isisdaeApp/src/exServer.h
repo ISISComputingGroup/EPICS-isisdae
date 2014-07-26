@@ -204,6 +204,7 @@ public:
         const char * const pHostName );
 
 protected:
+	epicsMutex scanLock;
     smartGDDPointer pValue;
     exServer & cas;
     epicsTimer & timer;

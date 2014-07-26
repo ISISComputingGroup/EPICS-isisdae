@@ -317,6 +317,7 @@ caStatus exPV::write ( const casCtx &, const gdd & valueIn )
 //
 caStatus exPV::read ( const casCtx &, gdd & protoIn )
 {
+	this->scan(); // force an update of the value
     return this->ft.read ( *this, protoIn );
 }
 

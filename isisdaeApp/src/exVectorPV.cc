@@ -70,7 +70,9 @@ void exVectorPV::scan()
     exVecDestructor     *pDest;
     int                 gddStatus;
 
-    //
+ 	epicsGuard<epicsMutex> _lock(scanLock); // we get called on a read as well as periodically, so need to prevent multiple access
+
+	//
     // update current time (so we are not required to do
     // this every time that we write the PV which impacts
     // throughput under sunos4 because gettimeofday() is

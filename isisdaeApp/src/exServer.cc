@@ -131,16 +131,17 @@ pvExistReturn exServer::pvExistTest // X aCC 361
     if ( ! pPVE ) {
 		pvInfo *pPVI = NULL;
 		int ntc = 8000; //m_iface->getNumTimeChannels(spec);
+		// pvInfo is given the "interested" scan period (i.e. with monitors) - this is multipled by 10 for the "uninterested case"
         switch(pvtype & 0xff)
         {
             case 0x1:
-                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumInt32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumInt32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
                 break;
             case 0x2:
-                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
                 break;
             case 0x4:
-                pPVI = new pvInfo (5.0, pvStr.c_str(), 10.0f, -10.0f, aitEnumString, excasIoSync, (pvtype & 0x100 ? ntc : 1));
+                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumString, excasIoSync, (pvtype & 0x100 ? ntc : 1));
                 break;
         }
         m_pvList[pvStr] = pPVI;
