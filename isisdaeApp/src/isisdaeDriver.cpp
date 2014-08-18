@@ -41,12 +41,26 @@ static const char *driverName="isisdaeDriver";
 
 void isisdaeDriver::reportErrors(const char* exc_text)
 {
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
+		std::string msgs = m_iface->getAllMessages();
+        setStringParam(P_AllMsgs, msgs.c_str());
         setStringParam(P_ErrMsgs, exc_text);
 		std::string mess_ts;
 		isisdaeInterface::stripTimeStamp(exc_text, mess_ts);
-		std::cerr << mess_ts << std::endl;		  
+//		std::cerr << mess_ts << std::endl;		  
+		errlogSevPrintf(errlogMajor, "%s", mess_ts.c_str());
+// getAsynMessages will pick these up and report to screen
+//		errlogSevPrintf(errlogInfo, "%s", msgs.c_str());
 		m_iface->resetMessages();
+}
+
+void isisdaeDriver::reportMessages()
+{
+	std::string msgs = m_iface->getAllMessages();
+    setStringParam(P_AllMsgs, msgs.c_str());
+    setStringParam(P_ErrMsgs, "");
+// getAsynMessages will pick these up and report to screen
+//		errlogSevPrintf(errlogInfo, "%s", msgs.c_str());
+	m_iface->resetMessages();
 }
 
 template<typename T>
@@ -121,9 +135,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(value).c_str());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, "");
-		m_iface->resetMessages();
+		reportMessages();
 		return asynSuccess;
 	}
 	catch(const std::exception& ex)
@@ -150,9 +162,7 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(*value).c_str());
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, "");
-		m_iface->resetMessages();
+		reportMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -178,9 +188,7 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s\n", 
               driverName, functionName, function, paramName);
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, "");
-		m_iface->resetMessages();
+		reportMessages();
 		return status;
 	}
 	catch(const std::exception& ex)
@@ -406,9 +414,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}
-        setStringParam(P_AllMsgs, m_iface->getAllMessages().c_str());
-        setStringParam(P_ErrMsgs, "");
-		m_iface->resetMessages();
+		reportMessages();
 		status = asynPortDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -709,6 +715,21 @@ void isisdaeDriver::pollerThread2()
             setStringParam(P_HardwarePeriodsSettings, hardwarePeriodsSettings.c_str() );
             setStringParam(P_UpdateSettings, updateSettings.c_str() );
         }          
+		std::list<std::string> messages;
+		std::string all_msgs;
+		m_iface->getAsyncMessages(messages);
+		for(std::list<std::string>::const_iterator it=messages.begin(); it != messages.end(); ++it)
+		{
+			std::string mess_ts;
+			isisdaeInterface::stripTimeStamp(it->c_str(), mess_ts);
+		    all_msgs.append(mess_ts);
+			errlogSevPrintf(errlogInfo, "%s", mess_ts.c_str());
+		}
+		if (all_msgs.size() > 0)
+		{
+            setStringParam(P_AllMsgs, all_msgs.c_str());
+		}
+		messages.clear();
 		callParamCallbacks();        
 		unlock();
         ++counter;
@@ -735,7 +756,7 @@ static void daeCASThread(void* arg)
             maxSimultAsyncIO, iface );
     }
     catch ( ... ) {
-        errlogPrintf ( "Server initialization error\n" );
+        errlogSevPrintf (errlogMajor, "Server initialization error\n" );
         errlogFlush ();
         return;
     }
@@ -799,14 +820,14 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 		}
 		else
 		{
-			std::cerr << "isisdaeConfigure failed (NULL)" << std::endl;
+			errlogSevPrintf(errlogMajor, "isisdaeConfigure failed (NULL)\n");
 			return(asynError);
 		}
 			
 	}
 	catch(const std::exception& ex)
 	{
-		std::cerr << "isisdaeConfigure failed: " << ex.what() << std::endl;
+		errlogSevPrintf(errlogMajor, "isisdaeConfigure failed: %s\n", ex.what());
 		return(asynError);
 	}
 }

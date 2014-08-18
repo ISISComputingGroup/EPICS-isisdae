@@ -150,7 +150,6 @@ T isisdaeInterface::callI( boost::function<T(std::string&)> func )
 		{
 			stripTimeStamp(messages, messages_t);
 			m_allMsgs += messages;
-			std::cerr << messages_t << std::endl;
 		}
 		return res;
 }
@@ -166,7 +165,6 @@ T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
 	{
 		messages = COLE2CT(bmessages);
 		stripTimeStamp(messages, messages_t);
-		std::cerr << messages_t << std::endl;
 		m_allMsgs += messages;
 	}
 	SysFreeString(bmessages);
@@ -199,6 +197,32 @@ void isisdaeInterface::stripTimeStamp(const std::string& in, std::string& out)
 void isisdaeInterface::resetMessages()
 {
     m_allMsgs.clear();
+}
+
+int isisdaeInterface::getAsyncMessages(std::list<std::string>& messages)
+{
+    int res;
+    if (m_dcom)
+	{
+	    checkConnection();
+		variant_t mess;
+		res = m_icp->getStatusMessages(0, &mess);
+		BSTR *s = NULL;
+		accessArrayVariant(&mess, &s);
+		int n = arrayVariantLength(&mess);
+		messages.clear();
+		for(int i=0; i < n; ++i)
+	    {
+		    std::string str = COLE2CT(s[i]);
+	        messages.push_back(str);
+	    }
+		unaccessArrayVariant(&mess);
+	}
+	else
+	{
+	    res = ISISICPINT::getStatusMessages(0, messages);
+	}
+	return res;
 }
 
 unsigned long isisdaeInterface::getGoodFrames()
@@ -260,7 +284,7 @@ void isisdaeInterface::checkConnection()
 	}
 	else if (m_host.size() > 0)
 	{
-		std::cerr << "(Re)Making connection to ISISICP on " << m_host << std::endl;
+		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
 		m_pidentity = createIdentity(m_username, m_host, m_password);
 		COAUTHINFO* pauth = new COAUTHINFO;
@@ -297,7 +321,7 @@ void isisdaeInterface::checkConnection()
 	}
 	else
 	{
-		std::cerr << "(Re)Making local connection to ISISICP" << std::endl;
+		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		m_pidentity = NULL;
 		m_icp.Release();
 		hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_LOCAL_SERVER);

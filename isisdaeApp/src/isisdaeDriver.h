@@ -21,7 +21,6 @@ public:
 	virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual);
     virtual asynStatus readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn);
     virtual asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
-	void reportErrors(const char* exc_text);
 
 private:
 
@@ -92,6 +91,8 @@ private:
 	void pollerThread2();
     void zeroRunCounters();	
     void updateRunStatus();
+	void reportErrors(const char* exc_text);
+	void reportMessages();
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);

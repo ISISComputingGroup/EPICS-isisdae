@@ -119,6 +119,7 @@ public:
     int setMonitoringSettingsXML(const std::string& settings);
     int getVetoStatus(std::string& result);
 	const std::string& getAllMessages() const;
+	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
 	
