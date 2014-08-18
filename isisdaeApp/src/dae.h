@@ -78,7 +78,7 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern long(getRunNumber)(std::string& messages); // retval
 	ISISICPINT_DllExport extern int(changeMonitoringSettings)(const std::string& monitor_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(getMonitoringSettings)(const std::string& monitor_xml_in, std::string& monitor_xml_out, std::string& messages);
-	ISISICPINT_DllExport extern int(getStatusMessages)(long stream, std::string& messages);
+	ISISICPINT_DllExport extern int(getStatusMessages)(long stream, std::list<std::string>& messages);
 	ISISICPINT_DllExport extern long(getGoodFramesPeriod)(std::string& messages); // retval
 	ISISICPINT_DllExport extern double(getGoodUAmpHPeriod)(std::string& messages); // retval
 	ISISICPINT_DllExport extern int(getFramesAllPeriods)(std::vector<long>& good_frames, std::vector<long>& raw_frames, std::string& messages);
