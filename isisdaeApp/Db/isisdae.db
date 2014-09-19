@@ -1,14 +1,17 @@
 record(waveform, "$(P)TITLE")
 {
+    field(DESC, "Run title")
     field(NELM, "256")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
     field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
 }
 
 record(waveform, "$(P)TITLE:SP")
 {
+    field(DESC, "Set Run title")
     field(NELM, "256")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
@@ -19,6 +22,7 @@ alias("$(P)TITLE", "$(P)TITLE:SP:RBV")
 
 record(stringin, "$(P)RBNUMBER")
 {
+    field(DESC, "Experiment (RB) Number")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RBNUMBER")
     field(SCAN, "I/O Intr")
@@ -27,6 +31,7 @@ record(stringin, "$(P)RBNUMBER")
 
 record(stringout, "$(P)RBNUMBER:SP")
 {
+    field(DESC, "Set Experiment (RB) Number")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)RBNUMBER")
 }
@@ -35,6 +40,7 @@ alias("$(P)RBNUMBER", "$(P)RBNUMBER:SP:RBV")
 
 record(stringin, "$(P)RUNNUMBER")
 {
+    field(DESC, "Run Number")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RUNNUMBER")
     field(SCAN, "I/O Intr")
@@ -43,6 +49,7 @@ record(stringin, "$(P)RUNNUMBER")
 
 record(stringin, "$(P)USERNAME")
 {
+    field(DESC, "Experiment User name")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
@@ -51,6 +58,7 @@ record(stringin, "$(P)USERNAME")
 
 record(stringout, "$(P)USERNAME:SP")
 {
+    field(DESC, "Set Experiment User name")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)USERNAME")
 }
@@ -59,6 +67,7 @@ alias("$(P)USERNAME", "$(P)USERNAME:SP:RBV")
 
 record(stringin, "$(P)INSTNAME")
 {
+    field(DESC, "Instrument Name")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)INSTNAME")
     field(SCAN, "I/O Intr")
@@ -67,6 +76,7 @@ record(stringin, "$(P)INSTNAME")
 
 record(stringin, "$(P)STARTTIME")
 {
+    field(DESC, "Run Start Time")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)STARTTIME")
     field(SCAN, "I/O Intr")
@@ -75,6 +85,7 @@ record(stringin, "$(P)STARTTIME")
 
 record(ai, "$(P)NPRATIO")
 {
+    field(DESC, "Neutron/Proton ratio")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)NPRATIO")
     field(SCAN, "I/O Intr")
@@ -83,6 +94,7 @@ record(ai, "$(P)NPRATIO")
 
 record(stringin, "$(P)DAETIMINGSOURCE")
 {
+    field(DESC, "DAE Timing Source")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)DAETIMINGSOURCE")
     field(SCAN, "I/O Intr")
@@ -91,6 +103,7 @@ record(stringin, "$(P)DAETIMINGSOURCE")
 
 record(stringin, "$(P)PERIODTYPE")
 {
+    field(DESC, "DAE Period Type")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)PERIODTYPE")
     field(SCAN, "I/O Intr")
@@ -99,6 +112,7 @@ record(stringin, "$(P)PERIODTYPE")
 
 record(stringin, "$(P)ISISCYCLE")
 {
+    field(DESC, "ISIS Run Cycle")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)ISISCYCLE")
     field(SCAN, "I/O Intr")
@@ -107,6 +121,7 @@ record(stringin, "$(P)ISISCYCLE")
 
 record(longin, "$(P)RAWFRAMES")
 {
+    field(DESC, "Raw Frames")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RAWFRAMES")
     field(SCAN, "I/O Intr")
@@ -115,6 +130,7 @@ record(longin, "$(P)RAWFRAMES")
 
 record(longin, "$(P)RAWFRAMES_PD")
 {
+    field(DESC, "Period Raw Frames")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RAWFRAMESPD")
     field(SCAN, "I/O Intr")
@@ -122,6 +138,7 @@ record(longin, "$(P)RAWFRAMES_PD")
 
 record(longin, "$(P)GOODFRAMES")
 {
+    field(DESC, "Good Frames")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)GOODFRAMES")
     field(SCAN, "I/O Intr")
@@ -130,6 +147,7 @@ record(longin, "$(P)GOODFRAMES")
 
 record(longin, "$(P)GOODFRAMES_PD")
 {
+    field(DESC, "Period Good Frames")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)GOODFRAMESPD")
     field(SCAN, "I/O Intr")
@@ -137,6 +155,7 @@ record(longin, "$(P)GOODFRAMES_PD")
 
 record(longin, "$(P)RUNDURATION")
 {
+    field(DESC, "Run Duration")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATION")
     field(SCAN, "I/O Intr")
@@ -145,6 +164,7 @@ record(longin, "$(P)RUNDURATION")
 
 record(longin, "$(P)RUNDURATION_PD")
 {
+    field(DESC, "Period Run Duration")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
     field(SCAN, "I/O Intr")
@@ -152,6 +172,7 @@ record(longin, "$(P)RUNDURATION_PD")
 
 record(longin, "$(P)NUMTIMECHANNELS")
 {
+    field(DESC, "Number of Time Histogram Channels")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMTIMECHANNELS")
     field(SCAN, "I/O Intr")
@@ -160,6 +181,7 @@ record(longin, "$(P)NUMTIMECHANNELS")
 
 record(longin, "$(P)DAEMEMORYUSED")
 {
+    field(DESC, "DAE Memory Used")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)DAEMEMORYUSED")
     field(SCAN, "I/O Intr")
@@ -168,6 +190,7 @@ record(longin, "$(P)DAEMEMORYUSED")
 
 record(longin, "$(P)NUMSPECTRA")
 {
+    field(DESC, "Number of DAE Spectra")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMSPECTRA")
     field(SCAN, "I/O Intr")
@@ -176,6 +199,7 @@ record(longin, "$(P)NUMSPECTRA")
 
 record(longin, "$(P)MONITORCOUNTS")
 {
+    field(DESC, "Displayed Monitor Counts")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)MONITORCOUNTS")
     field(SCAN, "I/O Intr")
@@ -184,6 +208,7 @@ record(longin, "$(P)MONITORCOUNTS")
 
 record(longin, "$(P)MONITORSPECTRUM")
 {
+    field(DESC, "Displayed Monitor Spectrum Number")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)MONITORSPECTRUM")
     field(SCAN, "I/O Intr")
@@ -192,6 +217,7 @@ record(longin, "$(P)MONITORSPECTRUM")
 
 record(longin, "$(P)PERIODSEQ")
 {
+    field(DESC, "Number of Hardware Period Sequences")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)PERIODSEQ")
     field(SCAN, "I/O Intr")
@@ -200,6 +226,7 @@ record(longin, "$(P)PERIODSEQ")
 
 record(ai, "$(P)BEAMCURRENT")
 {
+    field(DESC, "DAE Effective Beam Current")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)BEAMCURRENT")
     field(PREC, "3")
@@ -209,6 +236,7 @@ record(ai, "$(P)BEAMCURRENT")
 
 record(ai, "$(P)TOTALUAMPS")
 {
+    field(DESC, "DAE Raw Microamps")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)TOTALUAMPS")
     field(PREC, "3")
@@ -218,6 +246,7 @@ record(ai, "$(P)TOTALUAMPS")
 
 record(ai, "$(P)TOTALDAECOUNTS")
 {
+    field(DESC, "DAE Total Neutron Counts")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)TOTALDAECOUNTS")
     field(PREC, "3")
@@ -227,6 +256,7 @@ record(ai, "$(P)TOTALDAECOUNTS")
 
 record(ai, "$(P)MONITORTO")
 {
+    field(DESC, "Display Monitor High Integral time")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)MONITORTO")
     field(PREC, "3")
@@ -235,6 +265,7 @@ record(ai, "$(P)MONITORTO")
 
 record(ai, "$(P)MONITORFROM")
 {
+    field(DESC, "Display Monitor Low Integral time")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)MONITORFROM")
     field(PREC, "3")
@@ -243,6 +274,7 @@ record(ai, "$(P)MONITORFROM")
 
 record(ai, "$(P)COUNTRATE")
 {
+    field(DESC, "DAE Count Rate")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)COUNTRATE")
     field(PREC, "3")
@@ -252,6 +284,7 @@ record(ai, "$(P)COUNTRATE")
 
 record(ai, "$(P)EVENTMODEFRACTION")
 {
+    field(DESC, "Event Mode DAE Card Fraction")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)EVENTMODEFRACTION")
     field(PREC, "3")
@@ -261,6 +294,7 @@ record(ai, "$(P)EVENTMODEFRACTION")
 
 record(ai, "$(P)GOODUAH")
 {
+    field(DESC, "DAE Good Microamps")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)GOODUAH")
     field(PREC, "3")
@@ -270,6 +304,7 @@ record(ai, "$(P)GOODUAH")
 
 record(ai, "$(P)GOODUAH_PD")
 {
+    field(DESC, "Period DAE Good Microamps")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)GOODUAHPD")
     field(PREC, "3")
@@ -278,6 +313,7 @@ record(ai, "$(P)GOODUAH_PD")
 
 record(bo, "$(P)BEGINRUN")
 {
+    field(DESC, "Begin a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUN")
     field(ZNAM, "0")
@@ -286,6 +322,7 @@ record(bo, "$(P)BEGINRUN")
 
 record(bo, "$(P)BEGINRUNEX")
 {
+    field(DESC, "Begin a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     field(ZNAM, "0")
@@ -294,6 +331,7 @@ record(bo, "$(P)BEGINRUNEX")
 
 record(bo, "$(P)ABORTRUN")
 {
+    field(DESC, "Abort a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)ABORTRUN")
     field(ZNAM, "0")
@@ -302,6 +340,7 @@ record(bo, "$(P)ABORTRUN")
 
 record(bo, "$(P)PAUSERUN")
 {
+    field(DESC, "Pause a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)PAUSERUN")
     field(ZNAM, "0")
@@ -310,6 +349,7 @@ record(bo, "$(P)PAUSERUN")
 
 record(bo, "$(P)RESUMERUN")
 {
+    field(DESC, "Resume a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)RESUMERUN")
     field(ZNAM, "0")
@@ -318,6 +358,7 @@ record(bo, "$(P)RESUMERUN")
 
 record(bo, "$(P)ENDRUN")
 {
+    field(DESC, "End a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)ENDRUN")
     field(ZNAM, "0")
@@ -374,6 +415,7 @@ record(bo, "$(P)ENDSEWAIT")
 
 record(mbbi, "$(P)RUNSTATE")
 {
+    field(DESC, "Run State")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNSTATUS")
     field(SCAN, "I/O Intr")
@@ -400,6 +442,7 @@ alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
 
 record(longin, "$(P)PERIOD")
 {
+    field(DESC, "DAE Period Number")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)PERIOD")
     field(SCAN, "I/O Intr")
@@ -408,6 +451,7 @@ record(longin, "$(P)PERIOD")
 
 record(longout, "$(P)PERIOD:SP")
 {
+    field(DESC, "Change DAE Period Number")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)PERIOD")
 }
@@ -416,6 +460,7 @@ alias("$(P)PERIOD", "$(P)PERIOD:SP:RBV")
 
 record(longin, "$(P)NUMPERIODS")
 {
+    field(DESC, "Number of DAE periods")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMPERIODS")
     field(SCAN, "I/O Intr")
@@ -424,6 +469,7 @@ record(longin, "$(P)NUMPERIODS")
 
 record(longout, "$(P)NUMPERIODS:SP")
 {
+    field(DESC, "Change Number of DAE periods")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)NUMPERIODS")
 }
@@ -432,6 +478,7 @@ alias("$(P)NUMPERIODS", "$(P)NUMPERIODS:SP:RBV")
 
 record(longin, "$(P)TOTALCOUNTS")
 {
+    field(DESC, "Total counts")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
