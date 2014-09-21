@@ -126,6 +126,7 @@ record(longin, "$(P)RAWFRAMES")
     field(INP,  "@asyn(icp,0,0)RAWFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "frames")
 }
 
 record(longin, "$(P)RAWFRAMES_PD")
@@ -143,6 +144,7 @@ record(longin, "$(P)GOODFRAMES")
     field(INP,  "@asyn(icp,0,0)GOODFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "frames")
 }
 
 record(longin, "$(P)GOODFRAMES_PD")
@@ -160,6 +162,7 @@ record(longin, "$(P)RUNDURATION")
     field(INP,  "@asyn(icp,0,0)RUNDURATION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "s")
 }
 
 record(longin, "$(P)RUNDURATION_PD")
@@ -172,11 +175,12 @@ record(longin, "$(P)RUNDURATION_PD")
 
 record(longin, "$(P)NUMTIMECHANNELS")
 {
-    field(DESC, "Number of Time Histogram Channels")
+    field(DESC, "Number of Histogram Time Channels")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMTIMECHANNELS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "channels")
 }
 
 record(longin, "$(P)DAEMEMORYUSED")
@@ -186,6 +190,7 @@ record(longin, "$(P)DAEMEMORYUSED")
     field(INP,  "@asyn(icp,0,0)DAEMEMORYUSED")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "btye")
 }
 
 record(longin, "$(P)NUMSPECTRA")
@@ -195,6 +200,7 @@ record(longin, "$(P)NUMSPECTRA")
     field(INP,  "@asyn(icp,0,0)NUMSPECTRA")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "spectra")	
 }
 
 record(longin, "$(P)MONITORCOUNTS")
@@ -204,6 +210,7 @@ record(longin, "$(P)MONITORCOUNTS")
     field(INP,  "@asyn(icp,0,0)MONITORCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "count")
 }
 
 record(longin, "$(P)MONITORSPECTRUM")
@@ -213,6 +220,7 @@ record(longin, "$(P)MONITORSPECTRUM")
     field(INP,  "@asyn(icp,0,0)MONITORSPECTRUM")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "number")
 }
 
 record(longin, "$(P)PERIODSEQ")
@@ -222,6 +230,7 @@ record(longin, "$(P)PERIODSEQ")
     field(INP,  "@asyn(icp,0,0)PERIODSEQ")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "number")
 }
 
 record(ai, "$(P)BEAMCURRENT")
@@ -232,6 +241,7 @@ record(ai, "$(P)BEAMCURRENT")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "uA")
 }
 
 record(ai, "$(P)TOTALUAMPS")
@@ -242,6 +252,7 @@ record(ai, "$(P)TOTALUAMPS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "uA h")
 }
 
 record(ai, "$(P)TOTALDAECOUNTS")
@@ -252,6 +263,7 @@ record(ai, "$(P)TOTALDAECOUNTS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "count")
 }
 
 record(ai, "$(P)MONITORTO")
@@ -261,6 +273,7 @@ record(ai, "$(P)MONITORTO")
     field(INP,  "@asyn(icp,0,0)MONITORTO")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+	field(EGU, "us")
 }
 
 record(ai, "$(P)MONITORFROM")
@@ -270,6 +283,7 @@ record(ai, "$(P)MONITORFROM")
     field(INP,  "@asyn(icp,0,0)MONITORFROM")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+	field(EGU, "us")
 }
 
 record(ai, "$(P)COUNTRATE")
@@ -300,6 +314,7 @@ record(ai, "$(P)GOODUAH")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "uA h")
 }
 
 record(ai, "$(P)GOODUAH_PD")
@@ -309,6 +324,7 @@ record(ai, "$(P)GOODUAH_PD")
     field(INP,  "@asyn(icp,0,0)GOODUAHPD")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+	field(EGU, "uA h")
 }
 
 record(bo, "$(P)BEGINRUN")
@@ -447,6 +463,7 @@ record(longin, "$(P)PERIOD")
     field(INP,  "@asyn(icp,0,0)PERIOD")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "number")
 }
 
 record(longout, "$(P)PERIOD:SP")
@@ -465,6 +482,7 @@ record(longin, "$(P)NUMPERIODS")
     field(INP,  "@asyn(icp,0,0)NUMPERIODS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "number")
 }
 
 record(longout, "$(P)NUMPERIODS:SP")
@@ -483,6 +501,7 @@ record(longin, "$(P)TOTALCOUNTS")
     field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "count")
 }
 
 record(waveform, "$(P)DAESETTINGS")
