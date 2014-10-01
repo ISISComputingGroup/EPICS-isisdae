@@ -89,6 +89,7 @@ record(ai, "$(P)NPRATIO")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)NPRATIO")
     field(SCAN, "I/O Intr")
+	field(EGU, "")
     info(INTEREST, "HIGH")
 }
 
@@ -293,6 +294,7 @@ record(ai, "$(P)COUNTRATE")
     field(INP,  "@asyn(icp,0,0)COUNTRATE")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
+	field(EGU, "")
     info(INTEREST, "HIGH")
 }
 
@@ -304,6 +306,7 @@ record(ai, "$(P)EVENTMODEFRACTION")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	field(EGU, "")
 }
 
 record(ai, "$(P)GOODUAH")
