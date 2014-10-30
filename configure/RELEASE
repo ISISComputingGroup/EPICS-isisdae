@@ -35,6 +35,7 @@ SQLITE=$(SUPPORT)/sqlite
 PVDUMP=$(SUPPORT)/pvdump
 PUGIXML=$(SUPPORT)/pugixml
 ICPCONFIG=$(SUPPORT)/icpconfig
+LIBJSON=$(SUPPORT)/libjson
 UTILITIES=$(SUPPORT)/utilities
 ZLIB=$(SUPPORT)/zlib/1-2-8
 ONCRPC=$(SUPPORT)/oncrpc/2
