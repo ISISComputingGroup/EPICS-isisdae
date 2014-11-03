@@ -621,3 +621,28 @@ record(waveform, "$(P)BEAMLINEPAR:SP")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)BEAMLINEPAR")
 }
+
+## FileList for wiring tables
+record(stringout, "$(P)WIRING_DIR")
+{
+   field(DESC, "Directory of wiring tables")
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(LIST),0,1)DIRBASE")
+}
+
+record(waveform, "$(P)WIRINGTABLES")
+{
+	field(DESC, "Compressed JSON list of wiring tables")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(LIST),0,1)JARR")	
+	field(NELM, 16384)
+	field(SCAN, "I/O Intr")
+}
+
+record(stringout, "$(P)WIRING_PATTERN")
+{
+   field(DESC, "A regex search of wiring tables")  
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(LIST),0,1)SEARCH")
+}
