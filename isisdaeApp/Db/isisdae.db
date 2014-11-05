@@ -623,11 +623,21 @@ record(waveform, "$(P)BEAMLINEPAR:SP")
 }
 
 ## FileList for wiring tables
-record(stringout, "$(P)WIRING_DIR")
+record(stringout, "$(P)WIRING_DIR:SP")
 {
-   field(DESC, "Directory of wiring tables")
+   field(DESC, "Set directory of wiring tables")
    field(DTYP, "asynOctetWrite")
-   field(OUT, "@asyn($(LIST),0,1)DIRBASE")
+   field(OUT, "@asyn($(WIRINGLIST),0,1)DIRBASE")
+}
+
+record(stringin, "$(P)WIRING_DIR")
+{
+   field(DESC, "Get directory of wiring tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(WIRINGLIST),0,1)DIRBASE")
+   field(VAL, "$(WIRINGDIR)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
 }
 
 record(waveform, "$(P)WIRINGTABLES")
@@ -635,14 +645,111 @@ record(waveform, "$(P)WIRINGTABLES")
 	field(DESC, "Compressed JSON list of wiring tables")
 	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetRead")
-    field(INP, "@asyn($(LIST),0,1)JARR")	
+    field(INP, "@asyn($(WIRINGLIST),0,1)JARR")	
 	field(NELM, 16384)
 	field(SCAN, "I/O Intr")
 }
 
-record(stringout, "$(P)WIRING_PATTERN")
+record(stringout, "$(P)WIRING_PATTERN:SP")
 {
-   field(DESC, "A regex search of wiring tables")  
+   field(DESC, "Set regex search of wiring tables")  
    field(DTYP, "asynOctetWrite")
-   field(OUT, "@asyn($(LIST),0,1)SEARCH")
+   field(OUT, "@asyn($(WIRINGLIST),0,1)SEARCH")
+}
+record(stringin, "$(P)WIRING_PATTERN")
+{
+   field(DESC, "Get regex search of wiring tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(WIRINGLIST),0,1)SEARCH")
+   field(VAL, "$(WIRINGSEARCH)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+}
+
+## FileList for detector tables
+record(stringout, "$(P)DETECTOR_DIR:SP")
+{
+   field(DESC, "Set directory of detector tables")
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(DETECTORLIST),0,1)DIRBASE")
+}
+
+record(stringin, "$(P)DETECTOR_DIR")
+{
+   field(DESC, "Get directory of detector tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(DETECTORLIST),0,1)DIRBASE")
+   field(VAL, "$(DETECTORDIR)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)DETECTORTABLES")
+{
+	field(DESC, "Compressed JSON list of detector tables")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(DETECTORLIST),0,1)JARR")	
+	field(NELM, 16384)
+	field(SCAN, "I/O Intr")
+}
+
+record(stringout, "$(P)DETECTOR_PATTERN:SP")
+{
+   field(DESC, "Set regex search of detector tables")  
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(DETECTORLIST),0,1)SEARCH")
+}
+record(stringin, "$(P)DETECTOR_PATTERN")
+{
+   field(DESC, "Get regex search of detector tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(DETECTORLIST),0,1)SEARCH")
+   field(VAL, "$(DETECTORSEARCH)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+}
+
+## FileList for spectra tables
+record(stringout, "$(P)SPECTRA_DIR:SP")
+{
+   field(DESC, "Set directory of spectra tables")
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(SPECTRALIST),0,1)DIRBASE")
+}
+
+record(stringin, "$(P)SPECTRA_DIR")
+{
+   field(DESC, "Get directory of spectra tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(SPECTRALIST),0,1)DIRBASE")
+   field(VAL, "$(SPECTRADIR)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)SPECTRATABLES")
+{
+	field(DESC, "Compressed JSON list of spectra tables")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(SPECTRALIST),0,1)JARR")	
+	field(NELM, 16384)
+	field(SCAN, "I/O Intr")
+}
+
+record(stringout, "$(P)SPECTRA_PATTERN:SP")
+{
+   field(DESC, "Set regex search of spectra tables")  
+   field(DTYP, "asynOctetWrite")
+   field(OUT, "@asyn($(SPECTRALIST),0,1)SEARCH")
+}
+record(stringin, "$(P)SPECTRA_PATTERN")
+{
+   field(DESC, "Get regex search of spectra tables")
+   field(DTYP, "asynOctetRead")
+   field(OUT, "@asyn($(SPECTRALIST),0,1)SEARCH")
+   field(VAL, "$(SPECTRASEARCH)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
 }
