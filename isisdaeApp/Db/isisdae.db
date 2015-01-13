@@ -454,10 +454,32 @@ record(mbbi, "$(P)RUNSTATE")
     field(SXST, "ENDING")
     field(SVVL, 7)
     field(SVST, "SAVING")
+    field(EIVL, 8)
+    field(EIST, "RESUMING")
+    field(NIVL, 9)
+    field(NIST, "PAUSING")
+    field(TEVL, 10)
+    field(TEST, "BEGINNING")
+    field(ELVL, 11)
+    field(ELST, "ABORTING")
+    field(TVVL, 12)
+    field(TVST, "UPDATING")
+    field(TTVL, 13)
+    field(TTST, "STORING")
     info(INTEREST, "HIGH")
 }
 
 alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
+
+record(bi, "$(P)STATETRANS")
+{
+    field(DESC, "In state transition")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)STATETRANS")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    field(SCAN, "I/O Intr")
+}
 
 record(longin, "$(P)PERIOD")
 {

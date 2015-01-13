@@ -63,6 +63,21 @@ void isisdaeDriver::reportMessages()
 	m_iface->resetMessages();
 }
 
+void isisdaeDriver::beginStateTransition(int state)
+{
+    setIntegerParam(P_StateTrans, 1);
+    m_RunStatus = state;
+	setIntegerParam(P_RunStatus, m_RunStatus);
+	callParamCallbacks();
+}
+
+void isisdaeDriver::endStateTransition()
+{
+	updateRunStatus();
+    setIntegerParam(P_StateTrans, 0);
+	callParamCallbacks();
+}
+
 template<typename T>
 asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionName, T value)
 {
@@ -75,28 +90,34 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 	{
 		if (function == P_BeginRun)
 		{
+		    beginStateTransition(RS_BEGINNING);
 			m_iface->beginRun();
 //            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
         else if (function == P_BeginRunEx)
 		{
+		    beginStateTransition(RS_BEGINNING);
 			m_iface->beginRunEx(value, -1);
 //            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
 		else if (function == P_AbortRun)
 		{
+		    beginStateTransition(RS_ABORTING);
 			m_iface->abortRun();
 		}
         else if (function == P_PauseRun)
 		{
+		    beginStateTransition(RS_PAUSING);
 			m_iface->pauseRun();
 		}
         else if (function == P_ResumeRun)
 		{
+		    beginStateTransition(RS_RESUMING);
 			m_iface->resumeRun();
 		}
         else if (function == P_EndRun)
 		{
+		    beginStateTransition(RS_ENDING);
 			m_iface->endRun();
 		}
         else if (function == P_RecoverRun)
@@ -105,14 +126,17 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		}
         else if (function == P_SaveRun)
 		{
+		    beginStateTransition(RS_SAVING);
 			m_iface->saveRun();
 		}
         else if (function == P_UpdateRun)
 		{
+		    beginStateTransition(RS_UPDATING);
 			m_iface->updateRun();
 		}
         else if (function == P_StoreRun)
 		{
+		    beginStateTransition(RS_STORING);
 			m_iface->storeRun();
 		}
         else if (function == P_StartSEWait)
@@ -131,7 +155,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 			m_iface->setNumPeriods(value);
 		}
-        updateRunStatus();
+		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(value).c_str());
@@ -144,6 +168,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, convertToString(value).c_str(), ex.what());
 		reportErrors(ex.what());
+		endStateTransition();
 		return asynError;
 	}
 }
@@ -550,8 +575,13 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
 
+    createParam(P_StateTransString, asynParamInt32, &P_StateTrans);
+	
     createParam(P_SampleParString, asynParamOctet, &P_SamplePar);
     createParam(P_BeamlineParString, asynParamOctet, &P_BeamlinePar);
+
+    setIntegerParam(P_StateTrans, 0);
+
     // Create the thread for background tasks (not used at present, could be used for I/O intr scanning) 
     if (epicsThreadCreate("isisdaePoller1",
                           epicsThreadPriorityMedium,

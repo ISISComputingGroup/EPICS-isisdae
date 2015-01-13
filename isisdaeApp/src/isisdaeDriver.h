@@ -11,6 +11,8 @@ public:
     isisdaeDriver(isisdaeInterface* iface, const char *portName);
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
+    enum { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7,
+	        RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
                 
     // These are the methods that we override from asynPortDriver
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
@@ -21,6 +23,9 @@ public:
 	virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual);
     virtual asynStatus readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn);
     virtual asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
+	
+	void beginStateTransition(int state);
+	void endStateTransition();
 
 private:
 
@@ -79,6 +84,7 @@ private:
     int P_RawFramesPeriod; //long
     int P_SamplePar; //string
     int P_BeamlinePar; //string
+	int P_StateTrans; //long
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define FIRST_ISISDAE_PARAM P_GoodUAH
@@ -158,6 +164,7 @@ private:
 #define P_VetoStatusString	"VETOSTATUS"
 #define P_SampleParString	"SAMPLEPAR"
 #define P_BeamlineParString	"BEAMLINEPAR"
+#define P_StateTransString	"STATETRANS"
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
 
