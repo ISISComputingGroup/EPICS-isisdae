@@ -337,6 +337,8 @@ record(bo, "$(P)BEGINRUN")
     field(OUT,  "@asyn(icp,0,0)BEGINRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)BEGINRUNEX")
@@ -346,6 +348,8 @@ record(bo, "$(P)BEGINRUNEX")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)ABORTRUN")
@@ -355,6 +359,8 @@ record(bo, "$(P)ABORTRUN")
     field(OUT,  "@asyn(icp,0,0)ABORTRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)PAUSERUN")
@@ -364,6 +370,8 @@ record(bo, "$(P)PAUSERUN")
     field(OUT,  "@asyn(icp,0,0)PAUSERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)RESUMERUN")
@@ -373,6 +381,8 @@ record(bo, "$(P)RESUMERUN")
     field(OUT,  "@asyn(icp,0,0)RESUMERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)ENDRUN")
@@ -382,6 +392,8 @@ record(bo, "$(P)ENDRUN")
     field(OUT,  "@asyn(icp,0,0)ENDRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)RECOVERRUN")
@@ -390,6 +402,8 @@ record(bo, "$(P)RECOVERRUN")
     field(OUT,  "@asyn(icp,0,0)RECOVERRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)SAVERUN")
@@ -398,6 +412,8 @@ record(bo, "$(P)SAVERUN")
     field(OUT,  "@asyn(icp,0,0)SAVERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)UPDATERUN")
@@ -406,6 +422,8 @@ record(bo, "$(P)UPDATERUN")
     field(OUT,  "@asyn(icp,0,0)UPDATERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)STORERUN")
@@ -414,6 +432,8 @@ record(bo, "$(P)STORERUN")
     field(OUT,  "@asyn(icp,0,0)STORERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
 }
 
 record(bo, "$(P)STARTSEWAIT")
