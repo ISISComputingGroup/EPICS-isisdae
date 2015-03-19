@@ -341,13 +341,12 @@ record(bo, "$(P)BEGINRUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)BEGINRUNEX")
+## value sent controls begin options (such as DELAYED or PAUSED)
+record(longout, "$(P)BEGINRUNEX")
 {
-    field(DESC, "Begin a Run")
+    field(DESC, "Begin a Run (with options)")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
-    field(ZNAM, "0")
-    field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
 }
