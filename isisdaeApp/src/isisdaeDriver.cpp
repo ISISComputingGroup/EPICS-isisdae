@@ -65,7 +65,9 @@ void isisdaeDriver::reportMessages()
 
 void isisdaeDriver::beginStateTransition(int state)
 {
+    // signal in state transition separately and before signalling the state, might help order monitors get sent in?  
     setIntegerParam(P_StateTrans, 1);
+	callParamCallbacks();
     m_RunStatus = state;
 	setIntegerParam(P_RunStatus, m_RunStatus);
 	callParamCallbacks();
