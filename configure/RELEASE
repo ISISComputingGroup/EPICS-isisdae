@@ -30,7 +30,7 @@ EPICS_BASE=C:/development/EPICS/base/3-14-12-2
 
 ASYN=$(SUPPORT)/asyn/4-26
 DEVIOCSTATS=$(SUPPORT)/devIocStats/3-1-11
-AUTOSAVE=$(SUPPORT)/autosave/R5_4_2
+AUTOSAVE=$(SUPPORT)/autosave/R5_6_1
 SQLITE=$(SUPPORT)/sqlite
 PVDUMP=$(SUPPORT)/pvdump
 PUGIXML=$(SUPPORT)/pugixml
