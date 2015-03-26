@@ -625,6 +625,15 @@ record(waveform, "$(P)VETOSTATUS")
     field(SCAN, "I/O Intr")
 }
 
+record(ai, "$(P)VETOPC")
+{
+    field(DESC, "Vetoing %")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)VETOPC")
+    field(SCAN, "I/O Intr")
+	field(EGU, "%")
+}
+
 record(waveform, "$(P)ALLMSGS")
 {
     field(NELM, "4096")

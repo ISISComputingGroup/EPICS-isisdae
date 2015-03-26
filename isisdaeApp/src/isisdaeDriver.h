@@ -60,6 +60,7 @@ private:
     int P_TCBSettings; //char*
     int P_HardwarePeriodsSettings; //char*
     int P_VetoStatus; //char*
+    int P_VetoPC; //double
     int P_UpdateSettings; //char*
     int P_RunDurationTotal; //long
     int P_RunDurationPeriod; //long
@@ -92,6 +93,8 @@ private:
 
 	isisdaeInterface* m_iface;
     int m_RunStatus;  // cached value used in poller thread
+    float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
+
 	
 	void pollerThread1();
 	void pollerThread2();
@@ -162,6 +165,7 @@ private:
 #define P_HardwarePeriodsSettingsString	"HARDWAREPERIODSSETTINGS"
 #define P_UpdateSettingsString	"UPDATESETTINGS"
 #define P_VetoStatusString	"VETOSTATUS"
+#define P_VetoPCString	"VETOPC"
 #define P_SampleParString	"SAMPLEPAR"
 #define P_BeamlineParString	"BEAMLINEPAR"
 #define P_StateTransString	"STATETRANS"

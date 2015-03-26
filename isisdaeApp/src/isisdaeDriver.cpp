@@ -479,7 +479,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
                     1, /* Autoconnect */
                     0, /* Default priority */
                     0),	/* Default stack size*/
-					m_iface(iface), m_RunStatus(0)
+					m_iface(iface), m_RunStatus(0), m_vetopc(0.0)
 {
     int i;
     const char *functionName = "isisdaeDriver";
@@ -551,6 +551,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_HardwarePeriodsSettingsString, asynParamOctet, &P_HardwarePeriodsSettings);
     createParam(P_UpdateSettingsString, asynParamOctet, &P_UpdateSettings);
     createParam(P_VetoStatusString, asynParamOctet, &P_VetoStatus);
+    createParam(P_VetoPCString, asynParamFloat64, &P_VetoPC);
     
     createParam(P_GoodFramesTotalString, asynParamInt32, &P_GoodFramesTotal);
     createParam(P_GoodFramesPeriodString, asynParamInt32, &P_GoodFramesPeriod);
@@ -640,7 +641,15 @@ void isisdaeDriver::pollerThread1()
 
 void isisdaeDriver::updateRunStatus()
 {
-        m_RunStatus = m_iface->getRunState();
+        int rs = m_iface->getRunState();
+        if (rs == RS_RUNNING && m_vetopc > 50.0)
+        {
+            m_RunStatus = RS_VETOING;
+        }
+        else
+        {
+            m_RunStatus = rs;
+        }
 		setIntegerParam(P_RunStatus, m_RunStatus);
 		setDoubleParam(P_GoodUAH, m_iface->getGoodUAH());
         setDoubleParam(P_GoodUAHPeriod, m_iface->getGoodUAHPeriod());
@@ -674,10 +683,12 @@ void isisdaeDriver::pollerThread2()
     static const char* functionName = "isisdaePoller2";
 	std::map<std::string, DAEValue> values;
     unsigned long counter = 0;
-    double delay = 2.0;    
+    double delay = 2.0;  
+    unsigned long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
+    
 	while(true)
 	{
-        bool check_settings = ( (counter == 0) || (m_RunStatus == 1 && counter % 2 == 0) || (counter % 10 == 0) );
+        bool check_settings = ( (counter == 0) || (m_RunStatus == RS_SETUP && counter % 2 == 0) || (counter % 10 == 0) );
         std::string daeSettings;
         std::string tcbSettings, tcbSettingComp;
         std::string hardwarePeriodsSettings;
@@ -695,11 +706,21 @@ void isisdaeDriver::pollerThread2()
                 m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
                 m_iface->getUpdateSettingsXML(updateSettings);
             }
+            this_gf = m_iface->getGoodFrames();        
+		    this_rf = m_iface->getRawFrames();
         }
         catch(const std::exception& ex)
         {
             std::cerr << ex.what() << std::endl;
             continue;
+        }
+        if (this_rf > last_rf)
+        {
+            m_vetopc = 100.0 * static_cast<double>(this_gf - last_gf) / static_cast<double>(this_rf - last_rf);
+        }
+        else
+        {
+            m_vetopc = 0.0;
         }
 		lock();
         setStringParam(P_RunTitle, values["RunTitle"]); 
@@ -735,6 +756,7 @@ void isisdaeDriver::pollerThread2()
         setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);
         setDoubleParam(P_CountRate, values["CountRate"]);
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
+        setDoubleParam(P_VetoPC, m_vetopc);
         
         setStringParam(P_VetoStatus, vetoStatus.c_str() );
         if (check_settings) 
