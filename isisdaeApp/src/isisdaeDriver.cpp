@@ -715,7 +715,7 @@ void isisdaeDriver::pollerThread2()
         }
         if (this_rf > last_rf)
         {
-            m_vetopc = 100.0 * static_cast<double>(this_gf - last_gf) / static_cast<double>(this_rf - last_rf);
+            m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf) / static_cast<double>(this_rf - last_rf));
         }
         else
         {
