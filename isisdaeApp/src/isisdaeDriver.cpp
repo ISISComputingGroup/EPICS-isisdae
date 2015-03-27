@@ -528,7 +528,6 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
     createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
     createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
-    createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
@@ -684,7 +683,7 @@ void isisdaeDriver::pollerThread2()
 	std::map<std::string, DAEValue> values;
     unsigned long counter = 0;
     double delay = 2.0;  
-    unsigned long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
+    long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
     
 	while(true)
 	{
@@ -722,6 +721,8 @@ void isisdaeDriver::pollerThread2()
         {
             m_vetopc = 0.0;
         }
+        last_rf = this_rf;
+        last_gf = this_gf;
 		lock();
         setStringParam(P_RunTitle, values["RunTitle"]); 
         setStringParam(P_RBNumber, values["RBNumber"]); 
