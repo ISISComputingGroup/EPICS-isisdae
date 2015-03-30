@@ -762,9 +762,15 @@ void isisdaeInterface::getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* nam
         VarUI4FromStr(bstr_value, 0, 0, &index);
         CComPtr<IXMLDOMNodeList> spXMLNodes;
         spXMLNode->selectNodes(bstrSS3, &spXMLNodes);
-        spXMLNodes->get_item(index, &spXMLNode2);
-        spXMLNode2->get_firstChild(&spXMLNode3);
-        spXMLNode3->get_xml(value);
+        if ( spXMLNodes->get_item(index, &spXMLNode2) == S_OK )  // May have a missing <Choice> or index is invalid - shouldn't happen really
+        {
+            spXMLNode2->get_firstChild(&spXMLNode3);
+            spXMLNode3->get_xml(value);
+        }
+        else
+        {
+		    *value = SysAllocString(L"");
+        }
         SysFreeString(bstr_value);
 	}
 	else
