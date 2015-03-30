@@ -110,6 +110,10 @@
 		<Name>DAETimingSource</Name>
 		<Choice>ISIS</Choice>
 		<Choice>Internal Test Clock</Choice>
+		<Choice>SMP</Choice>
+		<Choice>Muon Cerenkov</Choice>
+		<Choice>Muon MS</Choice>
+		<Choice>ISIS (first TS1)</Choice>
 		<Val>0</Val>
 	</EW>
 	<String>
