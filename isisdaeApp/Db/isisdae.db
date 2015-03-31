@@ -47,23 +47,41 @@ record(stringin, "$(P)RUNNUMBER")
     info(INTEREST, "HIGH")
 }
 
-record(stringin, "$(P)USERNAME")
+record(waveform, "$(P)USERNAME")
 {
     field(DESC, "Experiment User name")
+    field(NELM, "1024")
+    field(FTVL, "CHAR")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    field(SIML, "1")
+    field(SIOL, "$(P)USERNAME:SIM")
 }
 
-record(stringout, "$(P)USERNAME:SP")
+record(waveform, "$(P)USERNAME:SP")
 {
     field(DESC, "Set Experiment User name")
+    field(NELM, "1024")
+    field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)USERNAME")
+    info(autosaveFields, "VAL")
+    field(SIML, "1")
+    field(SIOL, "$(P)USERNAME:SIM")
 }
 
 alias("$(P)USERNAME", "$(P)USERNAME:SP:RBV")
+
+record(waveform, "$(P)USERNAME:SIM")
+{
+    field(DESC, "Simulated Experiment User Name")
+    field(NELM, "1024")
+    field(FTVL, "CHAR")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
+}
 
 record(stringin, "$(P)INSTNAME")
 {
