@@ -93,6 +93,7 @@ private:
 
 	isisdaeInterface* m_iface;
     int m_RunStatus;  // cached value used in poller thread
+    bool m_inStateTrans; 
     float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
 
 	

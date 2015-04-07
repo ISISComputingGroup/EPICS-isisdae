@@ -66,6 +66,7 @@ void isisdaeDriver::reportMessages()
 void isisdaeDriver::beginStateTransition(int state)
 {
     // signal in state transition separately and before signalling the state, might help order monitors get sent in?  
+    m_inStateTrans = true;
     setIntegerParam(P_StateTrans, 1);
 	callParamCallbacks();
     m_RunStatus = state;
@@ -75,6 +76,7 @@ void isisdaeDriver::beginStateTransition(int state)
 
 void isisdaeDriver::endStateTransition()
 {
+    m_inStateTrans = false;
 	updateRunStatus();
     setIntegerParam(P_StateTrans, 0);
 	callParamCallbacks();
@@ -93,14 +95,14 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		if (function == P_BeginRun)
 		{
 		    beginStateTransition(RS_BEGINNING);
+            zeroRunCounters();
 			m_iface->beginRun();
-//            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
         else if (function == P_BeginRunEx)
 		{
 		    beginStateTransition(RS_BEGINNING);
+            zeroRunCounters();
 			m_iface->beginRunEx(value, -1);
-//            zeroRunCounters();   // shouldn't be necessary as call updateRunStatus()
 		}
 		else if (function == P_AbortRun)
 		{
@@ -479,7 +481,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
                     1, /* Autoconnect */
                     0, /* Default priority */
                     0),	/* Default stack size*/
-					m_iface(iface), m_RunStatus(0), m_vetopc(0.0)
+					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false)
 {
     int i;
     const char *functionName = "isisdaeDriver";
@@ -619,10 +621,13 @@ void isisdaeDriver::pollerThread1()
 {
     static const char* functionName = "isisdaePoller1";
     unsigned long counter = 0;
-    double delay = 0.2;    
+    double delay = 0.2;
+    lock();
 	while(true)
 	{
-		lock();
+        unlock();
+		epicsThreadSleep(delay);
+        lock();
         try
         {
             updateRunStatus();
@@ -631,15 +636,17 @@ void isisdaeDriver::pollerThread1()
         {
             std::cerr << ex.what() << std::endl;
         }
-		callParamCallbacks();        
-		unlock();
+        callParamCallbacks();        
         ++counter;
-		epicsThreadSleep(delay);
     }
 }
 
 void isisdaeDriver::updateRunStatus()
 {
+        if (m_inStateTrans)
+        {
+            return;
+        }
         int rs = m_iface->getRunState();
         if (rs == RS_RUNNING && m_vetopc > 50.0)
         {
@@ -649,17 +656,17 @@ void isisdaeDriver::updateRunStatus()
         {
             m_RunStatus = rs;
         }
-		setIntegerParam(P_RunStatus, m_RunStatus);
 		setDoubleParam(P_GoodUAH, m_iface->getGoodUAH());
         setDoubleParam(P_GoodUAHPeriod, m_iface->getGoodUAHPeriod());
         setIntegerParam(P_TotalCounts, m_iface->getTotalCounts());
         setIntegerParam(P_GoodFramesTotal, m_iface->getGoodFrames());
         setIntegerParam(P_GoodFramesPeriod, m_iface->getGoodFramesPeriod());
 		setIntegerParam(P_RawFramesTotal, m_iface->getRawFrames());
+		setIntegerParam(P_RunStatus, m_RunStatus);
         ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod,P_TotalDaeCounts, P_MonitorCounts
 }
 
-// should not be needed as call updateRunStatus() at appropriate point
+// zero counters st start of run, done early before actual readbacks
 void isisdaeDriver::zeroRunCounters()
 {
 		setDoubleParam(P_GoodUAH, 0.0);
@@ -675,6 +682,7 @@ void isisdaeDriver::zeroRunCounters()
         setIntegerParam(P_MonitorCounts, 0);
         setDoubleParam(P_TotalDaeCounts, 0.0);
         setDoubleParam(P_CountRate, 0.0);
+	    callParamCallbacks();
 }
 
 void isisdaeDriver::pollerThread2()
@@ -684,16 +692,24 @@ void isisdaeDriver::pollerThread2()
     unsigned long counter = 0;
     double delay = 2.0;  
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
-    
+    bool check_settings;
+    std::string daeSettings;
+    std::string tcbSettings, tcbSettingComp;
+    std::string hardwarePeriodsSettings;
+    std::string updateSettings;
+    std::string vetoStatus;
+
+    lock();
 	while(true)
 	{
-        bool check_settings = ( (counter == 0) || (m_RunStatus == RS_SETUP && counter % 2 == 0) || (counter % 10 == 0) );
-        std::string daeSettings;
-        std::string tcbSettings, tcbSettingComp;
-        std::string hardwarePeriodsSettings;
-        std::string updateSettings;
-        std::string vetoStatus;
+        unlock();
 		epicsThreadSleep(delay);
+		lock();
+        if (m_inStateTrans)   // do nothing if in state transition
+        {
+            continue;
+        }
+        check_settings = ( (counter == 0) || (m_RunStatus == RS_SETUP && counter % 2 == 0) || (counter % 10 == 0) );
         try
         {
             m_iface->getRunDataFromDAE(values);
@@ -723,7 +739,6 @@ void isisdaeDriver::pollerThread2()
         }
         last_rf = this_rf;
         last_gf = this_gf;
-		lock();
         setStringParam(P_RunTitle, values["RunTitle"]); 
         setStringParam(P_RBNumber, values["RBNumber"]); 
         setStringParam(P_RunNumber, values["RunNumber"]);
@@ -786,7 +801,6 @@ void isisdaeDriver::pollerThread2()
 		}
 		messages.clear();
 		callParamCallbacks();        
-		unlock();
         ++counter;
 	}
 }	
