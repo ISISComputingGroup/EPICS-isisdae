@@ -87,6 +87,7 @@ public:
     int saveRun();
     int updateRun();
     int storeRun();
+    int snapshotCRPT(const std::string& filename, long do_update, long do_pause);
     int startSEWait();
     int endSEWait();
 	int getRunState();

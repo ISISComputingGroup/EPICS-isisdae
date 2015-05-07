@@ -357,7 +357,6 @@ int isisdaeInterface::endSEWait()
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::endSEWait, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::endSEWait, _1)));
 }
 
-
 int isisdaeInterface::beginRunEx(long options, long period)
 {
     //This method allows the dae to begin running in the paused and/or waiting states
@@ -414,6 +413,19 @@ int isisdaeInterface::updateRun()
 int isisdaeInterface::storeRun()
 {
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::storeCRPT, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::storeCRPT, _1)));
+}
+
+int isisdaeInterface::snapshotCRPT(const std::string& filename, long do_update, long do_pause)
+{
+    if (m_dcom)
+	{
+        _bstr_t bs(CComBSTR(filename.c_str()).Detach());
+		return callD<int>(boost::bind(&ICPDCOM::snapshotCRPT, _1, bs, do_update, do_pause, _2));
+	}
+	else
+	{
+	    return callI<int>(boost::bind(&ISISICPINT::snapshotCRPT, boost::cref(filename), do_update, do_pause, _1));
+	}
 }
 
 int isisdaeInterface::getRunState()

@@ -66,7 +66,7 @@ record(waveform, "$(P)USERNAME:SP")
     field(NELM, "1024")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn(icp,0,0)USERNAME")
+    field(INP, "@asyn(icp,0,0)USERNAME")
     info(autosaveFields, "VAL")
     field(SIML, "1")
     field(SIOL, "$(P)USERNAME:SIM")
@@ -449,6 +449,16 @@ record(bo, "$(P)STORERUN")
     field(OUT,  "@asyn(icp,0,0)STORERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
+}
+
+record(waveform, "$(P)SNAPSHOTCRPT")
+{
+    field(NELM, "1024")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP, "@asyn(icp,0,0)SNAPSHOTCRPT")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
 }

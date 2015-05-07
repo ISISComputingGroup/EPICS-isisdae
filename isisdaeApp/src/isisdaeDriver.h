@@ -41,6 +41,7 @@ private:
     int P_SaveRun; // int
     int P_UpdateRun; // int
     int P_StoreRun; // int
+    int P_SnapshotCRPT; 
     int P_StartSEWait; // int
     int P_EndSEWait; // int
 	int P_RunStatus; // int
@@ -124,6 +125,7 @@ private:
 #define P_SaveRunString	"SAVERUN"
 #define P_UpdateRunString	"UPDATERUN"
 #define P_StoreRunString	"STORERUN"
+#define P_SnapshotCRPTString "SNAPSHOTCRPT"
 #define P_StartSEWaitString	"STARTSEWAIT"
 #define P_EndSEWaitString	"ENDSEWAIT"
 #define P_RunStatusString	"RUNSTATUS"

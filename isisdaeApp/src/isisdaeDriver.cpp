@@ -442,7 +442,14 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                 unsigned found = tcb_xml.find_last_of(">");  // in cased junk on end
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
-		}
+		}        
+        else if (function == P_SnapshotCRPT)
+		{
+		    beginStateTransition(RS_STORING);
+			m_iface->snapshotCRPT(value_s, 1, 1);
+            endStateTransition();
+		}        
+        
 		reportMessages();
 		status = asynPortDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -528,6 +535,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_SaveRunString, asynParamInt32, &P_SaveRun);
     createParam(P_UpdateRunString, asynParamInt32, &P_UpdateRun);
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
+    createParam(P_SnapshotCRPTString, asynParamOctet, &P_SnapshotCRPT);
     createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
     createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
