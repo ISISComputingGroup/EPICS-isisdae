@@ -468,6 +468,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
 		reportErrors(ex.what());
 		callParamCallbacks(); // this flushes P_ErrMsgs
+        endStateTransition();
 		*nActual = 0;
 		return asynError;
 	}
