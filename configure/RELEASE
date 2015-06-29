@@ -45,6 +45,9 @@ CAPUTLOG=$(SUPPORT)/caPutLog/3-3-3
 TINYXML=$(SUPPORT)/TinyXML
 PCRE=$(SUPPORT)/pcre
 WEBGET=$(SUPPORT)/webget
+HTMLTIDY=$(SUPPORT)/htmltidy
+CURL=$(SUPPORT)/curl
+
 # we need to define ISISDAE as it is used to load data/xml by the test/example program
 ISISDAE=$(SUPPORT)/isisdae
 

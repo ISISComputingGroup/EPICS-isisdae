@@ -6,4 +6,5 @@ include "pvdump.dbd"
 include "asSupport.dbd"
 include "devIocStats.dbd"
 include "caPutLog.dbd"
+include "webget.dbd"
 registrar("isisdaeRegister")

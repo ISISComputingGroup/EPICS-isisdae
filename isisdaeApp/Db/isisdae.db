@@ -344,6 +344,7 @@ record(bo, "$(P)BEGINRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
 }
 
 ## value sent controls begin options (such as DELAYED or PAUSED)
@@ -354,6 +355,7 @@ record(longout, "$(P)BEGINRUNEX")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
 }
 
 record(bo, "$(P)ABORTRUN")
@@ -817,4 +819,21 @@ record(stringin, "$(P)SPECTRA_PATTERN")
    field(VAL, "$(SPECTRASEARCH)")
    field(PINI, "YES")
    field(SCAN, "I/O Intr")
+}
+
+## records for restarting archive engine on a begin
+## force processing of _RESTART_ARCHIVER via forward link to restart archiver
+record(stringout, "$(P)_ARCHIVER_URL")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT, "@asyn(web,0,0)URL0")
+	field(PINI, "YES")
+	field(VAL, "http://localhost:4813/restart")
+}
+
+record(stringin, "$(P)_RESTART_ARCHIVER")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP, "@asyn(web,0,0)DATA0")
+	field(SCAN, "Passive")
 }

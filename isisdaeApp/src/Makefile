@@ -32,7 +32,8 @@ LIBRARY_IOC += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
 isisdae_SRCS += exAsyncPV.cc exChannel.cc exPV.cc exScalarPV.cc exServer.cc exVectorPV.cc exAsyncVectorPV.cc
 isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp 
-isisdae_LIBS += asyn oncrpc utilities zlib pcrecpp pcre
+
+isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre
 isisdae_LIBS += cas gdd
 isisdae_LIBS += $(EPICS_BASE_IOC_LIBS)
 
