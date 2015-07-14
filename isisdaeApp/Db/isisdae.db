@@ -861,3 +861,55 @@ record(stringin, "$(P)_RESTART_ARCHIVER")
     field(INP, "@asyn(web,0,0)DATA0")
 	field(SCAN, "Passive")
 }
+
+## FileList for period files
+record(waveform, "$(P)PERIOD_DIR:SP")
+{
+   field(DESC, "Set directory of period files")
+   field(DTYP, "asynOctetWrite")
+   field(INP, "@asyn($(PERIODLIST),0,1)DIRBASE")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)PERIOD_DIR")
+{
+   field(DESC, "Get directory of period files")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn($(PERIODLIST),0,1)DIRBASE")
+   field(VAL, "$(PERIODDIR)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)PERIODFILES")
+{
+	field(DESC, "Compressed JSON list of period files")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(PERIODLIST),0,1)JARR")	
+	field(NELM, 16384)
+	field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)PERIOD_PATTERN:SP")
+{
+   field(DESC, "Set regex search of period files")  
+   field(DTYP, "asynOctetWrite")
+   field(INP, "@asyn($(PERIODLIST),0,1)SEARCH")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+record(waveform, "$(P)PERIOD_PATTERN")
+{
+   field(DESC, "Get regex search of period files")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn($(PERIODLIST),0,1)SEARCH")
+   field(VAL, "$(PERIODSEARCH)")
+   field(PINI, "YES")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
