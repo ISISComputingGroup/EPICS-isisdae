@@ -8,7 +8,9 @@ O.*/
 envPaths
 cdCommands
 dllPath.bat
-runIoc.bat
+runIOC.bat
+runIOC.sh
+relPaths.sh
 *.tag
 /data/
 /doc/
