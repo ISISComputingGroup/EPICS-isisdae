@@ -89,10 +89,6 @@ void exScalarPV::scan()
 		    }
 		    spec = mon;
 	    }
-	    if (axis != 'C')
-	    {
-		    return;
-	    }
 
 ////    if ( this->pValue.valid () ) {
 ////       this->pValue->getConvert(newValue);
@@ -105,10 +101,20 @@ void exScalarPV::scan()
 ////    newValue = tsMin ( newValue, limit );
 ////    limit = (float) this->info.getLopr ();
 ////    newValue = tsMax ( newValue, limit );
-
-        long counts = 0;
-        cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
-        *pDD = counts;
+	    if (axis == 'C')
+	    {
+            long counts = 0;
+            cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
+            *pDD = counts;
+		}
+		else if (axis == 'S')
+		{
+		    *pDD = spec;
+		}
+		else
+		{
+		    return; // error, shouldn't happen
+		}
 //	}
     aitTimeStamp gddts ( this->currentTime );
     pDD->setTimeStamp ( & gddts );

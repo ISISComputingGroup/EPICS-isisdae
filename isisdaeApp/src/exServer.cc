@@ -418,8 +418,8 @@ epicsTimerNotify::expireStatus exAsyncCreateIO::expire ( const epicsTime & /*cur
 int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 {
     //Assumes period then spectrum
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYC])");
-    pcrecpp::RE spec_re("SPEC:(\\d+):([XYC])");
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYCS])");
+    pcrecpp::RE spec_re("SPEC:(\\d+):([XYCS])");
     
     if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis))
     {
@@ -430,7 +430,7 @@ int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
         //If not specified assume the period is 1
         period = 1;
     }
-	if (axis == 'C')
+	if (axis == 'C' || axis == 'S')
 	{
 		return 0x1;
 	}
@@ -443,8 +443,8 @@ int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
 int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis)
 {
-    pcrecpp::RE monitor_re("MON:(\\d+):([XYC])");
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYC])");
+    pcrecpp::RE monitor_re("MON:(\\d+):([XYCS])");
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYCS])");
 	if (!monitor_re.FullMatch(pvStr, &period, &mon, &axis))
 	{
         if (!monitor_re.FullMatch(pvStr, &mon, &axis))
@@ -454,7 +454,7 @@ int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis)
         //If not specified assume the period is 1
         period = 1;
 	}
-	if (axis == 'C')
+	if (axis == 'C' || axis == 'S')
 	{
 		return 0x1;
 	}
