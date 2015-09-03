@@ -105,10 +105,18 @@ void exScalarPV::scan()
 	    {
             long counts = 0;
             cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
+			if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == counts) )
+			{
+			    return;
+			}
             *pDD = counts;
 		}
 		else if (axis == 'S')
 		{
+			if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == spec) )
+			{
+			    return;
+			}
 		    *pDD = spec;
 		}
 		else
