@@ -413,17 +413,33 @@ epicsTimerNotify::expireStatus exAsyncCreateIO::expire ( const epicsTime & /*cur
     return noRestart;
 }
 
+// allow use of .VAL in a name
+static std::string getPVBaseName(const std::string& pvStr)
+{
+	std::string pvName;
+	int n = pvStr.size();
+	if ( n >= 4 && pvStr.substr(n - 4) == ".VAL" )
+	{
+	    pvName = pvStr.substr(0, n - 4);
+	}
+	else
+	{
+	    pvName = pvStr;
+	}
+	return pvName;
+}
 
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
 int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 {
     //Assumes period then spectrum
+	std::string pvName = getPVBaseName(pvStr);
     pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYCS])");
     pcrecpp::RE spec_re("SPEC:(\\d+):([XYCS])");
     
-    if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis))
+    if (!spec_per_re.FullMatch(pvName, &period, &spec, &axis))
     {
-        if (!spec_re.FullMatch(pvStr, &spec, &axis))
+        if (!spec_re.FullMatch(pvName, &spec, &axis))
         {
             return 0x0;
         }
@@ -443,11 +459,12 @@ int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
 int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis)
 {
+	std::string pvName = getPVBaseName(pvStr);
     pcrecpp::RE monitor_re("MON:(\\d+):([XYCS])");
     pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYCS])");
-	if (!monitor_re.FullMatch(pvStr, &period, &mon, &axis))
+	if (!monitor_re.FullMatch(pvName, &period, &mon, &axis))
 	{
-        if (!monitor_re.FullMatch(pvStr, &mon, &axis))
+        if (!monitor_re.FullMatch(pvName, &mon, &axis))
         {
             return 0x0;
         }
