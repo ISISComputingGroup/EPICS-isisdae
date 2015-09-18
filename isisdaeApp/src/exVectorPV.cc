@@ -65,7 +65,7 @@ void exVectorPV::scan()
 {
     caStatus            status;
     smartGDDPointer     pDD;
-    aitFloat32         *pX, *pY;
+    aitFloat32         *pX = NULL, *pY = NULL, *old_pX = NULL, *old_pY = NULL;
     float               limit;
     exVecDestructor     *pDest;
     int                 gddStatus;
@@ -116,8 +116,22 @@ void exVectorPV::scan()
 	if (axis == 'Y')
 	{
         n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
+		delete[] pX;
+		// check to see if value has actually changed since last time
+		if ( this->pValue.valid() && this->m_size == n )
+		{
+		    this->pValue->getRef(old_pY);
+			if ( old_pY != NULL && memcmp(pY, old_pY, n*sizeof(aitFloat32)) == 0 )
+			{
+				delete[] pY;
+				delete pDest;
+			    return;
+			}
+		}
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
         if ( ! pDD.valid () ) {
+			delete[] pY;
+			delete pDest;
             return;
         }
         //
@@ -125,13 +139,26 @@ void exVectorPV::scan()
         // (do this before we increment pF)
         //
         pDD->putRef(pY, pDest);
-		delete[] pX;
 	}
 	else if (axis == 'X')
 	{
         n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
+		delete[] pY;
+		// check to see if value has actually changed since last time
+		if ( this->pValue.valid() && this->m_size == n )
+		{
+		    this->pValue->getRef(old_pX);
+			if ( old_pX != NULL && memcmp(pX, old_pX, n*sizeof(aitFloat32)) == 0 )
+			{
+				delete[] pX;
+				delete pDest;
+			    return;
+			}
+		}
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
         if ( ! pDD.valid () ) {
+			delete[] pX;
+			delete pDest;
             return;
         }
         //
@@ -139,7 +166,6 @@ void exVectorPV::scan()
         // (do this before we increment pF)
         //
         pDD->putRef(pX, pDest);
-		delete[] pY;
 	}
     //
     // smart pointer class manages reference count after this point
