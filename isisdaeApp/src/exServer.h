@@ -50,21 +50,24 @@
 #include "resourceLib.h"
 #include "tsMinMax.h"
 
+#include "boost/function.hpp"
+#include "boost/bind.hpp"
+
+
 #ifndef NELEMENTS
 #   define NELEMENTS(A) (sizeof(A)/sizeof(A[0]))
 #endif
 
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis);
-int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis);
-int parseSamplePV(const std::string& pvStr, std::string& param); 
-int parseBeamlinePV(const std::string& pvStr, std::string& param); 
-int getPVType(const std::string& pvStr); 
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis, std::string& field);
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis, std::string& field);
+//int parseSamplePV(const std::string& pvStr, std::string& param); 
+//int parseBeamlinePV(const std::string& pvStr, std::string& param); 
 
 //
 // info about all pv in this server
 //
-enum excasIoType { excasIoSync, excasIoAsync };
+//enum excasIoType { excasIoSync, excasIoAsync };
 
 class exPV;
 class exServer;
@@ -77,28 +80,31 @@ class pvInfo {
 public: 
         
     pvInfo ( double scanPeriodIn, const  char * pNameIn, 
-        aitFloat32  hoprIn, aitFloat32  loprIn,  aitEnum typeIn,  
-        excasIoType ioTypeIn, unsigned  countIn );
+        aitFloat32  hoprIn, aitFloat32  loprIn,  const char* unitsIn, aitEnum typeIn,  
+        unsigned  countIn);
     pvInfo (  const pvInfo  & copyIn  );
     ~pvInfo ();
     double getScanPeriod () const; 
-    const  char * getName () 
-    const; double  getHopr () const; 
-    double getLopr () const; 
+    const  char * getName () const; 
+	double getHopr () const; 
+    double getLopr () const;
+    const char* getUnits() const;	
     aitEnum getType () const; 
-    excasIoType  getIOType () const; 
+//    excasIoType  getIOType () const; 
     unsigned getElementCount () const; 
     void unlinkPV (); 
-    exPV *createPV  ( exServer &  exCAS, bool  preCreateFlag, 
-        bool  scanOn, double  asyncDelay ); 
     void deletePV ();
+    exPV *getPV();
+	void setPV(exPV *pNewPV);
+	
 private:
     const double scanPeriod;
     std::string pName;
     const double hopr;
     const double lopr;
+	const std::string units;
     aitEnum type;
-    const excasIoType ioType;
+//    const excasIoType ioType;
     const unsigned elementCount;
     exPV * pPV;
     pvInfo & operator = ( const pvInfo & );
@@ -253,10 +259,61 @@ public:
         exPV ( cas, setup, 
             preCreateFlag, scanOnIn) {}
     void scan();
+	virtual bool getNewValue(smartGDDPointer& pDD) = 0;  // return true if value changed and monitors shoul;d be signalled
 private:
     caStatus updateValue ( const gdd & );
     exScalarPV & operator = ( const exScalarPV & );
     exScalarPV ( const exScalarPV & );
+};
+
+// number of array elements PV
+class NORDPV : public exScalarPV {
+public:
+    NORDPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, int& nord );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    int& m_nord;
+    NORDPV & operator = ( const NORDPV & );
+    NORDPV ( const NORDPV & );
+};
+
+class CountsPV : public exScalarPV {
+public:
+    CountsPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, int spec, int period );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    int m_spec;
+	int m_period;
+    CountsPV & operator = ( const CountsPV & );
+    CountsPV ( const CountsPV & );
+};
+
+template <typename T>
+class FixedValuePV : public exScalarPV {
+public:
+    FixedValuePV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, const T& value);
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    T m_value;
+	bool m_first_call;
+    FixedValuePV & operator = ( const FixedValuePV & );
+    FixedValuePV ( const FixedValuePV & );
+};
+
+class MonLookupPV : public exScalarPV {
+public:
+    MonLookupPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, int monitor );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+	static MonLookupPV* create(exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, int monitor) { return new MonLookupPV(cas, setup, preCreateFlag, scanOnIn, monitor); }
+private:
+    int m_monitor;
+    MonLookupPV & operator = ( const MonLookupPV & );
+    MonLookupPV ( const MonLookupPV & );
 };
 
 //
@@ -269,6 +326,8 @@ public:
         exPV ( cas, setup, 
             preCreateFlag, scanOnIn) {  m_size = this->info.getElementCount(); }
     void scan();
+	virtual bool getNewValue(smartGDDPointer& pDD) = 0;  // return true if value changed and monitors shoul;d be signalled
+
 
     unsigned maxDimension() const;
     aitIndex maxBound (unsigned dimension) const;
@@ -278,6 +337,28 @@ private:
     exVectorPV & operator = ( const exVectorPV & );
     exVectorPV ( const exVectorPV & );
 	int m_size;
+};
+
+//
+// special gddDestructor guarantees same form of new and delete
+//
+class exVecDestructor: public gddDestructor {
+    virtual void run (void *);
+};
+
+
+class SpectrumPV : public exVectorPV {
+public:
+    SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, char axis, int spec, int period);
+	virtual bool getNewValue(smartGDDPointer& pDD);
+    int& getNORD() { return m_nord; }
+private:
+	char m_axis;
+    int m_spec;
+	int m_period;
+	int m_nord;
+    SpectrumPV & operator = ( const SpectrumPV & );
+    SpectrumPV ( const SpectrumPV & );
 };
 
 //
@@ -302,6 +383,14 @@ public:
     unsigned maxSimultAsyncIO () const;
 	
 	isisdaeInterface* iface() { return m_iface; }
+	
+	exPV* getPV(const std::string& pvName);
+	
+	bool createSpecPVs(const std::string& pvStr);
+	bool createMonitorPVs(const std::string& pvStr);
+	void createAxisPVs(const char* prefix, int spec, int period, char axis, const char* units);
+	void createCountsPV(const char* prefix, int spec, int period);
+    template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
 
 private:
     resTable < pvEntry, stringId > stringResTbl;
@@ -310,6 +399,7 @@ private:
     const unsigned _maxSimultAsyncIO;
     double asyncDelay;
     bool scanOn;
+	int m_ntc;
 
     void installAliasName ( pvInfo & info, const char * pAliasName );
     pvExistReturn pvExistTest ( const casCtx &, 
@@ -333,50 +423,6 @@ private:
 };
 
 //
-// exAsyncPV
-//
-class exAsyncPV : public exScalarPV {
-public:
-    exAsyncPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, double asyncDelay );
-    caStatus read ( const casCtx & ctxIn, gdd & protoIn );
-    caStatus write ( const casCtx & ctxIn, const gdd & value );
-    caStatus writeNotify ( const casCtx & ctxIn, const gdd & value );
-    void removeReadIO();
-    void removeWriteIO();
-    caStatus updateFromAsyncWrite ( const gdd & );
-private:
-    double asyncDelay;
-    smartConstGDDPointer pStandbyValue;
-    unsigned simultAsychReadIOCount;
-    unsigned simultAsychWriteIOCount;
-    exAsyncPV & operator = ( const exAsyncPV & );
-    exAsyncPV ( const exAsyncPV & );
-};
-
-//
-// exAsyncVectorPV
-//
-class exAsyncVectorPV : public exVectorPV {
-public:
-    exAsyncVectorPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, double asyncDelay );
-    caStatus read ( const casCtx & ctxIn, gdd & protoIn );
-    caStatus write ( const casCtx & ctxIn, const gdd & value );
-    caStatus writeNotify ( const casCtx & ctxIn, const gdd & value );
-    void removeReadIO();
-    void removeWriteIO();
-    caStatus updateFromAsyncWrite ( const gdd & );
-private:
-    double asyncDelay;
-    smartConstGDDPointer pStandbyValue;
-    unsigned simultAsychReadIOCount;
-    unsigned simultAsychWriteIOCount;
-    exAsyncVectorPV & operator = ( const exAsyncVectorPV & );
-    exAsyncVectorPV ( const exAsyncVectorPV & );
-};
-
-//
 // exChannel
 //
 class exChannel : public casChannel{
@@ -391,90 +437,16 @@ private:
     exChannel ( const exChannel & );
 };
 
-//
-// exAsyncWriteIO
-//
-template<typename T>
-class exAsyncWriteIO : public casAsyncWriteIO, public epicsTimerNotify {
-public:
-    exAsyncWriteIO ( exServer &, const casCtx & ctxIn, 
-            T &, const gdd &, double asyncDelay );
-    ~exAsyncWriteIO ();
-private:
-    T & pv;
-    epicsTimer & timer;
-    smartConstGDDPointer pValue;
-    expireStatus expire ( const epicsTime & currentTime );
-    exAsyncWriteIO & operator = ( const exAsyncWriteIO & );
-    exAsyncWriteIO ( const exAsyncWriteIO & );
-};
 
-//
-// exAsyncReadIO
-//
-template<typename T>
-class exAsyncReadIO : public casAsyncReadIO, public epicsTimerNotify {
-public:
-    exAsyncReadIO ( exServer &, const casCtx &, 
-            T &, gdd &, double asyncDelay );
-    virtual ~exAsyncReadIO ();
-private:
-    T & pv;
-    epicsTimer & timer;
-    smartGDDPointer pProto;
-    expireStatus expire ( const epicsTime & currentTime );
-    exAsyncReadIO & operator = ( const exAsyncReadIO & );
-    exAsyncReadIO ( const exAsyncReadIO & );
-};
-
-
-//
-// exAsyncExistIO
-// (PV exist async IO)
-//
-class exAsyncExistIO : public casAsyncPVExistIO, public epicsTimerNotify {
-public:
-    exAsyncExistIO ( const pvInfo & pviIn, const casCtx & ctxIn,
-            exServer & casIn );
-    virtual ~exAsyncExistIO ();
-private:
-    const pvInfo & pvi;
-    epicsTimer & timer;
-    exServer & cas;
-    expireStatus expire ( const epicsTime & currentTime );
-    exAsyncExistIO & operator = ( const exAsyncExistIO & );
-    exAsyncExistIO ( const exAsyncExistIO & );
-};
-
- 
-//
-// exAsyncCreateIO
-// (PV create async IO)
-//
-class exAsyncCreateIO : public casAsyncPVAttachIO, public epicsTimerNotify {
-public:
-    exAsyncCreateIO ( pvInfo & pviIn, exServer & casIn, 
-        const casCtx & ctxIn, bool scanOnIn, double asyncDelay );
-    virtual ~exAsyncCreateIO ();
-private:
-    pvInfo & pvi;
-    epicsTimer & timer;
-    exServer & cas;
-    double asyncDelay;
-    bool scanOn;
-    expireStatus expire ( const epicsTime & currentTime );
-    exAsyncCreateIO & operator = ( const exAsyncCreateIO & );
-    exAsyncCreateIO ( const exAsyncCreateIO & );
-};
 
 inline pvInfo::pvInfo ( double scanPeriodIn, const char *pNameIn, 
-    aitFloat32 hoprIn, aitFloat32 loprIn,
-    aitEnum typeIn, excasIoType ioTypeIn, 
-    unsigned countIn ) :
+    aitFloat32 hoprIn, aitFloat32 loprIn, const char* unitsIn,
+    aitEnum typeIn,  
+    unsigned countIn) :
 
     scanPeriod ( scanPeriodIn ), pName ( pNameIn ), 
-    hopr ( hoprIn ), lopr ( loprIn ), type ( typeIn ),
-    ioType ( ioTypeIn ), elementCount ( countIn ), 
+    hopr ( hoprIn ), lopr ( loprIn ), units ( unitsIn ), type ( typeIn ),
+    elementCount ( countIn ), 
     pPV ( 0 )
 {
 }
@@ -486,8 +458,8 @@ inline pvInfo::pvInfo ( double scanPeriodIn, const char *pNameIn,
 inline pvInfo::pvInfo ( const pvInfo & copyIn ) :
 
     scanPeriod ( copyIn.scanPeriod ), pName ( copyIn.pName ), 
-    hopr ( copyIn.hopr ), lopr ( copyIn.lopr ), type ( copyIn.type ),
-    ioType ( copyIn.ioType ), elementCount ( copyIn.elementCount ),
+    hopr ( copyIn.hopr ), lopr ( copyIn.lopr ), units ( copyIn.units), type ( copyIn.type ),
+    elementCount ( copyIn.elementCount ),
     pPV ( copyIn.pPV )
 {
 }
@@ -532,14 +504,14 @@ inline double pvInfo::getLopr () const
     return this->lopr; 
 }
 
+inline const char* pvInfo::getUnits () const 
+{ 
+    return this->units.c_str(); 
+}
+
 inline aitEnum pvInfo::getType () const 
 { 
     return this->type;
-}
-
-inline excasIoType pvInfo::getIOType () const 
-{ 
-    return this->ioType; 
 }
 
 inline unsigned pvInfo::getElementCount () const 
@@ -599,22 +571,6 @@ inline const pvInfo & exPV::getPVInfo ()
 inline const char * exPV::getName () const
 {
     return this->info.getName();
-}
-
-inline void exServer::removeIO()
-{
-    if ( this->simultAsychIOCount > 0u ) {
-        this->simultAsychIOCount--;
-    }
-    else {
-        fprintf ( stderr, 
-            "simultAsychIOCount underflow?\n" );
-    }
-}
-
-inline unsigned exServer :: maxSimultAsyncIO () const
-{
-    return this->_maxSimultAsyncIO;
 }
 
 inline exChannel::exChannel ( const casCtx & ctxIn ) : 

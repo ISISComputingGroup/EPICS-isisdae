@@ -18,16 +18,51 @@
 #include "exServer.h"
 #include "isisdaeInterface.h"
 #include "pcrecpp.h"
+#include "epicsStdio.h"
+
 //
 // exServer::exServer()
 //
+
+// allow use of .VAL in a name
+static std::string getPVBaseName(const std::string& pvStr)
+{
+	std::string pvName;
+	int n = pvStr.find_last_of(".");
+	if (n != std::string::npos)
+	{
+	    pvName = pvStr.substr(0, n);
+	}
+	else
+	{
+	    pvName = pvStr;
+	}
+	return pvName;
+}
+
+static std::string getPVNoValName(const std::string& pvStr)
+{
+	std::string pvName;
+	int n = pvStr.size();
+	if ( n >= 4 && pvStr.substr(n - 4) == ".VAL" )
+	{
+	    pvName = pvStr.substr(0, n - 4);
+	}
+	else
+	{
+	    pvName = pvStr;
+	}
+	return pvName;
+}
+
 exServer::exServer ( const char * const pvPrefix, 
         unsigned aliasCount, bool scanOnIn, 
         bool asyncScan, double asyncDelayIn,
         unsigned maxSimultAsyncIOIn, isisdaeInterface* iface) : 
         pTimerQueue ( 0 ), simultAsychIOCount ( 0u ), 
         _maxSimultAsyncIO ( maxSimultAsyncIOIn ),
-        asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix)
+        asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix),
+		m_ntc(8000)
 {
     unsigned i;
 
@@ -108,7 +143,6 @@ pvExistReturn exServer::pvExistTest // X aCC 361
     //
     stringId id ( pPVName, stringId::refString );
     pvEntry *pPVE;
-    char pvAlias[256];
 	std::string pvStr(pPVName);
     if (pvStr.compare(0, m_pvPrefix.size(), m_pvPrefix) != 0)
 	{
@@ -116,11 +150,6 @@ pvExistReturn exServer::pvExistTest // X aCC 361
 	}
 	pvStr.erase(0, m_pvPrefix.size());
 
-	int pvtype = getPVType(pvStr);
-	if (pvtype == 0x0)
-	{
-        return pverDoesNotExistHere;
-	}
 	
 	// as we create the PV on the fly, we need to protect against multiple access (and hence multiple create)
 	epicsGuard<epicsMutex> _guard (m_lock);
@@ -129,60 +158,17 @@ pvExistReturn exServer::pvExistTest // X aCC 361
     //
     pPVE = this->stringResTbl.lookup ( id );
     if ( ! pPVE ) {
-		pvInfo *pPVI = NULL;
-		int ntc = 8000; //m_iface->getNumTimeChannels(spec);
-		// pvInfo is given the "interested" scan period (i.e. with monitors) - this is multipled by 10 for the "uninterested case"
-        switch(pvtype & 0xff)
-        {
-            case 0x1:
-                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumInt32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
-                break;
-            case 0x2:
-                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumFloat32, excasIoSync, (pvtype & 0x100 ? ntc : 1));
-                break;
-            case 0x4:
-                pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, aitEnumString, excasIoSync, (pvtype & 0x100 ? ntc : 1));
-                break;
-        }
-        m_pvList[pvStr] = pPVI;
-        exPV *pPV = pPVI->createPV (*this, true, scanOn,  this->asyncDelay );
-        if (!pPV) {
-            fprintf(stderr, "Unable to create new PV \"%s\"\n",
-                pPVI->getName());
-        }
-        //
-        // Install canonical (root) name
-        //
-        sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), pPVI->getName());
-        this->installAliasName(*pPVI, pvAlias);
+        createSpecPVs(pvStr);
+		createMonitorPVs(pvStr);
 		pPVE = this->stringResTbl.lookup ( id );
 	}
 
-    pvInfo & pvi = pPVE->getInfo();
+    if ( ! pPVE ) {
+        return pverDoesNotExistHere;
+	}
+//    pvInfo & pvi = pPVE->getInfo();
 
-    //
-    // Initiate async IO if this is an async PV
-    //
-    if ( pvi.getIOType() == excasIoSync ) {
-        return pverExistsHere;
-    }
-    else {
-        if ( this->simultAsychIOCount >= this->_maxSimultAsyncIO ) {
-            return pverDoesNotExistHere;
-        }
-
-        this->simultAsychIOCount++;
-
-        exAsyncExistIO * pIO = 
-            new exAsyncExistIO ( pvi, ctxIn, *this );
-        if ( pIO ) {
-            return pverAsyncCompletion;
-        }
-        else {
-            this->simultAsychIOCount--;
-            return pverDoesNotExistHere;
-        }
-    }
+    return pverExistsHere;
 }
 
 //
@@ -205,38 +191,12 @@ pvAttachReturn exServer::pvAttach // X aCC 361
 
     pvInfo &pvi = pPVE->getInfo();
 
-    //
-    // If this is a synchronous PV create the PV now 
-    //
-    if (pvi.getIOType() == excasIoSync) {
-        pPV = pvi.createPV(*this, false, this->scanOn, this->asyncDelay );
-        if (pPV) {
-            return *pPV;
-        }
-        else {
-            return S_casApp_noMemory;
-        }
+    pPV = pvi.getPV();
+    if (pPV) {
+        return *pPV;
     }
-    //
-    // Initiate async IO if this is an async PV
-    //
     else {
-        if (this->simultAsychIOCount>=this->_maxSimultAsyncIO) {
-            return S_casApp_postponeAsyncIO;
-        }
-
-        this->simultAsychIOCount++;
-
-        exAsyncCreateIO *pIO = 
-            new exAsyncCreateIO ( pvi, *this, ctx, 
-                this->scanOn, this->asyncDelay );
-        if (pIO) {
-            return S_casApp_asyncCompletion;
-        }
-        else {
-            this->simultAsychIOCount--;
-            return S_casApp_noMemory;
-        }
+        return S_casApp_noMemory;
     }
 }
 
@@ -262,50 +222,11 @@ class epicsTimer & exServer::createTimer ()
 }
 
 //
-// pvInfo::createPV()
+// pvInfo::setPV()
 //
-exPV *pvInfo::createPV ( exServer & cas, bool preCreateFlag, 
-                    bool scanOn, double asyncDelay )
+void pvInfo::setPV ( exPV *pNewPV)
 {
-    if (this->pPV) {
-        return this->pPV;
-    }
 
-    exPV *pNewPV;
-
-    //
-    // create an instance of the appropriate class
-    // depending on the io type and the number
-    // of elements
-    //
-    if (this->elementCount==1u) {
-        switch (this->ioType){
-        case excasIoSync:
-            pNewPV = new exScalarPV ( cas, *this, preCreateFlag, scanOn );
-            break;
-        case excasIoAsync:
-            pNewPV = new exAsyncPV ( cas, *this, 
-                preCreateFlag, scanOn, asyncDelay );
-            break;
-        default:
-            pNewPV = NULL;
-            break;
-        }
-    }
-    else {
-        switch (this->ioType){
-        case excasIoSync:
-            pNewPV = new exVectorPV ( cas, *this, preCreateFlag, scanOn );
-            break;
-        case excasIoAsync:
-            pNewPV = new exAsyncVectorPV ( cas, *this, preCreateFlag, scanOn, asyncDelay );
-            break;
-        default:
-            pNewPV = NULL;
-            break;
-		}
-	}
-    
     //
     // load initial value (this is not done in
     // the constructor because the base class's
@@ -320,8 +241,25 @@ exPV *pvInfo::createPV ( exServer & cas, bool preCreateFlag,
         pNewPV->scan();
     }
 
-    return pNewPV;
 }
+
+exPV* pvInfo::getPV() 
+{ 
+    return pPV; 
+}
+
+exPV* exServer::getPV(const std::string& pvName)
+{ 
+    if ( m_pvList.find(pvName) != m_pvList.end() )
+	{
+	    return m_pvList[pvName]->getPV(); 
+	}
+	else
+	{
+	    return NULL;
+	}
+}
+
 
 //
 // exServer::show() 
@@ -340,145 +278,198 @@ void exServer::show (unsigned level) const
     this->caServer::show(level);
 }
 
-//
-// exAsyncExistIO::exAsyncExistIO()
-//
-exAsyncExistIO::exAsyncExistIO ( const pvInfo &pviIn, const casCtx &ctxIn,
-        exServer &casIn ) :
-    casAsyncPVExistIO ( ctxIn ), pvi ( pviIn ), 
-        timer ( casIn.createTimer () ), cas ( casIn ) 
-{
-    this->timer.start ( *this, 0.00001 );
-}
 
-//
-// exAsyncExistIO::~exAsyncExistIO()
-//
-exAsyncExistIO::~exAsyncExistIO()
+void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis, const char* units)
 {
-    this->cas.removeIO ();
-    this->timer.destroy ();
-}
-
-//
-// exAsyncExistIO::expire()
-// (a virtual function that runs when the base timer expires)
-//
-epicsTimerNotify::expireStatus exAsyncExistIO::expire ( const epicsTime & /*currentTime*/ )
-{
-    //
-    // post IO completion
-    //
-    this->postIOCompletion ( pvExistReturn(pverExistsHere) );
-    return noRestart;
-}
-
-
-//
-// exAsyncCreateIO::exAsyncCreateIO()
-//
-exAsyncCreateIO :: 
-    exAsyncCreateIO ( pvInfo &pviIn, exServer &casIn, 
-    const casCtx &ctxIn, bool scanOnIn, double asyncDelayIn ) :
-    casAsyncPVAttachIO ( ctxIn ), pvi ( pviIn ), 
-        timer ( casIn.createTimer () ), 
-        cas ( casIn ), asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn )
-{
-    this->timer.start ( *this, 0.00001 );
-}
-
-//
-// exAsyncCreateIO::~exAsyncCreateIO()
-//
-exAsyncCreateIO::~exAsyncCreateIO()
-{
-    this->cas.removeIO ();
-    this->timer.destroy ();
-}
-
-//
-// exAsyncCreateIO::expire()
-// (a virtual function that runs when the base timer expires)
-//
-epicsTimerNotify::expireStatus exAsyncCreateIO::expire ( const epicsTime & /*currentTime*/ )
-{
-    exPV * pPV = this->pvi.createPV ( this->cas, false, 
-                            this->scanOn, this->asyncDelay );
-    if ( pPV ) {
-        this->postIOCompletion ( pvAttachReturn ( *pPV ) );
-    }
-    else {
-        this->postIOCompletion ( pvAttachReturn ( S_casApp_noMemory ) );
-    }
-    return noRestart;
-}
-
-// allow use of .VAL in a name
-static std::string getPVBaseName(const std::string& pvStr)
-{
-	std::string pvName;
-	int n = pvStr.size();
-	if ( n >= 4 && pvStr.substr(n - 4) == ".VAL" )
+	char buffer[256], pvAlias[256];
+    sprintf(buffer, "%s:%d:%d:%c", prefix, period, spec, axis);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, units, aitEnumFloat32, m_ntc);
+    m_pvList[buffer] = pPVI;
+	SpectrumPV* pSPV = new SpectrumPV(*this, *pPVI, true, scanOn, axis, spec, period);
+    pPVI->setPV(pSPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	sprintf(pvAlias, "%s%s.EGU", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	if (period == 1)
 	{
-	    pvName = pvStr.substr(0, n - 4);
-	}
-	else
+        sprintf(buffer, "%s:%d:%c", prefix, spec, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	    sprintf(pvAlias, "%s%s.EGU", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+    }
+	
+    sprintf(buffer, "%s:%d:%d:%c.NORD", prefix, period, spec, axis);
+    pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "", aitEnumInt32, 1);
+    m_pvList[buffer] = pPVI;
+	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
+    pPVI->setPV(pPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	if (period == 1)
 	{
-	    pvName = pvStr;
+        sprintf(buffer, "%s:%d:%c.NORD", prefix, spec, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
 	}
-	return pvName;
+
+    sprintf(buffer, "%s:%d:%d:%c.NELM", prefix, period, spec, axis);
+	pPVI = createFixedPV(buffer, m_ntc, "", aitEnumInt32);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%c.NELM", prefix, spec, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+
+    sprintf(buffer, "%s:%d:%d:%c.DESC", prefix, period, spec, axis);
+	std::ostringstream desc;
+	desc << "Spec " << spec << " period " << period << " axis " << axis;
+	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%c.DESC", prefix, spec, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
 }
 
-// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-int parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis)
+template <typename T>
+pvInfo* exServer::createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type)
+{
+	char pvAlias[256];
+    pvInfo* pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, units, ait_type, 1);
+    m_pvList[pvStr.c_str()] = pPVI;
+	exPV* pPV = new FixedValuePV<T>(*this, *pPVI, true, scanOn, value);
+    pPVI->setPV(pPV);
+	epicsSnprintf(pvAlias, sizeof(pvAlias), "%s%s", m_pvPrefix.c_str(), pvStr.c_str());
+    this->installAliasName(*pPVI, pvAlias);
+	return pPVI;
+}
+
+void exServer::createCountsPV(const char* prefix, int spec, int period)
+{
+	char buffer[256], pvAlias[256];
+    sprintf(buffer, "%s:%d:%d:C", prefix, period, spec);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "counts", aitEnumInt32, 1);
+    m_pvList[buffer] = pPVI;
+	exPV* pPV = new CountsPV(*this, *pPVI, true, scanOn, spec, period);
+    pPVI->setPV(pPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:C", prefix, spec);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+}
+
+bool exServer::createSpecPVs(const std::string& pvStr)
+{
+    int spec, period;
+	char axis;
+	std::string field;
+	char buffer[256], pvAlias[256];
+    if (!parseSpecPV(pvStr, spec, period, axis, field))
+	{
+	    return false;
+	}
+    sprintf(buffer, "SPEC:%d:%d:X", period, spec);
+    if (m_pvList.find(buffer) != m_pvList.end())
+	{
+	    return false;
+	}
+
+	createAxisPVs("SPEC", spec, period, 'X', "us");
+	createAxisPVs("SPEC", spec, period, 'Y', "counts / us");
+	createCountsPV("SPEC", spec, period);
+
+    return true;
+}
+
+bool exServer::createMonitorPVs(const std::string& pvStr)
+{
+    int mon, period;
+	char axis;
+	std::string field;
+	char buffer[256], pvAlias[256];
+    if (!parseMonitorPV(pvStr, mon, period, axis, field))
+	{
+	    return false;
+	}
+    sprintf(buffer, "MON:%d:%d:X", period, mon);
+    if (m_pvList.find(buffer) != m_pvList.end())
+	{
+	    return false;
+	}
+
+	createAxisPVs("MON", mon, period, 'X', "us");
+	createAxisPVs("MON", mon, period, 'Y', "counts / us");
+	createCountsPV("MON", mon, period);
+
+    sprintf(buffer, "MON:%d:%d:S", period, mon);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "", aitEnumInt32, 1);
+    m_pvList[buffer] = pPVI;
+	exPV* pPV = new MonLookupPV(*this, *pPVI, true, scanOn, mon);
+    pPVI->setPV(pPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	if (period == 1)
+	{
+        sprintf(buffer, "MON:%d:S", mon);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+	return true;
+}
+
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis, std::string& field)
 {
     //Assumes period then spectrum
-	std::string pvName = getPVBaseName(pvStr);
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYCS])");
-    pcrecpp::RE spec_re("SPEC:(\\d+):([XYCS])");
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYC])([.].*)?");
+    pcrecpp::RE spec_re("SPEC:(\\d+):([XYC])([.].*)?");
     
-    if (!spec_per_re.FullMatch(pvName, &period, &spec, &axis))
+    if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis, &field))
     {
-        if (!spec_re.FullMatch(pvName, &spec, &axis))
+        if (!spec_re.FullMatch(pvStr, &spec, &axis, &field))
         {
-            return 0x0;
+            return false;
         }
         //If not specified assume the period is 1
         period = 1;
     }
-	if (axis == 'C' || axis == 'S')
-	{
-		return 0x1;
-	}
-	else
-	{
-		return 0x2 | 0x100;
-	}
+	return true;
 }
 
-// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-int parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis)
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis, std::string& field)
 {
-	std::string pvName = getPVBaseName(pvStr);
-    pcrecpp::RE monitor_re("MON:(\\d+):([XYCS])");
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYCS])");
-	if (!monitor_re.FullMatch(pvName, &period, &mon, &axis))
+    //Assumes period then monitor
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYCS])([.].*)?");
+    pcrecpp::RE monitor_re("MON:(\\d+):([XYCS])([.].*)?");
+	if (!monitor_per_re.FullMatch(pvStr, &period, &mon, &axis, &field))
 	{
-        if (!monitor_re.FullMatch(pvName, &mon, &axis))
+        if (!monitor_re.FullMatch(pvStr, &mon, &axis, &field))
         {
-            return 0x0;
+            return false;
         }
         //If not specified assume the period is 1
         period = 1;
 	}
-	if (axis == 'C' || axis == 'S')
-	{
-		return 0x1;
-	}
-	else
-	{
-		return 0x2 | 0x100;
-	}
+	return true;
 }
 
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
@@ -501,29 +492,4 @@ int parseSamplePV(const std::string& pvStr, std::string& param)
         return 0x0;
 	}
 	return 0x4;
-}
-
-// 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-int getPVType(const std::string& pvStr)
-{
-	int i, pvtype, p;
-	char c;
-    std::string s;
-    if ( (pvtype = parseSpecPV(pvStr, i, p, c)) != 0x0 )
-	{
-		return pvtype;
-	}
-    if ( (pvtype = parseMonitorPV(pvStr, i, p, c)) != 0x0 )
-	{
-		return pvtype;
-	}
-    if ( (pvtype = parseSamplePV(pvStr, s)) != 0x0 )
-	{
-		return pvtype;
-	}
-    if ( (pvtype = parseBeamlinePV(pvStr, s)) != 0x0 )
-	{
-		return pvtype;
-	}
-	return 0x0;
 }

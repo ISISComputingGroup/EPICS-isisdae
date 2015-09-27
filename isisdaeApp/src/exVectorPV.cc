@@ -31,13 +31,6 @@
 #endif
 
 //
-// special gddDestructor guarantees same form of new and delete
-//
-class exVecDestructor: public gddDestructor {
-    virtual void run (void *);
-};
-
-//
 // exVectorPV::maxDimension()
 //
 unsigned exVectorPV::maxDimension() const
@@ -65,9 +58,6 @@ void exVectorPV::scan()
 {
     caStatus            status;
     smartGDDPointer     pDD;
-    aitFloat32         *pX = NULL, *pY = NULL, *old_pX = NULL, *old_pY = NULL;
-    float               limit;
-    exVecDestructor     *pDest;
     int                 gddStatus;
 
  	epicsGuard<epicsMutex> _lock(scanLock); // we get called on a read as well as periodically, so need to prevent multiple access
@@ -80,93 +70,11 @@ void exVectorPV::scan()
     //
     this->currentTime = epicsTime::getCurrent();
  
-    //
-    // allocate array buffer
-    //
-    pX = new aitFloat32 [this->info.getElementCount()];
-    if (!pX) {
-        return;
-    }
-    pY = new aitFloat32 [this->info.getElementCount()];
-    if (!pY) {
-        delete[] pX;
-        return;
-    }
+    if ( !getNewValue(pDD) )
+	{
+	    return; // no change in value
+	}
 
-    pDest = new exVecDestructor;
-    if (!pDest) {
-        delete[] pX;
-		delete[] pY;
-        return;
-    }
-
-	std::string pvName(getName());
-	int spec, mon, period;
-	char axis;
-	if (parseSpecPV(pvName, spec, period, axis) == 0x0)
-	{
-		if (parseMonitorPV(pvName, mon, period, axis) == 0x0)
-		{
-			return;
-		}
-		spec = 1;
-        period = 1;
-	}
-	int n = 0;
-	if (axis == 'Y')
-	{
-        n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
-		delete[] pX;
-		// check to see if value has actually changed since last time
-		if ( this->pValue.valid() && this->m_size == n )
-		{
-		    this->pValue->getRef(old_pY);
-			if ( old_pY != NULL && memcmp(pY, old_pY, n*sizeof(aitFloat32)) == 0 )
-			{
-				delete[] pY;
-				delete pDest;
-			    return;
-			}
-		}
-        pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
-        if ( ! pDD.valid () ) {
-			delete[] pY;
-			delete pDest;
-            return;
-        }
-        //
-        // install the buffer into the DD
-        // (do this before we increment pF)
-        //
-        pDD->putRef(pY, pDest);
-	}
-	else if (axis == 'X')
-	{
-        n = cas.iface()->getSpectrum(spec, period, pX, pY, this->info.getElementCount());
-		delete[] pY;
-		// check to see if value has actually changed since last time
-		if ( this->pValue.valid() && this->m_size == n )
-		{
-		    this->pValue->getRef(old_pX);
-			if ( old_pX != NULL && memcmp(pX, old_pX, n*sizeof(aitFloat32)) == 0 )
-			{
-				delete[] pX;
-				delete pDest;
-			    return;
-			}
-		}
-        pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, n);
-        if ( ! pDD.valid () ) {
-			delete[] pX;
-			delete pDest;
-            return;
-        }
-        //
-        // install the buffer into the DD
-        // (do this before we increment pF)
-        //
-        pDD->putRef(pX, pDest);
-	}
     //
     // smart pointer class manages reference count after this point
     //
@@ -179,7 +87,6 @@ void exVectorPV::scan()
     status = this->update ( *pDD );
     if ( status != S_casApp_success ) {
         errMessage (status, "vector scan update failed\n");
-        std::cerr << "num points was " << n << std::endl;
     }
 }
 
