@@ -282,7 +282,7 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
 {
 	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:%c", prefix, period, spec, axis);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, units, aitEnumFloat32, m_ntc);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units, aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
 	SpectrumPV* pSPV = new SpectrumPV(*this, *pPVI, true, scanOn, axis, spec, period);
     pPVI->setPV(pSPV);
@@ -300,7 +300,7 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
     }
 	
     sprintf(buffer, "%s:%d:%d:%c.NORD", prefix, period, spec, axis);
-    pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "", aitEnumInt32, 1);
+    pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
     pPVI->setPV(pPV);
@@ -347,7 +347,7 @@ template <typename T>
 pvInfo* exServer::createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type)
 {
 	char pvAlias[256];
-    pvInfo* pPVI = new pvInfo (0.5, pvStr.c_str(), 10.0f, -10.0f, units, ait_type, 1);
+    pvInfo* pPVI = new pvInfo (0.5, pvStr.c_str(), 0.0f, 0.0f, units, ait_type, 1);   /// @todo would be nice to use arithmetic value, but need to check for strings
     m_pvList[pvStr.c_str()] = pPVI;
 	exPV* pPV = new FixedValuePV<T>(*this, *pPVI, true, scanOn, value);
     pPVI->setPV(pPV);
@@ -360,7 +360,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 {
 	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:C", prefix, period, spec);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "count", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "count", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new CountsPV(*this, *pPVI, true, scanOn, spec, period);
     pPVI->setPV(pPV);
@@ -442,7 +442,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	createCountsPV("MON", mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new MonLookupPV(*this, *pPVI, true, scanOn, mon);
     pPVI->setPV(pPV);

@@ -6,6 +6,8 @@
 #include "gddApps.h"
 #include "isisdaeInterface.h"
 
+/// class for a PV that converts a monitor number into a spectrum number
+
 MonLookupPV::MonLookupPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int monitor ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn), m_monitor(monitor)
 {
 

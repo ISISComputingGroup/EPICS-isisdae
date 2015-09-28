@@ -11,6 +11,7 @@ CountsPV::CountsPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool sca
 
 }
 
+/// update counts value if it has changed, otherwise return false 
 bool CountsPV::getNewValue(smartGDDPointer& pDD)
 {
     long counts = 0;

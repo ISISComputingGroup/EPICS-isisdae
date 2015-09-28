@@ -6,6 +6,8 @@
 #include "gddApps.h"
 #include "isisdaeInterface.h"
 
+/// class for a PV that has a fixed, unchaning value
+
 template <typename T>
 FixedValuePV<T>::FixedValuePV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const T& value ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn), m_value(value), m_first_call(true)
 {
@@ -24,6 +26,7 @@ bool FixedValuePV<T>::getNewValue(smartGDDPointer& pDD)
 	return true;
 }
 
+// specialisation for std::string as we need to call c_str()
 template <>
 bool FixedValuePV<std::string>::getNewValue(smartGDDPointer& pDD)
 {
