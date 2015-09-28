@@ -64,7 +64,6 @@ exServer::exServer ( const char * const pvPrefix,
         asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix),
 		m_ntc(8000)
 {
-    unsigned i;
 
     exPV::initFT();
 	setDebugLevel(5);
@@ -291,16 +290,12 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
     this->installAliasName(*pPVI, pvAlias);
 	sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
-	sprintf(pvAlias, "%s%s.EGU", m_pvPrefix.c_str(), buffer);
-    this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%c", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
-        this->installAliasName(*pPVI, pvAlias);
-	    sprintf(pvAlias, "%s%s.EGU", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
     }
 	
@@ -329,11 +324,20 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
 
     sprintf(buffer, "%s:%d:%d:%c.DESC", prefix, period, spec, axis);
 	std::ostringstream desc;
-	desc << "Spec " << spec << " period " << period << " axis " << axis;
+	desc << axis << " (spec=" << spec << ",period=" << period << ")";
 	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%c.DESC", prefix, spec, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+
+    sprintf(buffer, "%s:%d:%d:%c.EGU", prefix, period, spec, axis);
+	pPVI = createFixedPV(buffer, std::string(units), "", aitEnumString);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%c.EGU", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
@@ -372,6 +376,26 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
+
+    sprintf(buffer, "%s:%d:%d:C.DESC", prefix, period, spec);
+	std::ostringstream desc;
+	desc << "Integral (Spec=" << spec << ",period=" << period << ")";
+	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:C.DESC", prefix, spec);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+
+    sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, spec);
+	pPVI = createFixedPV(buffer, std::string("counts"), "", aitEnumString);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:C.EGU", prefix, spec);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
 }
 
 bool exServer::createSpecPVs(const std::string& pvStr)
@@ -379,7 +403,7 @@ bool exServer::createSpecPVs(const std::string& pvStr)
     int spec, period;
 	char axis;
 	std::string field;
-	char buffer[256], pvAlias[256];
+	char buffer[256];
     if (!parseSpecPV(pvStr, spec, period, axis, field))
 	{
 	    return false;

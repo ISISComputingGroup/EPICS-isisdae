@@ -35,7 +35,7 @@ bool exChannel::readAccess () const
 //
 bool exChannel::writeAccess () const
 {
-    return true;
+    return false; // none of the CAS PVs we serve are writable
 }
 
 
