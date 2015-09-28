@@ -360,7 +360,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 {
 	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:C", prefix, period, spec);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "counts", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 10.0f, -10.0f, "count", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new CountsPV(*this, *pPVI, true, scanOn, spec, period);
     pPVI->setPV(pPV);
@@ -389,7 +389,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 	}
 
     sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, spec);
-	pPVI = createFixedPV(buffer, std::string("counts"), "", aitEnumString);
+	pPVI = createFixedPV(buffer, std::string("count"), "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:C.EGU", prefix, spec);
@@ -415,7 +415,7 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs("SPEC", spec, period, 'X', "us");
-	createAxisPVs("SPEC", spec, period, 'Y', "counts / us");
+	createAxisPVs("SPEC", spec, period, 'Y', "cnt /us"); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createCountsPV("SPEC", spec, period);
 
     return true;
@@ -438,7 +438,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs("MON", mon, period, 'X', "us");
-	createAxisPVs("MON", mon, period, 'Y', "counts / us");
+	createAxisPVs("MON", mon, period, 'Y', "cnt /us");
 	createCountsPV("MON", mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
