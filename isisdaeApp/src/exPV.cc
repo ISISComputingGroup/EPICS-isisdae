@@ -229,7 +229,7 @@ caStatus exPV::getLowLimit ( gdd & value )
 //
 caStatus exPV::getUnits( gdd & units )
 {
-    aitString str("counts", aitStrRefConstImortal);
+    aitString str(info.getUnits(), aitStrRefConst);
     units.put(str);
     return S_cas_success;
 }

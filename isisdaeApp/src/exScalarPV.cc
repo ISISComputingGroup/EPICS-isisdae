@@ -65,65 +65,11 @@ void exScalarPV::scan()
     gddStatus = pDD->unreference ();
     assert ( ! gddStatus );
 
-	std::string pvName(getName());
-//	std::string param_name, param_type, param_units, param_value;
-//	if (parseBeamlinePV(pvName, param_name) != 0x0)
-//	{
-//        cas.iface()->getBeamlineParameter(param_name, param_type, param_units, param_value);
-//        *pDD = param_value.c_str();
-//	}
-//	else if (parseSamplePV(pvName, param_name) != 0x0)
-//	{
-//       cas.iface()->getSampleParameter(param_name, param_type, param_units, param_value);
-//        *pDD = param_value.c_str();
-//	}
-//	else
-//	{
-	    int spec, mon, period;
-	    char axis;
-	    if (parseSpecPV(pvName, spec, period, axis) == 0x0)
-	    {
-		    if (parseMonitorPV(pvName, mon, period, axis) == 0x0)
-		    {
-			    return;
-		    }
-		    spec = mon;
-	    }
+    if ( !getNewValue(pDD) )
+	{
+	    return; // no change in value
+	}
 
-////    if ( this->pValue.valid () ) {
-////       this->pValue->getConvert(newValue);
-////    }
-////    else {
-////        newValue = 0.0f;
-////    }
-////    newValue += (float) ( sin (radians) / 10.0 );
-////    limit = (float) this->info.getHopr ();
-////    newValue = tsMin ( newValue, limit );
-////    limit = (float) this->info.getLopr ();
-////    newValue = tsMax ( newValue, limit );
-	    if (axis == 'C')
-	    {
-            long counts = 0;
-            cas.iface()->getSpectrumIntegral(spec, period, 0.0, -1.0, counts);
-			if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == counts) )
-			{
-			    return;
-			}
-            *pDD = counts;
-		}
-		else if (axis == 'S')
-		{
-			if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == spec) )
-			{
-			    return;
-			}
-		    *pDD = spec;
-		}
-		else
-		{
-		    return; // error, shouldn't happen
-		}
-//	}
     aitTimeStamp gddts ( this->currentTime );
     pDD->setTimeStamp ( & gddts );
     status = this->update ( *pDD );
