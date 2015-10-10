@@ -64,7 +64,16 @@ exServer::exServer ( const char * const pvPrefix,
         asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix),
 		m_ntc(8000)
 {
-
+    if ( getenv("EPICS_CA_MAX_ARRAY_BYTES") != NULL )
+	{
+	    long max_array_bytes = atol(getenv("EPICS_CA_MAX_ARRAY_BYTES"));
+		if (max_array_bytes > 0)
+		{
+		    m_ntc = max_array_bytes / sizeof(float);
+		}
+	}
+	std::cerr << "Spectrum array max size set to " << m_ntc << std::endl;
+	
     exPV::initFT();
 	setDebugLevel(5);
 
