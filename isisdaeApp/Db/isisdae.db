@@ -26,6 +26,7 @@ record(stringin, "$(P)_RBNUMBER")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RBNUMBER")
     field(SCAN, "I/O Intr")
+    field(FLNK, "$(S)ED:RBNUMBER.PROC")
     info(INTEREST, "HIGH")
 }
 
