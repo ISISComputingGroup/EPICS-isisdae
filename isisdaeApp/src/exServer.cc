@@ -69,7 +69,9 @@ exServer::exServer ( const char * const pvPrefix,
 	    long max_array_bytes = atol(getenv("EPICS_CA_MAX_ARRAY_BYTES"));
 		if (max_array_bytes > 0)
 		{
-		    m_ntc = max_array_bytes / sizeof(float);
+		    // m_ntc = max_array_bytes / sizeof(float);
+			// above is too big
+			m_ntc = 8000;
 		}
 	}
 	std::cerr << "Spectrum array max size set to " << m_ntc << std::endl;
