@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 #include <iomanip>
-
+#include <sys/timeb.h>
 #include <boost/algorithm/string.hpp>
 
 #include <epicsTypes.h>
@@ -72,6 +72,86 @@ void isisdaeDriver::beginStateTransition(int state)
     m_RunStatus = state;
 	setIntegerParam(P_RunStatus, m_RunStatus);
 	callParamCallbacks();
+}
+
+struct frame_uamp_state
+{
+    struct timeb tb;
+	long frames;
+	double uah;
+	bool error; // error reported
+	frame_uamp_state() : frames(0), uah(0.0), error(false) { memset(&tb, 0, sizeof(struct timeb)); }
+};
+
+
+static void check_frame_uamp(const char* type, long& frames, double& uah, frame_uamp_state& state)
+{
+    static const double uah_per_sec = 400.0 / 3600.0;  // use 400 microamp beam, to allow for timing errors etc
+	static const long frames_per_sec = 100; // double 50Hz to allow for rounding erros etc
+	static const long MAXFRAMES = (1 << 30); // 240 days at 50Hz
+	static const double MAXUAH = 2e6; // 280 days 
+    bool update_state = true;
+    struct timeb now;
+    ftime(&now);
+    if (state.tb.time == 0) // first call
+	{
+	    memcpy(&(state.tb), &now, sizeof(struct timeb));
+		state.error = false;
+		if (uah >= 0.0 && uah < MAXUAH)
+		{
+		    state.uah = uah;
+		}
+		else
+		{
+		    state.uah = MAXUAH; 
+		}
+		if (frames >= 0 && frames < MAXFRAMES)
+		{
+		    state.frames = frames;
+		}
+		else
+		{
+		    state.frames = MAXFRAMES;  
+		}
+		return;
+	}
+	double tdiff = (now.time - state.tb.time) + (now.millitm - state.tb.millitm) / 1000.0; 
+	if (tdiff < 0.1)
+	{
+		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
+	}
+	// isis is 50Hz max, use 55 to just allow a bit of leeway 
+    if ( (frames < 0) || (frames > MAXFRAMES) || ((frames - state.frames) >  frames_per_sec * tdiff) )
+	{
+		if (!state.error)
+		{
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s frames %ld", type, frames);
+			state.error = true;
+		}
+	    frames = state.frames;
+		update_state = false;
+	}
+	if ( (uah < 0.0) ||  (uah > MAXUAH) || ((uah - state.uah) >  uah_per_sec * tdiff) )
+	{
+		if (!state.error)
+		{
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s uah %f", type, uah);
+			state.error = true;
+		}
+	    uah = state.uah;
+		update_state = false;
+	}
+	if (update_state)
+	{
+	    memcpy(&(state.tb), &now, sizeof(struct timeb));
+		state.uah = uah;
+		state.frames = frames;
+		if (state.error)
+		{
+			errlogSevPrintf(errlogInfo, "%s frames OK %ld uah OK %f", type, frames, uah);
+		    state.error = false;
+		}
+	}
 }
 
 void isisdaeDriver::endStateTransition()
@@ -652,6 +732,9 @@ void isisdaeDriver::pollerThread1()
 
 void isisdaeDriver::updateRunStatus()
 {
+        static frame_uamp_state fu_state, r_fu_state, p_fu_state;
+		static const char* no_check_frame_uamp = macEnvExpand("$(NOCHECKFUAMP)");
+
         if (m_inStateTrans)
         {
             return;
@@ -665,12 +748,24 @@ void isisdaeDriver::updateRunStatus()
         {
             m_RunStatus = rs;
         }
-		setDoubleParam(P_GoodUAH, m_iface->getGoodUAH());
-        setDoubleParam(P_GoodUAHPeriod, m_iface->getGoodUAHPeriod());
+		long frames = m_iface->getGoodFrames();
+		double uah = m_iface->getGoodUAH();
+		long p_frames = m_iface->getGoodFramesPeriod();
+		double p_uah = m_iface->getGoodUAHPeriod();
+		long r_frames = m_iface->getRawFrames();
+		double r_uah = 0.0;
+		if (no_check_frame_uamp == NULL || *no_check_frame_uamp == '\0')
+		{
+		    check_frame_uamp("good", frames, uah, fu_state);
+		    check_frame_uamp("raw", r_frames, r_uah, r_fu_state);
+		    check_frame_uamp("period good", p_frames, p_uah, p_fu_state);
+		}
+		setDoubleParam(P_GoodUAH, uah);
+        setDoubleParam(P_GoodUAHPeriod, p_uah);
         setIntegerParam(P_TotalCounts, m_iface->getTotalCounts());
-        setIntegerParam(P_GoodFramesTotal, m_iface->getGoodFrames());
-        setIntegerParam(P_GoodFramesPeriod, m_iface->getGoodFramesPeriod());
-		setIntegerParam(P_RawFramesTotal, m_iface->getRawFrames());
+        setIntegerParam(P_GoodFramesTotal, frames);
+        setIntegerParam(P_GoodFramesPeriod, p_frames);
+		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
         ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod,P_TotalDaeCounts, P_MonitorCounts
 }
