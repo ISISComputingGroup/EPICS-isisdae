@@ -504,6 +504,7 @@ record(mbbi, "$(P)RUNSTATE")
     field(TTVL, 13)
     field(TTST, "STORING")
     info(INTEREST, "HIGH")
+	info(archive, "VAL")
 }
 
 alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
@@ -525,6 +526,7 @@ record(longin, "$(P)PERIOD")
     field(INP,  "@asyn(icp,0,0)PERIOD")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+	info(archive, "VAL")
 	field(EGU, "")
 }
 
