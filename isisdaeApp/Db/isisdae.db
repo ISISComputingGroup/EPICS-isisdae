@@ -547,6 +547,7 @@ record(longin, "$(P)NUMPERIODS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+	info(archive, "VAL")
 }
 
 record(longout, "$(P)NUMPERIODS:SP")
@@ -652,6 +653,9 @@ record(ai, "$(P)VETOPC")
     field(INP,  "@asyn(icp,0,0)VETOPC")
     field(SCAN, "I/O Intr")
 	field(EGU, "%")
+# useful to log, but need a good deadband value or will get too much data
+	field(ADEL, 5.0)
+	info(archive, "VAL")
 }
 
 record(waveform, "$(P)ALLMSGS")
