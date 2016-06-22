@@ -115,7 +115,8 @@ isisdaeInterface::isisdaeInterface(const char* host, int options, const char* us
 		}
 	}
 	else
-	{	
+	{
+		std::cerr << "DAE is not using DCOM" << std::endl;
 		ISISICPINT::areYouThere();
 	}
 }
@@ -674,7 +675,10 @@ int isisdaeInterface::getRunDataFromDAE(std::map<std::string, DAEValue>& values)
     std::string cluster_xml;
     int res = (m_dcom ? getXMLSettingsD(cluster_xml, "run_data_cluster.xml", &ICPDCOM::updateStatusXML2) : getXMLSettingsI(cluster_xml, "run_data_cluster.xml", &ISISICPINT::updateStatusXML2)); 
     CComPtr<IXMLDOMDocument> xmldom = createXmlDom(cluster_xml);
-    extractValues(values, xmldom);        
+	if (xmldom)
+	{
+        extractValues(values, xmldom);
+	}        
     return 0;
 }
 
@@ -712,9 +716,15 @@ CComPtr<IXMLDOMDocument> isisdaeInterface::createXmlDom(const std::string& xml)
     HRESULT hr = spXMLDOM.CoCreateInstance(__uuidof(DOMDocument));
     
     if ( FAILED(hr) ) 
+	{
         std::cout << "Unable to create XML parser object\n";
+		return NULL;
+	}
     if ( spXMLDOM.p == NULL ) 
+	{
         std::cout << "Unable to create XML parser object\n";
+		return NULL;
+	}
     
 	spXMLDOM->put_async(VARIANT_FALSE);
 	spXMLDOM->put_validateOnParse(VARIANT_FALSE);
@@ -722,6 +732,7 @@ CComPtr<IXMLDOMDocument> isisdaeInterface::createXmlDom(const std::string& xml)
     spXMLDOM->loadXML(CT2OLE(xml.c_str()), &b_status);
     if (b_status!=VARIANT_TRUE) {
         std::cout << "Some sort of error\n";
+		return NULL;
     }
     return spXMLDOM;
 }

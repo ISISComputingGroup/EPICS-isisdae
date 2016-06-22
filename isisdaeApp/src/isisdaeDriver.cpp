@@ -695,15 +695,23 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 }
 
 void isisdaeDriver::pollerThreadC1(void* arg)
-{ 
-    isisdaeDriver* driver = (isisdaeDriver*)arg; 
-	driver->pollerThread1();
+{
+	epicsThreadSleep(1.0);	// let constructor complete
+    isisdaeDriver* driver = (isisdaeDriver*)arg;
+	if (driver != NULL)
+	{
+	    driver->pollerThread1();
+	}
 }
 
 void isisdaeDriver::pollerThreadC2(void* arg)
 { 
+	epicsThreadSleep(1.0);	// let constructor complete
     isisdaeDriver* driver = (isisdaeDriver*)arg; 
-	driver->pollerThread2();
+	if (driver != NULL)
+	{
+	    driver->pollerThread2();
+	}
 }
 
 void isisdaeDriver::pollerThread1()
@@ -981,14 +989,22 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 		if (iface != NULL)
 		{
 			isisdaeDriver* driver = new isisdaeDriver(iface, portName);
-			if (epicsThreadCreate("daeCAS",
+			if (driver != NULL)
+			{
+				if (epicsThreadCreate("daeCAS",
                           epicsThreadPriorityMedium,
                           epicsThreadGetStackSize(epicsThreadStackMedium),
                           (EPICSTHREADFUNC)daeCASThread, iface) == 0)
+				{
+					printf("epicsThreadCreate failure\n");
+					return(asynError);
+				}
+			}
+			else
 			{
-				printf("epicsThreadCreate failure\n");
+			    errlogSevPrintf(errlogMajor, "isisdaeConfigure failed (NULL)\n");
 				return(asynError);
-			}	
+			}
 			return(asynSuccess);
 		}
 		else
