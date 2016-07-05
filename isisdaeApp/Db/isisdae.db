@@ -7,6 +7,7 @@ record(waveform, "$(P)TITLE")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(waveform, "$(P)TITLE:SP")
@@ -28,6 +29,7 @@ record(stringin, "$(P)_RBNUMBER")
     field(SCAN, "I/O Intr")
     field(FLNK, "$(S)ED:RBNUMBER.PROC")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(stringout, "$(P)_RBNUMBER:SP")
@@ -46,6 +48,7 @@ record(stringin, "$(P)RUNNUMBER")
     field(INP,  "@asyn(icp,0,0)RUNNUMBER")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(waveform, "$(P)_USERNAME")
@@ -57,6 +60,7 @@ record(waveform, "$(P)_USERNAME")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(waveform, "$(P)_USERNAME:SP")
@@ -87,6 +91,7 @@ record(stringin, "$(P)STARTTIME")
     field(INP,  "@asyn(icp,0,0)STARTTIME")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)NPRATIO")
@@ -106,6 +111,7 @@ record(stringin, "$(P)DAETIMINGSOURCE")
     field(INP,  "@asyn(icp,0,0)DAETIMINGSOURCE")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(stringin, "$(P)PERIODTYPE")
@@ -134,6 +140,7 @@ record(longin, "$(P)RAWFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)RAWFRAMES_PD")
@@ -142,6 +149,7 @@ record(longin, "$(P)RAWFRAMES_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RAWFRAMESPD")
     field(SCAN, "I/O Intr")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)GOODFRAMES")
@@ -152,6 +160,7 @@ record(longin, "$(P)GOODFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)GOODFRAMES_PD")
@@ -160,6 +169,7 @@ record(longin, "$(P)GOODFRAMES_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)GOODFRAMESPD")
     field(SCAN, "I/O Intr")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)RUNDURATION")
@@ -170,6 +180,7 @@ record(longin, "$(P)RUNDURATION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "s")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)RUNDURATION_PD")
@@ -178,6 +189,7 @@ record(longin, "$(P)RUNDURATION_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
     field(SCAN, "I/O Intr")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)NUMTIMECHANNELS")
@@ -188,6 +200,7 @@ record(longin, "$(P)NUMTIMECHANNELS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)DAEMEMORYUSED")
@@ -198,6 +211,7 @@ record(longin, "$(P)DAEMEMORYUSED")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "byte")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)NUMSPECTRA")
@@ -208,6 +222,7 @@ record(longin, "$(P)NUMSPECTRA")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")	
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)MONITORCOUNTS")
@@ -218,6 +233,7 @@ record(longin, "$(P)MONITORCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "count")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)MONITORSPECTRUM")
@@ -228,6 +244,7 @@ record(longin, "$(P)MONITORSPECTRUM")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)PERIODSEQ")
@@ -238,6 +255,7 @@ record(longin, "$(P)PERIODSEQ")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)BEAMCURRENT")
@@ -249,6 +267,7 @@ record(ai, "$(P)BEAMCURRENT")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "uA")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)TOTALUAMPS")
@@ -260,6 +279,7 @@ record(ai, "$(P)TOTALUAMPS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "uA hour")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)TOTALDAECOUNTS")
@@ -281,6 +301,7 @@ record(ai, "$(P)MONITORTO")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)MONITORFROM")
@@ -291,6 +312,7 @@ record(ai, "$(P)MONITORFROM")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)COUNTRATE")
@@ -302,6 +324,7 @@ record(ai, "$(P)COUNTRATE")
     field(SCAN, "I/O Intr")
 	field(EGU, "")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)EVENTMODEFRACTION")
@@ -567,6 +590,7 @@ record(longin, "$(P)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "count")
+    info(archive, "VAL")
 }
 
 record(waveform, "$(P)DAESETTINGS")
