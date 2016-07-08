@@ -18,6 +18,15 @@ record(waveform, "$(P)TITLE:SP")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
 }
 
+record(bi, "$(P)TITLE:DISPLAY")
+{
+    field(DESC, "Toggle Run Title Display")
+    field(DTYP, "Soft Channel")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    field(SCAN, "Passive")
+}
+
 alias("$(P)TITLE", "$(P)TITLE:SP:RBV")
 
 record(stringin, "$(P)_RBNUMBER")
@@ -28,16 +37,6 @@ record(stringin, "$(P)_RBNUMBER")
     field(SCAN, "I/O Intr")
     field(FLNK, "$(S)ED:RBNUMBER.PROC")
     info(INTEREST, "HIGH")
-}
-
-record(bi, "$(P)TITLE:DISPLAY")
-{
-    field(DESC, "Toggle Run Title Display")
-    field(DTYP, "asynInt32")
-    field(INP,  "@asyn(icp,0,0)TITLE:DISPLAY")
-    field(ZNAM, "No")
-    field(ONAM, "Yes")
-    field(SCAN, "I/O Intr")
 }
 
 record(stringout, "$(P)_RBNUMBER:SP")
