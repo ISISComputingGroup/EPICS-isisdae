@@ -19,6 +19,15 @@ record(waveform, "$(P)TITLE:SP")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
 }
 
+record(bi, "$(P)TITLE:DISPLAY")
+{
+    field(DESC, "Toggle Run Title Display")
+    field(DTYP, "Soft Channel")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    field(SCAN, "Passive")
+}
+
 alias("$(P)TITLE", "$(P)TITLE:SP:RBV")
 
 record(stringin, "$(P)_RBNUMBER")
