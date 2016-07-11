@@ -151,7 +151,7 @@ record(longin, "$(P)RAWFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(longin, "$(P)RAWFRAMES_PD")
@@ -160,7 +160,7 @@ record(longin, "$(P)RAWFRAMES_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RAWFRAMESPD")
     field(SCAN, "I/O Intr")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(longin, "$(P)GOODFRAMES")
@@ -171,7 +171,7 @@ record(longin, "$(P)GOODFRAMES")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(longin, "$(P)GOODFRAMES_PD")
@@ -180,7 +180,7 @@ record(longin, "$(P)GOODFRAMES_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)GOODFRAMESPD")
     field(SCAN, "I/O Intr")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(longin, "$(P)RUNDURATION")
@@ -191,7 +191,7 @@ record(longin, "$(P)RUNDURATION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "s")
-    info(archive, "VAL")
+    info(archive, "-30.0 VAL")
 }
 
 record(longin, "$(P)RUNDURATION_PD")
@@ -200,7 +200,7 @@ record(longin, "$(P)RUNDURATION_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
     field(SCAN, "I/O Intr")
-    info(archive, "VAL")
+    info(archive, "-30.0 VAL")
 }
 
 record(longin, "$(P)NUMTIMECHANNELS")
@@ -278,7 +278,7 @@ record(ai, "$(P)BEAMCURRENT")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "uA")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)TOTALUAMPS")
@@ -290,7 +290,7 @@ record(ai, "$(P)TOTALUAMPS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "uA hour")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)TOTALDAECOUNTS")
@@ -301,6 +301,7 @@ record(ai, "$(P)TOTALDAECOUNTS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(archive, "-5.0 VAL")
 	field(EGU, "count")
 }
 
@@ -335,7 +336,7 @@ record(ai, "$(P)COUNTRATE")
     field(SCAN, "I/O Intr")
 	field(EGU, "")
     info(INTEREST, "HIGH")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)EVENTMODEFRACTION")
@@ -358,6 +359,7 @@ record(ai, "$(P)GOODUAH")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "uA hour")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)GOODUAH_PD")
@@ -368,6 +370,7 @@ record(ai, "$(P)GOODUAH_PD")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "uA hour")
+    info(archive, "-5.0 VAL")
 }
 
 record(bo, "$(P)BEGINRUN")
@@ -601,7 +604,7 @@ record(longin, "$(P)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "count")
-    info(archive, "VAL")
+    info(archive, "-5.0 VAL")
 }
 
 record(waveform, "$(P)DAESETTINGS")
@@ -690,7 +693,7 @@ record(ai, "$(P)VETOPC")
 	field(EGU, "%")
 # useful to log, but need a good deadband value or will get too much data
 	field(ADEL, 5.0)
-	info(archive, "VAL")
+	info(archive, "-5.0 VAL")
 }
 
 record(waveform, "$(P)ALLMSGS")
