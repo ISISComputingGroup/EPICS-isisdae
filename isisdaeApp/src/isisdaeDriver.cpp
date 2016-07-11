@@ -627,6 +627,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_ErrMsgsString, asynParamOctet, &P_ErrMsgs);
     createParam(P_RBNumberString, asynParamOctet, &P_RBNumber);
     createParam(P_RunNumberString, asynParamOctet, &P_RunNumber);
+    createParam(P_IRunNumberString, asynParamInt32, &P_IRunNumber);
     createParam(P_UserNameString, asynParamOctet, &P_UserName);
     createParam(P_InstNameString, asynParamOctet, &P_InstName);
     createParam(P_UserTelephoneString, asynParamOctet, &P_UserTelephone);
@@ -853,7 +854,9 @@ void isisdaeDriver::pollerThread2()
         last_gf = this_gf;
         setStringParam(P_RunTitle, values["RunTitle"]); 
         setStringParam(P_RBNumber, values["RBNumber"]); 
-        setStringParam(P_RunNumber, values["RunNumber"]);
+		const char* rn = values["RunNumber"];
+        setStringParam(P_RunNumber, rn);
+        setIntegerParam(P_IRunNumber, atol(rn));
         setStringParam(P_InstName, values["InstName"]);
         setStringParam(P_UserName, values["UserName"]);
         setStringParam(P_UserTelephone, values["UserTelephone"]);

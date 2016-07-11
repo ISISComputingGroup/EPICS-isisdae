@@ -51,6 +51,7 @@ private:
     int P_UserName; //char*
     int P_InstName; //char*
     int P_RunNumber; //char*
+    int P_IRunNumber; //int
     int P_UserTelephone; //char*
     int P_StartTime; //char*
     int P_NPRatio; //double
@@ -136,6 +137,7 @@ private:
 #define P_UserNameString	"USERNAME"
 #define P_InstNameString	"INSTNAME"
 #define P_RunNumberString	"RUNNUMBER"
+#define P_IRunNumberString	"IRUNNUMBER"
 #define P_UserTelephoneString	"USERTELEPHONE"
 #define P_StartTimeString	"STARTTIME"
 #define P_NPRatioString	"NPRATIO"
