@@ -896,6 +896,57 @@ record(waveform, "$(P)SPECTRA_PATTERN")
    field(NELM, 256)
 }
 
+## FileList for TCB files
+record(waveform, "$(P)TCB_DIR:SP")
+{
+   field(DESC, "Set directory of TCB files")
+   field(DTYP, "asynOctetWrite")
+   field(INP, "@asyn($(TCBLIST),0,1)DIRBASE")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)TCB_DIR")
+{
+   field(DESC, "Get directory of TCB Files")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn($(TCBLIST),0,1)DIRBASE")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)TCBFILES")
+{
+	field(DESC, "Compressed JSON list of TCB Files")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(TCBLIST),0,1)JARR")	
+	field(NELM, 16384)
+	field(SCAN, "I/O Intr")
+    field(PINI, "YES")
+}
+
+record(waveform, "$(P)TCB_PATTERN:SP")
+{
+   field(DESC, "Set regex search of TCB files")  
+   field(DTYP, "asynOctetWrite")
+   field(INP, "@asyn($(TCBLIST),0,1)SEARCH")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+record(waveform, "$(P)TCB_PATTERN")
+{
+   field(DESC, "Get regex search of TCB files")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn($(TCBLIST),0,1)SEARCH")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
 ## records for restarting archive engine on a begin
 ## force processing of _RESTART_ARCHIVER via forward link to restart archiver
 record(stringout, "$(P)_ARCHIVER_URL")
