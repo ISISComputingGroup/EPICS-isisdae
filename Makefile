@@ -14,5 +14,6 @@ $(foreach dir, $(filter-out configure,$(DIRS)),$(eval $(call DIR_template,$(dir)
 iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
 
 postbuild_DEPEND_DIRS += iocBoot
+isisdaeTestApp_DEPEND_DIRS += isisdaeApp
 
 include $(TOP)/configure/RULES_TOP
