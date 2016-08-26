@@ -35,13 +35,13 @@ $(APPNAME)_LIBS += seqDev seq pv
 $(APPNAME)_LIBS += devIocStats 
 $(APPNAME)_LIBS += pvdump $(MYSQLLIB) easySQLite sqlite 
 $(APPNAME)_LIBS += caPutLog
-$(APPNAME)_LIBS += icpconfig pugixml
+$(APPNAME)_LIBS += icpconfig
 $(APPNAME)_LIBS += autosave
 $(APPNAME)_LIBS += utilities
 ## Add other libraries here ##
 #$(APPNAME)_LIBS += xxx
-$(APPNAME)_LIBS += isisdae asyn oncrpc zlib pcrecpp pcre
-$(APPNAME)_LIBS += cas gdd
+$(APPNAME)_LIBS += isisdae asyn oncrpc zlib pcrecpp pcre pugixml
+$(APPNAME)_LIBS += cas gdd 
 $(APPNAME)_LIBS_WIN32 += libcurl
 $(APPNAME)_SYS_LIBS_Linux += curl
 

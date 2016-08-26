@@ -28,6 +28,7 @@
 #include "errlog.h"
 
 #include "utilities.h"
+#include "pugixml.hpp"
 
 #include "isisdaeDriver.h"
 #include "isisdaeInterface.h"
@@ -674,6 +675,12 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_SampleParString, asynParamOctet, &P_SamplePar);
     createParam(P_BeamlineParString, asynParamOctet, &P_BeamlinePar);
 
+    createParam(P_wiringTableFileString, asynParamOctet, &P_wiringTableFile);
+    createParam(P_detectorTableFileString, asynParamOctet, &P_detectorTableFile);
+    createParam(P_spectraTableFileString, asynParamOctet, &P_spectraTableFile);
+    createParam(P_tcbFileString, asynParamOctet, &P_tcbFile);
+    createParam(P_periodsFileString, asynParamOctet, &P_periodsFile);
+	
     setIntegerParam(P_StateTrans, 0);
 
     // Create the thread for background tasks (not used at present, could be used for I/O intr scanning) 
@@ -742,7 +749,7 @@ void isisdaeDriver::pollerThread1()
 void isisdaeDriver::updateRunStatus()
 {
         static frame_uamp_state fu_state, r_fu_state, p_fu_state;
-		static const char* no_check_frame_uamp = macEnvExpand("$(NOCHECKFUAMP)");
+		static const char* no_check_frame_uamp = macEnvExpand("$(NOCHECKFUAMP=)");
 
         if (m_inStateTrans)
         {
@@ -899,6 +906,18 @@ void isisdaeDriver::pollerThread2()
 		    }
             setStringParam(P_HardwarePeriodsSettings, hardwarePeriodsSettings.c_str() );
             setStringParam(P_UpdateSettings, updateSettings.c_str() );
+			
+			std::string val;
+			getDAEXML(daeSettings, "/Cluster/String[Name='Wiring Table']/Val", val);
+			setStringParam(P_wiringTableFile, val.c_str());
+			getDAEXML(daeSettings, "/Cluster/String[Name='Detector Table']/Val", val);
+			setStringParam(P_detectorTableFile, val.c_str());
+			getDAEXML(daeSettings, "/Cluster/String[Name='Spectra Table']/Val", val);
+			setStringParam(P_spectraTableFile, val.c_str());
+			getDAEXML(tcbSettings, "/Cluster/String[Name='Time Channel File']/Val", val);
+			setStringParam(P_tcbFile, val.c_str());
+			getDAEXML(hardwarePeriodsSettings, "/Cluster/String[Name='Period File']/Val", val);
+			setStringParam(P_periodsFile, val.c_str());
         }          
 		std::list<std::string> messages;
 		std::string all_msgs;
@@ -919,6 +938,23 @@ void isisdaeDriver::pollerThread2()
         ++counter;
 	}
 }	
+			
+void isisdaeDriver::getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value)
+{
+	value = "";
+	pugi::xml_document dae_doc;
+	pugi::xml_parse_result result = dae_doc.load_buffer(xmlstr.c_str(), xmlstr.size());
+ 	if (!result)
+	{
+	    std::cerr << "Error in XML: " << result.description() << " at offset " << result.offset << std::endl;
+		return;
+	}
+	pugi::xpath_node_set nodes = dae_doc.select_nodes(path.c_str());
+	if (nodes.size() > 0)
+	{
+	    value = nodes[0].node().child_value();
+	}
+}
 
 static void daeCASThread(void* arg)
 {
