@@ -88,6 +88,11 @@ private:
     int P_SamplePar; //string
     int P_BeamlinePar; //string
 	int P_StateTrans; //long
+	int P_wiringTableFile; // string
+	int P_detectorTableFile; // string
+	int P_spectraTableFile; // string
+	int P_tcbFile; // string
+	int P_periodsFile; // string
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define FIRST_ISISDAE_PARAM P_GoodUAH
@@ -105,6 +110,7 @@ private:
     void updateRunStatus();
 	void reportErrors(const char* exc_text);
 	void reportMessages();
+	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
@@ -174,6 +180,11 @@ private:
 #define P_SampleParString	"SAMPLEPAR"
 #define P_BeamlineParString	"BEAMLINEPAR"
 #define P_StateTransString	"STATETRANS"
+#define	P_wiringTableFileString "WIRINGFILE"
+#define P_detectorTableFileString "DETFILE"
+#define P_spectraTableFileString "SPECFILE"
+#define P_tcbFileString           "TCBFILE"
+#define P_periodsFileString      "PERIODSFILE"
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
 

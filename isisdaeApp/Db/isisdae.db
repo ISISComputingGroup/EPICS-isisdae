@@ -723,6 +723,56 @@ record(waveform, "$(P)ERRMSGS")
     field(SCAN, "I/O Intr")
 }
 
+record(waveform, "$(P)WIRING_FILE")
+{
+   field(DESC, "Wiring table filename")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn(icp,0,0)WIRINGFILE")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)DETECTOR_FILE")
+{
+   field(DESC, "Detector table filename")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn(icp,0,0)DETFILE")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)SPECTRA_FILE")
+{
+   field(DESC, "Spectra table filename")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn(icp,0,0)SPECFILE")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)TCB_FILE")
+{
+   field(DESC, "TCB filename")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn(icp,0,0)TCBFILE")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
+record(waveform, "$(P)PERIOD_FILE")
+{
+   field(DESC, "Periods filename")
+   field(DTYP, "asynOctetRead")
+   field(INP, "@asyn(icp,0,0)PERIODSFILE")
+   field(SCAN, "I/O Intr")
+   field(FTVL, "CHAR")
+   field(NELM, 256)
+}
+
 # this is used by INSTETC
 record(waveform, "$(P)SAMPLEPAR:SP")
 {
@@ -763,6 +813,7 @@ record(waveform, "$(P)WIRING_DIR")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
+
 
 record(waveform, "$(P)WIRINGTABLES")
 {
