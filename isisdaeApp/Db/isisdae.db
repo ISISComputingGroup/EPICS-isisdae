@@ -438,7 +438,21 @@ record(bo, "$(P)RESUMERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)ENDRUN")
+record(seq, "$(P)ENDRUN")
+{
+    field(DESC, "End a Run")
+	field(SELM, "All")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
+	field(DO1, "1")
+	field(DO2, "1")
+	# give archive time to restart
+	field(DLY2, "1")
+    field(DOL1, "$(P)_RESTART_ARCHIVER.PROC")
+    field(DOL2, "$(P)_ENDRUN.PROC")
+}
+
+record(bo, "$(P)_ENDRUN")
 {
     field(DESC, "End a Run")
     field(DTYP, "asynInt32")
