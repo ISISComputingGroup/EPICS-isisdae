@@ -801,6 +801,7 @@ record(waveform, "$(P)SAMPLEPAR:SP")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)SAMPLEPAR")
+	field(ASG, "NOTRAPW")
 }
 
 # this is used by INSTETC
@@ -811,6 +812,7 @@ record(waveform, "$(P)BEAMLINEPAR:SP")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)BEAMLINEPAR")
+	field(ASG, "NOTRAPW")
 }
 
 ## FileList for wiring tables
