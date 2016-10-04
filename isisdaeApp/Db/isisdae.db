@@ -26,6 +26,7 @@ record(bi, "$(P)TITLE:DISPLAY")
     field(ZNAM, "No")
     field(ONAM, "Yes")
     field(SCAN, "Passive")
+    info(archive, "VAL")
 }
 
 alias("$(P)TITLE", "$(P)TITLE:SP:RBV")
