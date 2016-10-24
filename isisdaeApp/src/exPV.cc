@@ -317,7 +317,7 @@ caStatus exPV::write ( const casCtx &, const gdd & valueIn )
 //
 caStatus exPV::read ( const casCtx &, gdd & protoIn )
 {
-	if ( (this->interest == false) || !(this->scanOn && this->getScanPeriod() > 0.0) )
+	if (!(this->interest && this->scanOn && this->getScanPeriod() > 0.0))
 	{
 	    this->scan(); // force an update of the value if not monitoring actively
 	}
