@@ -766,21 +766,21 @@ void isisdaeDriver::updateRunStatus()
         }
 		long frames = m_iface->getGoodFrames();
 		double uah = m_iface->getGoodUAH();
-		long p_frames = m_iface->getGoodFramesPeriod();
-		double p_uah = m_iface->getGoodUAHPeriod();
+//		long p_frames = m_iface->getGoodFramesPeriod();   // this currently only works in period card mode
+//		double p_uah = m_iface->getGoodUAHPeriod();
 		long r_frames = m_iface->getRawFrames();
 		double r_uah = 0.0;
 		if (no_check_frame_uamp == NULL || *no_check_frame_uamp == '\0')
 		{
 		    check_frame_uamp("good", frames, uah, fu_state);
 		    check_frame_uamp("raw", r_frames, r_uah, r_fu_state);
-		    check_frame_uamp("period good", p_frames, p_uah, p_fu_state);
+//		    check_frame_uamp("period good", p_frames, p_uah, p_fu_state);
 		}
 		setDoubleParam(P_GoodUAH, uah);
-        setDoubleParam(P_GoodUAHPeriod, p_uah);
+//        setDoubleParam(P_GoodUAHPeriod, p_uah);
         setIntegerParam(P_TotalCounts, m_iface->getTotalCounts());
         setIntegerParam(P_GoodFramesTotal, frames);
-        setIntegerParam(P_GoodFramesPeriod, p_frames);
+//        setIntegerParam(P_GoodFramesPeriod, p_frames);
 		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
         ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod,P_TotalDaeCounts, P_MonitorCounts
@@ -874,6 +874,7 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_PeriodType, values["Period Type"]);
         
         setIntegerParam(P_RawFramesPeriod, values["RawFramesPeriod"]);
+        setIntegerParam(P_GoodFramesPeriod, values["GoodFramesPeriod"]);
         
         setIntegerParam(P_RunDurationTotal, values["RunDurationTotal"]);
         setIntegerParam(P_RunDurationPeriod, values["RunDurationPeriod"]);
