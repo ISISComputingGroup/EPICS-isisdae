@@ -831,7 +831,7 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
         spXMLNodes->get_item(i, &spXMLNode);
 		getNameAndValue(spXMLNode, &bstrName, &bstrValue, type);
         
-        printf("%S, %S%\n", bstrName, bstrValue);
+//        printf("%S, %S%\n", bstrName, bstrValue);
 		values[std::string(COLE2CT(bstrName))] = DAEValue(type, COLE2CT(bstrValue));
         
         SysFreeString(bstrName);
