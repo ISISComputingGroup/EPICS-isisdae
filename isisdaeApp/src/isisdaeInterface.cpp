@@ -763,7 +763,7 @@ void isisdaeInterface::getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* nam
     
     hr = spXMLNode->selectSingleNode(bstrSS, &spXMLNode2);
     hr = spXMLNode2->get_firstChild(&spXMLNode3);
-    hr = spXMLNode3->get_xml(name);
+    hr = spXMLNode3->get_text(name);
 	spXMLNode3.Release(); // as we use it again later
 	spXMLNode2.Release(); // as we use it again later
 
@@ -778,7 +778,7 @@ void isisdaeInterface::getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* nam
     if (type == DAEValue::DAEEnum)
 	{
         BSTR bstr_value = NULL;
-        hr = spXMLNode3->get_xml(&bstr_value);
+        hr = spXMLNode3->get_text(&bstr_value);
     	spXMLNode3.Release();
 	    spXMLNode2.Release();
         unsigned long index = 0;
@@ -788,7 +788,7 @@ void isisdaeInterface::getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* nam
         if ( spXMLNodes->get_item(index, &spXMLNode2) == S_OK )  // May have a missing <Choice> or index is invalid - shouldn't happen really
         {
             spXMLNode2->get_firstChild(&spXMLNode3);
-            spXMLNode3->get_xml(value);
+            spXMLNode3->get_text(value);
         }
         else
         {
@@ -798,7 +798,7 @@ void isisdaeInterface::getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* nam
 	}
 	else
 	{
-        spXMLNode3->get_xml(value);
+        spXMLNode3->get_text(value);
 	}
 }
 
@@ -831,7 +831,7 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
         spXMLNodes->get_item(i, &spXMLNode);
 		getNameAndValue(spXMLNode, &bstrName, &bstrValue, type);
         
-        //printf("%S, %S%\n", bstrName, bstrValue);
+//        printf("%S, %S%\n", bstrName, bstrValue);
 		values[std::string(COLE2CT(bstrName))] = DAEValue(type, COLE2CT(bstrValue));
         
         SysFreeString(bstrName);
