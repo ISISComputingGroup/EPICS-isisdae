@@ -386,12 +386,28 @@ record(ai, "$(P)GOODUAH_PD")
 record(bo, "$(P)BEGINRUN")
 {
     field(DESC, "Begin a Run")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)BEGINRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)_BEGINRUN1.PROC")
+}
+
+record(longout, "$(P)_BEGINRUN1")
+{
+    field(OUT, "$(P)CS:RC:SYNC:SP PP")
+	field(VAL, 1)
+    field(FLNK, "$(P)_BEGINRUN2.PROC")
+}
+
+record(bo, "$(P)_BEGINRUN2")
+{
+    field(DESC, "Begin a Run")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BEGINRUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+	field(VAL, 1)
     field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
 }
 
@@ -400,9 +416,25 @@ record(longout, "$(P)BEGINRUNEX")
 {
     field(DESC, "Begin a Run (with options)")
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)_BEGINRUNEX1.PROC")
+}
+
+record(longout, "$(P)_BEGINRUNEX1")
+{
+    field(OUT, "$(P)CS:RC:SYNC:SP PP")
+	field(VAL, 1)
+    field(FLNK, "$(P)_BEGINRUNEX2.PROC")
+}
+
+record(longout, "$(P)_BEGINRUNEX2")
+{
+    field(DESC, "Begin a Run (with options)")
+	field(DOL, "$(P)BEGINRUNEX")
+	field(OMSL, "closed_loop")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
 }
 
