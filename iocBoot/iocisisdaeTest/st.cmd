@@ -25,7 +25,7 @@ isisdaeConfigure("icp")
 ##ISIS## Load common DB records 
 < $(IOCSTARTUP)/dbload.cmd
 
-dbLoadRecords("$(TOP)/db/isisdae.db","P=$(MYPVPREFIX)DAE")
+dbLoadRecords("$(TOP)/db/isisdae.db","P=$(MYPVPREFIX),Q=DAE:")
 
 ##ISIS## Stuff that needs to be done after all records are loaded but before iocInit is called 
 < $(IOCSTARTUP)/preiocinit.cmd
