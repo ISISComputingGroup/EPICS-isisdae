@@ -422,7 +422,7 @@ record(longout, "$(P)$(Q)BEGINRUNEX")
 
 record(longout, "$(P)$(Q)_BEGINRUNEX1")
 {
-    field(OUT, "$(P)$(Q)CS:RC:SYNC:SP PP")
+    field(OUT, "$(P)CS:RC:SYNC:SP PP")
 	field(VAL, 1)
     field(FLNK, "$(P)$(Q)_BEGINRUNEX2.PROC")
 }
