@@ -1,4 +1,4 @@
-record(waveform, "$(P)TITLE")
+record(waveform, "$(P)$(Q)TITLE")
 {
     field(DESC, "Run title")
     field(NELM, "256")
@@ -10,7 +10,7 @@ record(waveform, "$(P)TITLE")
     info(archive, "VAL")
 }
 
-record(waveform, "$(P)TITLE:SP")
+record(waveform, "$(P)$(Q)TITLE:SP")
 {
     field(DESC, "Set Run title")
     field(NELM, "256")
@@ -19,7 +19,7 @@ record(waveform, "$(P)TITLE:SP")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
 }
 
-record(bi, "$(P)TITLE:DISPLAY")
+record(bi, "$(P)$(Q)TITLE:DISPLAY")
 {
     field(DESC, "Toggle Run Title Display")
     field(DTYP, "Soft Channel")
@@ -29,9 +29,9 @@ record(bi, "$(P)TITLE:DISPLAY")
     info(archive, "VAL")
 }
 
-alias("$(P)TITLE", "$(P)TITLE:SP:RBV")
+alias("$(P)$(Q)TITLE", "$(P)$(Q)TITLE:SP:RBV")
 
-record(stringin, "$(P)_RBNUMBER")
+record(stringin, "$(P)$(Q)_RBNUMBER")
 {
     field(DESC, "Experiment (RB) Number")
     field(DTYP, "asynOctetRead")
@@ -42,16 +42,16 @@ record(stringin, "$(P)_RBNUMBER")
     info(archive, "VAL")
 }
 
-record(stringout, "$(P)_RBNUMBER:SP")
+record(stringout, "$(P)$(Q)_RBNUMBER:SP")
 {
     field(DESC, "Set Experiment (RB) Number")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)RBNUMBER")
 }
 
-alias("$(P)_RBNUMBER", "$(P)_RBNUMBER:SP:RBV")
+alias("$(P)$(Q)_RBNUMBER", "$(P)$(Q)_RBNUMBER:SP:RBV")
 
-record(stringin, "$(P)RUNNUMBER")
+record(stringin, "$(P)$(Q)RUNNUMBER")
 {
     field(DESC, "Run Number")
     field(DTYP, "asynOctetRead")
@@ -61,7 +61,7 @@ record(stringin, "$(P)RUNNUMBER")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)IRUNNUMBER")
+record(longin, "$(P)$(Q)IRUNNUMBER")
 {
     field(DESC, "Run Number")
     field(DTYP, "asynInt32")
@@ -72,7 +72,7 @@ record(longin, "$(P)IRUNNUMBER")
 	field(EGU, "")
 }
 
-record(waveform, "$(P)_USERNAME")
+record(waveform, "$(P)$(Q)_USERNAME")
 {
     field(DESC, "Experiment User name")
     field(NELM, "1024")
@@ -84,7 +84,7 @@ record(waveform, "$(P)_USERNAME")
     info(archive, "VAL")
 }
 
-record(waveform, "$(P)_USERNAME:SP")
+record(waveform, "$(P)$(Q)_USERNAME:SP")
 {
     field(DESC, "Set Experiment User name")
     field(NELM, "1024")
@@ -94,9 +94,9 @@ record(waveform, "$(P)_USERNAME:SP")
     info(autosaveFields, "VAL")
 }
 
-alias("$(P)_USERNAME", "$(P)_USERNAME:SP:RBV")
+alias("$(P)$(Q)_USERNAME", "$(P)$(Q)_USERNAME:SP:RBV")
 
-record(stringin, "$(P)INSTNAME")
+record(stringin, "$(P)$(Q)INSTNAME")
 {
     field(DESC, "Instrument Name")
     field(DTYP, "asynOctetRead")
@@ -105,7 +105,7 @@ record(stringin, "$(P)INSTNAME")
     info(INTEREST, "HIGH")
 }
 
-record(stringin, "$(P)STARTTIME")
+record(stringin, "$(P)$(Q)STARTTIME")
 {
     field(DESC, "Run Start Time")
     field(DTYP, "asynOctetRead")
@@ -115,7 +115,7 @@ record(stringin, "$(P)STARTTIME")
     info(archive, "VAL")
 }
 
-record(ai, "$(P)NPRATIO")
+record(ai, "$(P)$(Q)NPRATIO")
 {
     field(DESC, "Neutron/Proton ratio")
     field(DTYP, "asynFloat64")
@@ -125,7 +125,7 @@ record(ai, "$(P)NPRATIO")
     info(INTEREST, "HIGH")
 }
 
-record(stringin, "$(P)DAETIMINGSOURCE")
+record(stringin, "$(P)$(Q)DAETIMINGSOURCE")
 {
     field(DESC, "DAE Timing Source")
     field(DTYP, "asynOctetRead")
@@ -135,7 +135,7 @@ record(stringin, "$(P)DAETIMINGSOURCE")
     info(archive, "VAL")
 }
 
-record(stringin, "$(P)PERIODTYPE")
+record(stringin, "$(P)$(Q)PERIODTYPE")
 {
     field(DESC, "DAE Period Type")
     field(DTYP, "asynOctetRead")
@@ -144,7 +144,7 @@ record(stringin, "$(P)PERIODTYPE")
     info(INTEREST, "HIGH")
 }
 
-record(stringin, "$(P)ISISCYCLE")
+record(stringin, "$(P)$(Q)ISISCYCLE")
 {
     field(DESC, "ISIS Run Cycle")
     field(DTYP, "asynOctetRead")
@@ -153,7 +153,7 @@ record(stringin, "$(P)ISISCYCLE")
     info(INTEREST, "HIGH")
 }
 
-record(longin, "$(P)RAWFRAMES")
+record(longin, "$(P)$(Q)RAWFRAMES")
 {
     field(DESC, "Raw Frames")
     field(DTYP, "asynInt32")
@@ -164,7 +164,7 @@ record(longin, "$(P)RAWFRAMES")
     info(archive, "-5.0 VAL")
 }
 
-record(longin, "$(P)RAWFRAMES_PD")
+record(longin, "$(P)$(Q)RAWFRAMES_PD")
 {
     field(DESC, "Period Raw Frames")
     field(DTYP, "asynInt32")
@@ -173,7 +173,7 @@ record(longin, "$(P)RAWFRAMES_PD")
     info(archive, "-5.0 VAL")
 }
 
-record(longin, "$(P)GOODFRAMES")
+record(longin, "$(P)$(Q)GOODFRAMES")
 {
     field(DESC, "Good Frames")
     field(DTYP, "asynInt32")
@@ -184,7 +184,7 @@ record(longin, "$(P)GOODFRAMES")
     info(archive, "-5.0 VAL")
 }
 
-record(longin, "$(P)GOODFRAMES_PD")
+record(longin, "$(P)$(Q)GOODFRAMES_PD")
 {
     field(DESC, "Period Good Frames")
     field(DTYP, "asynInt32")
@@ -193,7 +193,7 @@ record(longin, "$(P)GOODFRAMES_PD")
     info(archive, "-5.0 VAL")
 }
 
-record(longin, "$(P)RUNDURATION")
+record(longin, "$(P)$(Q)RUNDURATION")
 {
     field(DESC, "Run Duration")
     field(DTYP, "asynInt32")
@@ -204,7 +204,7 @@ record(longin, "$(P)RUNDURATION")
     info(archive, "-30.0 VAL")
 }
 
-record(longin, "$(P)RUNDURATION_PD")
+record(longin, "$(P)$(Q)RUNDURATION_PD")
 {
     field(DESC, "Period Run Duration")
     field(DTYP, "asynInt32")
@@ -213,7 +213,7 @@ record(longin, "$(P)RUNDURATION_PD")
     info(archive, "-30.0 VAL")
 }
 
-record(longin, "$(P)NUMTIMECHANNELS")
+record(longin, "$(P)$(Q)NUMTIMECHANNELS")
 {
     field(DESC, "Number of Histogram Time Channels")
     field(DTYP, "asynInt32")
@@ -224,7 +224,7 @@ record(longin, "$(P)NUMTIMECHANNELS")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)DAEMEMORYUSED")
+record(longin, "$(P)$(Q)DAEMEMORYUSED")
 {
     field(DESC, "DAE Memory Used")
     field(DTYP, "asynInt32")
@@ -235,7 +235,7 @@ record(longin, "$(P)DAEMEMORYUSED")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)NUMSPECTRA")
+record(longin, "$(P)$(Q)NUMSPECTRA")
 {
     field(DESC, "Number of DAE Spectra")
     field(DTYP, "asynInt32")
@@ -246,7 +246,7 @@ record(longin, "$(P)NUMSPECTRA")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)MONITORCOUNTS")
+record(longin, "$(P)$(Q)MONITORCOUNTS")
 {
     field(DESC, "Displayed Monitor Counts")
     field(DTYP, "asynInt32")
@@ -257,7 +257,7 @@ record(longin, "$(P)MONITORCOUNTS")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)MONITORSPECTRUM")
+record(longin, "$(P)$(Q)MONITORSPECTRUM")
 {
     field(DESC, "Displayed Monitor Spectrum Number")
     field(DTYP, "asynInt32")
@@ -268,7 +268,7 @@ record(longin, "$(P)MONITORSPECTRUM")
     info(archive, "VAL")
 }
 
-record(longin, "$(P)PERIODSEQ")
+record(longin, "$(P)$(Q)PERIODSEQ")
 {
     field(DESC, "Number of Hardware Period Sequences")
     field(DTYP, "asynInt32")
@@ -279,7 +279,7 @@ record(longin, "$(P)PERIODSEQ")
     info(archive, "VAL")
 }
 
-record(ai, "$(P)BEAMCURRENT")
+record(ai, "$(P)$(Q)BEAMCURRENT")
 {
     field(DESC, "DAE Effective Beam Current")
     field(DTYP, "asynFloat64")
@@ -291,7 +291,7 @@ record(ai, "$(P)BEAMCURRENT")
     info(archive, "-5.0 VAL")
 }
 
-record(ai, "$(P)TOTALUAMPS")
+record(ai, "$(P)$(Q)TOTALUAMPS")
 {
     field(DESC, "DAE Raw Microamps")
     field(DTYP, "asynFloat64")
@@ -303,7 +303,7 @@ record(ai, "$(P)TOTALUAMPS")
     info(archive, "-5.0 VAL")
 }
 
-record(ai, "$(P)TOTALDAECOUNTS")
+record(ai, "$(P)$(Q)TOTALDAECOUNTS")
 {
     field(DESC, "DAE Total Neutron Counts")
     field(DTYP, "asynFloat64")
@@ -315,7 +315,7 @@ record(ai, "$(P)TOTALDAECOUNTS")
 	field(EGU, "count")
 }
 
-record(ai, "$(P)MONITORTO")
+record(ai, "$(P)$(Q)MONITORTO")
 {
     field(DESC, "Display Monitor High Integral time")
     field(DTYP, "asynFloat64")
@@ -326,7 +326,7 @@ record(ai, "$(P)MONITORTO")
     info(archive, "VAL")
 }
 
-record(ai, "$(P)MONITORFROM")
+record(ai, "$(P)$(Q)MONITORFROM")
 {
     field(DESC, "Display Monitor Low Integral time")
     field(DTYP, "asynFloat64")
@@ -337,7 +337,7 @@ record(ai, "$(P)MONITORFROM")
     info(archive, "VAL")
 }
 
-record(ai, "$(P)COUNTRATE")
+record(ai, "$(P)$(Q)COUNTRATE")
 {
     field(DESC, "DAE Count Rate")
     field(DTYP, "asynFloat64")
@@ -349,7 +349,7 @@ record(ai, "$(P)COUNTRATE")
     info(archive, "-5.0 VAL")
 }
 
-record(ai, "$(P)EVENTMODEFRACTION")
+record(ai, "$(P)$(Q)EVENTMODEFRACTION")
 {
     field(DESC, "Event Mode DAE Card Fraction")
     field(DTYP, "asynFloat64")
@@ -360,7 +360,7 @@ record(ai, "$(P)EVENTMODEFRACTION")
 	field(EGU, "")
 }
 
-record(ai, "$(P)GOODUAH")
+record(ai, "$(P)$(Q)GOODUAH")
 {
     field(DESC, "DAE Good Microamps")
     field(DTYP, "asynFloat64")
@@ -372,7 +372,7 @@ record(ai, "$(P)GOODUAH")
     info(archive, "-5.0 VAL")
 }
 
-record(ai, "$(P)GOODUAH_PD")
+record(ai, "$(P)$(Q)GOODUAH_PD")
 {
     field(DESC, "Period DAE Good Microamps")
     field(DTYP, "asynFloat64")
@@ -383,30 +383,61 @@ record(ai, "$(P)GOODUAH_PD")
     info(archive, "-5.0 VAL")
 }
 
-record(bo, "$(P)BEGINRUN")
+record(bo, "$(P)$(Q)BEGINRUN")
+{
+    field(DESC, "Begin a Run")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_BEGINRUN1.PROC")
+}
+
+record(longout, "$(P)$(Q)_BEGINRUN1")
+{
+    field(OUT, "$(P)CS:RC:SYNC:SP PP")
+	field(VAL, 1)
+    field(FLNK, "$(P)$(Q)_BEGINRUN2.PROC")
+}
+
+record(bo, "$(P)$(Q)_BEGINRUN2")
 {
     field(DESC, "Begin a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
-    #Set the initial alarm state
-    field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
+	field(VAL, 1)
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
 }
 
 ## value sent controls begin options (such as DELAYED or PAUSED)
-record(longout, "$(P)BEGINRUNEX")
+record(longout, "$(P)$(Q)BEGINRUNEX")
 {
     field(DESC, "Begin a Run (with options)")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)_RESTART_ARCHIVER.PROC")
+    field(FLNK, "$(P)$(Q)_BEGINRUNEX1.PROC")
 }
 
-record(bo, "$(P)ABORTRUN")
+record(longout, "$(P)$(Q)_BEGINRUNEX1")
+{
+    field(OUT, "$(P)CS:RC:SYNC:SP PP")
+	field(VAL, 1)
+    field(FLNK, "$(P)$(Q)_BEGINRUNEX2.PROC")
+}
+
+record(longout, "$(P)$(Q)_BEGINRUNEX2")
+{
+    field(DESC, "Begin a Run (with options)")
+	field(DOL, "$(P)$(Q)BEGINRUNEX")
+	field(OMSL, "closed_loop")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+}
+
+record(bo, "$(P)$(Q)ABORTRUN")
 {
     field(DESC, "Abort a Run")
     field(DTYP, "asynInt32")
@@ -417,7 +448,7 @@ record(bo, "$(P)ABORTRUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)PAUSERUN")
+record(bo, "$(P)$(Q)PAUSERUN")
 {
     field(DESC, "Pause a Run")
     field(DTYP, "asynInt32")
@@ -428,7 +459,7 @@ record(bo, "$(P)PAUSERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)RESUMERUN")
+record(bo, "$(P)$(Q)RESUMERUN")
 {
     field(DESC, "Resume a Run")
     field(DTYP, "asynInt32")
@@ -439,28 +470,28 @@ record(bo, "$(P)RESUMERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)ENDRUN")
+record(bo, "$(P)$(Q)ENDRUN")
 {
     field(DESC, "End a Run")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)_ENDRUN1.PROC")
+    field(FLNK, "$(P)$(Q)_ENDRUN1.PROC")
 }
 
-record(seq, "$(P)_ENDRUN1")
+record(seq, "$(P)$(Q)_ENDRUN1")
 {
 	field(SELM, "All")
 	field(DOL1, "1")
 	field(DOL2, "1")
 	# give archive time to restart
 	field(DLY2, "1")
-    field(LNK1, "$(P)_RESTART_ARCHIVER.PROC")
-    field(LNK2, "$(P)_ENDRUN2 PP")
+    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
 }
 
-record(bo, "$(P)_ENDRUN2")
+record(bo, "$(P)$(Q)_ENDRUN2")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)ENDRUN")
@@ -470,7 +501,7 @@ record(bo, "$(P)_ENDRUN2")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)RECOVERRUN")
+record(bo, "$(P)$(Q)RECOVERRUN")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)RECOVERRUN")
@@ -480,7 +511,7 @@ record(bo, "$(P)RECOVERRUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)SAVERUN")
+record(bo, "$(P)$(Q)SAVERUN")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)SAVERUN")
@@ -490,7 +521,7 @@ record(bo, "$(P)SAVERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)UPDATERUN")
+record(bo, "$(P)$(Q)UPDATERUN")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)UPDATERUN")
@@ -500,7 +531,7 @@ record(bo, "$(P)UPDATERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)STORERUN")
+record(bo, "$(P)$(Q)STORERUN")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)STORERUN")
@@ -510,7 +541,7 @@ record(bo, "$(P)STORERUN")
     field(STAT, "NO_ALARM")
 }
 
-record(waveform, "$(P)SNAPSHOTCRPT")
+record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
 {
     field(NELM, "1024")
     field(FTVL, "CHAR")
@@ -520,7 +551,7 @@ record(waveform, "$(P)SNAPSHOTCRPT")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)STARTSEWAIT")
+record(bo, "$(P)$(Q)STARTSEWAIT")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)STARTSEWAIT")
@@ -528,7 +559,7 @@ record(bo, "$(P)STARTSEWAIT")
     field(ONAM, "1")
 }
 
-record(bo, "$(P)ENDSEWAIT")
+record(bo, "$(P)$(Q)ENDSEWAIT")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)ENDSEWAIT")
@@ -536,7 +567,7 @@ record(bo, "$(P)ENDSEWAIT")
     field(ONAM, "1")
 }
 
-record(mbbi, "$(P)RUNSTATE")
+record(mbbi, "$(P)$(Q)RUNSTATE")
 {
     field(DESC, "Run State")
     field(DTYP, "asynInt32")
@@ -574,9 +605,9 @@ record(mbbi, "$(P)RUNSTATE")
 	info(archive, "VAL")
 }
 
-alias("$(P)RUNSTATE", "$(P)RUNSTATE_STR")
+alias("$(P)$(Q)RUNSTATE", "$(P)$(Q)RUNSTATE_STR")
 
-record(bi, "$(P)STATETRANS")
+record(bi, "$(P)$(Q)STATETRANS")
 {
     field(DESC, "In state transition")
     field(DTYP, "asynInt32")
@@ -586,7 +617,7 @@ record(bi, "$(P)STATETRANS")
     field(SCAN, "I/O Intr")
 }
 
-record(longin, "$(P)PERIOD")
+record(longin, "$(P)$(Q)PERIOD")
 {
     field(DESC, "DAE Period Number")
     field(DTYP, "asynInt32")
@@ -597,16 +628,16 @@ record(longin, "$(P)PERIOD")
 	field(EGU, "")
 }
 
-record(longout, "$(P)PERIOD:SP")
+record(longout, "$(P)$(Q)PERIOD:SP")
 {
     field(DESC, "Change DAE Period Number")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)PERIOD")
 }
 
-alias("$(P)PERIOD", "$(P)PERIOD:SP:RBV")
+alias("$(P)$(Q)PERIOD", "$(P)$(Q)PERIOD:SP:RBV")
 
-record(longin, "$(P)NUMPERIODS")
+record(longin, "$(P)$(Q)NUMPERIODS")
 {
     field(DESC, "Number of DAE periods")
     field(DTYP, "asynInt32")
@@ -617,16 +648,16 @@ record(longin, "$(P)NUMPERIODS")
 	info(archive, "VAL")
 }
 
-record(longout, "$(P)NUMPERIODS:SP")
+record(longout, "$(P)$(Q)NUMPERIODS:SP")
 {
     field(DESC, "Change Number of DAE periods")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)NUMPERIODS")
 }
 
-alias("$(P)NUMPERIODS", "$(P)NUMPERIODS:SP:RBV")
+alias("$(P)$(Q)NUMPERIODS", "$(P)$(Q)NUMPERIODS:SP:RBV")
 
-record(longin, "$(P)TOTALCOUNTS")
+record(longin, "$(P)$(Q)TOTALCOUNTS")
 {
     field(DESC, "Total counts")
     field(DTYP, "asynInt32")
@@ -637,7 +668,7 @@ record(longin, "$(P)TOTALCOUNTS")
     info(archive, "-5.0 VAL")
 }
 
-record(waveform, "$(P)DAESETTINGS")
+record(waveform, "$(P)$(Q)DAESETTINGS")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -646,7 +677,7 @@ record(waveform, "$(P)DAESETTINGS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)DAESETTINGS:SP")
+record(waveform, "$(P)$(Q)DAESETTINGS:SP")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -654,7 +685,7 @@ record(waveform, "$(P)DAESETTINGS:SP")
     field(INP,  "@asyn(icp,0,0)DAESETTINGS")
 }
 
-record(waveform, "$(P)TCBSETTINGS")
+record(waveform, "$(P)$(Q)TCBSETTINGS")
 {
     field(NELM, "10000")
     field(FTVL, "UCHAR")
@@ -663,7 +694,7 @@ record(waveform, "$(P)TCBSETTINGS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)TCBSETTINGS:SP")
+record(waveform, "$(P)$(Q)TCBSETTINGS:SP")
 {
     field(NELM, "10000")
     field(FTVL, "UCHAR")
@@ -671,7 +702,7 @@ record(waveform, "$(P)TCBSETTINGS:SP")
     field(INP,  "@asyn(icp,0,0)TCBSETTINGS")
 }
 
-record(waveform, "$(P)HARDWAREPERIODS")
+record(waveform, "$(P)$(Q)HARDWAREPERIODS")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -680,7 +711,7 @@ record(waveform, "$(P)HARDWAREPERIODS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)HARDWAREPERIODS:SP")
+record(waveform, "$(P)$(Q)HARDWAREPERIODS:SP")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -688,7 +719,7 @@ record(waveform, "$(P)HARDWAREPERIODS:SP")
     field(INP,  "@asyn(icp,0,0)HARDWAREPERIODSSETTINGS")
 }
 
-record(waveform, "$(P)UPDATESETTINGS")
+record(waveform, "$(P)$(Q)UPDATESETTINGS")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -697,7 +728,7 @@ record(waveform, "$(P)UPDATESETTINGS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)UPDATESETTINGS:SP")
+record(waveform, "$(P)$(Q)UPDATESETTINGS:SP")
 {
     field(NELM, "10000")
     field(FTVL, "CHAR")
@@ -705,7 +736,7 @@ record(waveform, "$(P)UPDATESETTINGS:SP")
     field(INP,  "@asyn(icp,0,0)UPDATESETTINGS")
 }
 
-record(waveform, "$(P)VETOSTATUS")
+record(waveform, "$(P)$(Q)VETOSTATUS")
 {
     field(NELM, "3000")
     field(FTVL, "CHAR")
@@ -714,7 +745,7 @@ record(waveform, "$(P)VETOSTATUS")
     field(SCAN, "I/O Intr")
 }
 
-record(ai, "$(P)VETOPC")
+record(ai, "$(P)$(Q)VETOPC")
 {
     field(DESC, "Vetoing %")
     field(DTYP, "asynFloat64")
@@ -726,7 +757,7 @@ record(ai, "$(P)VETOPC")
 	info(archive, "-5.0 VAL")
 }
 
-record(waveform, "$(P)ALLMSGS")
+record(waveform, "$(P)$(Q)ALLMSGS")
 {
     field(NELM, "4096")
     field(FTVL, "CHAR")
@@ -735,7 +766,7 @@ record(waveform, "$(P)ALLMSGS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)ERRMSGS")
+record(waveform, "$(P)$(Q)ERRMSGS")
 {
     field(NELM, "4096")
     field(FTVL, "CHAR")
@@ -744,7 +775,7 @@ record(waveform, "$(P)ERRMSGS")
     field(SCAN, "I/O Intr")
 }
 
-record(waveform, "$(P)WIRING_FILE")
+record(waveform, "$(P)$(Q)WIRING_FILE")
 {
    field(DESC, "Wiring table filename")
    field(DTYP, "asynOctetRead")
@@ -754,7 +785,7 @@ record(waveform, "$(P)WIRING_FILE")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)DETECTOR_FILE")
+record(waveform, "$(P)$(Q)DETECTOR_FILE")
 {
    field(DESC, "Detector table filename")
    field(DTYP, "asynOctetRead")
@@ -764,7 +795,7 @@ record(waveform, "$(P)DETECTOR_FILE")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)SPECTRA_FILE")
+record(waveform, "$(P)$(Q)SPECTRA_FILE")
 {
    field(DESC, "Spectra table filename")
    field(DTYP, "asynOctetRead")
@@ -774,7 +805,7 @@ record(waveform, "$(P)SPECTRA_FILE")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)TCB_FILE")
+record(waveform, "$(P)$(Q)TCB_FILE")
 {
    field(DESC, "TCB filename")
    field(DTYP, "asynOctetRead")
@@ -784,7 +815,7 @@ record(waveform, "$(P)TCB_FILE")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)PERIOD_FILE")
+record(waveform, "$(P)$(Q)PERIOD_FILE")
 {
    field(DESC, "Periods filename")
    field(DTYP, "asynOctetRead")
@@ -795,7 +826,7 @@ record(waveform, "$(P)PERIOD_FILE")
 }
 
 # this is used by INSTETC
-record(waveform, "$(P)SAMPLEPAR:SP")
+record(waveform, "$(P)$(Q)SAMPLEPAR:SP")
 {
     field(DESC, "Set sample parameter")
     field(NELM, "512")
@@ -806,7 +837,7 @@ record(waveform, "$(P)SAMPLEPAR:SP")
 }
 
 # this is used by INSTETC
-record(waveform, "$(P)BEAMLINEPAR:SP")
+record(waveform, "$(P)$(Q)BEAMLINEPAR:SP")
 {
     field(DESC, "Set beamline parameter")
     field(NELM, "512")
@@ -817,7 +848,7 @@ record(waveform, "$(P)BEAMLINEPAR:SP")
 }
 
 ## FileList for wiring tables
-record(waveform, "$(P)WIRING_DIR:SP")
+record(waveform, "$(P)$(Q)WIRING_DIR:SP")
 {
    field(DESC, "Set directory of wiring tables")
    field(DTYP, "asynOctetWrite")
@@ -826,7 +857,7 @@ record(waveform, "$(P)WIRING_DIR:SP")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)WIRING_DIR")
+record(waveform, "$(P)$(Q)WIRING_DIR")
 {
    field(DESC, "Get directory of wiring tables")
    field(DTYP, "asynOctetRead")
@@ -838,7 +869,7 @@ record(waveform, "$(P)WIRING_DIR")
 }
 
 
-record(waveform, "$(P)WIRINGTABLES")
+record(waveform, "$(P)$(Q)WIRINGTABLES")
 {
 	field(DESC, "Compressed JSON list of wiring tables")
 	field(FTVL, "CHAR")
@@ -849,7 +880,7 @@ record(waveform, "$(P)WIRINGTABLES")
     field(PINI, "YES")
 }
 
-record(waveform, "$(P)WIRING_PATTERN:SP")
+record(waveform, "$(P)$(Q)WIRING_PATTERN:SP")
 {
    field(DESC, "Set regex search of wiring tables")  
    field(DTYP, "asynOctetWrite")
@@ -857,7 +888,7 @@ record(waveform, "$(P)WIRING_PATTERN:SP")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-record(waveform, "$(P)WIRING_PATTERN")
+record(waveform, "$(P)$(Q)WIRING_PATTERN")
 {
    field(DESC, "Get regex search of wiring tables")
    field(DTYP, "asynOctetRead")
@@ -869,7 +900,7 @@ record(waveform, "$(P)WIRING_PATTERN")
 }
 
 ## FileList for detector tables
-record(waveform, "$(P)DETECTOR_DIR:SP")
+record(waveform, "$(P)$(Q)DETECTOR_DIR:SP")
 {
    field(DESC, "Set directory of detector tables")
    field(DTYP, "asynOctetWrite")
@@ -878,7 +909,7 @@ record(waveform, "$(P)DETECTOR_DIR:SP")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)DETECTOR_DIR")
+record(waveform, "$(P)$(Q)DETECTOR_DIR")
 {
    field(DESC, "Get directory of detector tables")
    field(DTYP, "asynOctetRead")
@@ -889,7 +920,7 @@ record(waveform, "$(P)DETECTOR_DIR")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)DETECTORTABLES")
+record(waveform, "$(P)$(Q)DETECTORTABLES")
 {
 	field(DESC, "Compressed JSON list of detector tables")
 	field(FTVL, "CHAR")
@@ -900,7 +931,7 @@ record(waveform, "$(P)DETECTORTABLES")
     field(PINI, "YES")
 }
 
-record(waveform, "$(P)DETECTOR_PATTERN:SP")
+record(waveform, "$(P)$(Q)DETECTOR_PATTERN:SP")
 {
    field(DESC, "Set regex search of detector tables")  
    field(DTYP, "asynOctetWrite")
@@ -908,7 +939,7 @@ record(waveform, "$(P)DETECTOR_PATTERN:SP")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-record(waveform, "$(P)DETECTOR_PATTERN")
+record(waveform, "$(P)$(Q)DETECTOR_PATTERN")
 {
    field(DESC, "Get regex search of detector tables")
    field(DTYP, "asynOctetRead")
@@ -920,7 +951,7 @@ record(waveform, "$(P)DETECTOR_PATTERN")
 }
 
 ## FileList for spectra tables
-record(waveform, "$(P)SPECTRA_DIR:SP")
+record(waveform, "$(P)$(Q)SPECTRA_DIR:SP")
 {
    field(DESC, "Set directory of spectra tables")
    field(DTYP, "asynOctetWrite")
@@ -929,7 +960,7 @@ record(waveform, "$(P)SPECTRA_DIR:SP")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)SPECTRA_DIR")
+record(waveform, "$(P)$(Q)SPECTRA_DIR")
 {
    field(DESC, "Get directory of spectra tables")
    field(DTYP, "asynOctetRead")
@@ -940,7 +971,7 @@ record(waveform, "$(P)SPECTRA_DIR")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)SPECTRATABLES")
+record(waveform, "$(P)$(Q)SPECTRATABLES")
 {
 	field(DESC, "Compressed JSON list of spectra tables")
 	field(FTVL, "CHAR")
@@ -951,7 +982,7 @@ record(waveform, "$(P)SPECTRATABLES")
     field(PINI, "YES")
 }
 
-record(waveform, "$(P)SPECTRA_PATTERN:SP")
+record(waveform, "$(P)$(Q)SPECTRA_PATTERN:SP")
 {
    field(DESC, "Set regex search of spectra tables")  
    field(DTYP, "asynOctetWrite")
@@ -959,7 +990,7 @@ record(waveform, "$(P)SPECTRA_PATTERN:SP")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-record(waveform, "$(P)SPECTRA_PATTERN")
+record(waveform, "$(P)$(Q)SPECTRA_PATTERN")
 {
    field(DESC, "Get regex search of spectra tables")
    field(DTYP, "asynOctetRead")
@@ -971,7 +1002,7 @@ record(waveform, "$(P)SPECTRA_PATTERN")
 }
 
 ## FileList for TCB files
-record(waveform, "$(P)TCB_DIR:SP")
+record(waveform, "$(P)$(Q)TCB_DIR:SP")
 {
    field(DESC, "Set directory of TCB files")
    field(DTYP, "asynOctetWrite")
@@ -980,7 +1011,7 @@ record(waveform, "$(P)TCB_DIR:SP")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)TCB_DIR")
+record(waveform, "$(P)$(Q)TCB_DIR")
 {
    field(DESC, "Get directory of TCB Files")
    field(DTYP, "asynOctetRead")
@@ -991,7 +1022,7 @@ record(waveform, "$(P)TCB_DIR")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)TCBFILES")
+record(waveform, "$(P)$(Q)TCBFILES")
 {
 	field(DESC, "Compressed JSON list of TCB Files")
 	field(FTVL, "CHAR")
@@ -1002,7 +1033,7 @@ record(waveform, "$(P)TCBFILES")
     field(PINI, "YES")
 }
 
-record(waveform, "$(P)TCB_PATTERN:SP")
+record(waveform, "$(P)$(Q)TCB_PATTERN:SP")
 {
    field(DESC, "Set regex search of TCB files")  
    field(DTYP, "asynOctetWrite")
@@ -1010,7 +1041,7 @@ record(waveform, "$(P)TCB_PATTERN:SP")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-record(waveform, "$(P)TCB_PATTERN")
+record(waveform, "$(P)$(Q)TCB_PATTERN")
 {
    field(DESC, "Get regex search of TCB files")
    field(DTYP, "asynOctetRead")
@@ -1023,7 +1054,7 @@ record(waveform, "$(P)TCB_PATTERN")
 
 ## records for restarting archive engine on a begin
 ## force processing of _RESTART_ARCHIVER via forward link to restart archiver
-record(stringout, "$(P)_ARCHIVER_URL")
+record(stringout, "$(P)$(Q)_ARCHIVER_URL")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT, "@asyn(web,0,0)URL0")
@@ -1031,7 +1062,7 @@ record(stringout, "$(P)_ARCHIVER_URL")
 	field(VAL, "http://localhost:4813/restart")
 }
 
-record(stringin, "$(P)_RESTART_ARCHIVER")
+record(stringin, "$(P)$(Q)_RESTART_ARCHIVER")
 {
     field(DTYP, "asynOctetRead")
     field(INP, "@asyn(web,0,0)DATA0")
@@ -1039,7 +1070,7 @@ record(stringin, "$(P)_RESTART_ARCHIVER")
 }
 
 ## FileList for period files
-record(waveform, "$(P)PERIOD_DIR:SP")
+record(waveform, "$(P)$(Q)PERIOD_DIR:SP")
 {
    field(DESC, "Set directory of period files")
    field(DTYP, "asynOctetWrite")
@@ -1048,7 +1079,7 @@ record(waveform, "$(P)PERIOD_DIR:SP")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)PERIOD_DIR")
+record(waveform, "$(P)$(Q)PERIOD_DIR")
 {
    field(DESC, "Get directory of period files")
    field(DTYP, "asynOctetRead")
@@ -1059,7 +1090,7 @@ record(waveform, "$(P)PERIOD_DIR")
    field(NELM, 256)
 }
 
-record(waveform, "$(P)PERIODFILES")
+record(waveform, "$(P)$(Q)PERIODFILES")
 {
 	field(DESC, "Compressed JSON list of period files")
 	field(FTVL, "CHAR")
@@ -1070,7 +1101,7 @@ record(waveform, "$(P)PERIODFILES")
     field(PINI, "YES")
 }
 
-record(waveform, "$(P)PERIOD_PATTERN:SP")
+record(waveform, "$(P)$(Q)PERIOD_PATTERN:SP")
 {
    field(DESC, "Set regex search of period files")  
    field(DTYP, "asynOctetWrite")
@@ -1078,7 +1109,7 @@ record(waveform, "$(P)PERIOD_PATTERN:SP")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-record(waveform, "$(P)PERIOD_PATTERN")
+record(waveform, "$(P)$(Q)PERIOD_PATTERN")
 {
    field(DESC, "Get regex search of period files")
    field(DTYP, "asynOctetRead")
