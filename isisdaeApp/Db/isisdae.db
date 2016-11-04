@@ -17,6 +17,7 @@ record(waveform, "$(P)$(Q)TITLE:SP")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)RUNTITLE")
+    info(autosaveFields, "VAL")
 }
 
 record(bi, "$(P)$(Q)TITLE:DISPLAY")
@@ -27,6 +28,7 @@ record(bi, "$(P)$(Q)TITLE:DISPLAY")
     field(ONAM, "Yes")
     field(SCAN, "Passive")
     info(archive, "VAL")
+    info(autosaveFields, "VAL")
 }
 
 alias("$(P)$(Q)TITLE", "$(P)$(Q)TITLE:SP:RBV")
@@ -37,8 +39,6 @@ record(stringin, "$(P)$(Q)_RBNUMBER")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RBNUMBER")
     field(SCAN, "I/O Intr")
-    field(FLNK, "$(S)ED:RBNUMBER.PROC")
-    info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
@@ -47,6 +47,7 @@ record(stringout, "$(P)$(Q)_RBNUMBER:SP")
     field(DESC, "Set Experiment (RB) Number")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)RBNUMBER")
+    info(autosaveFields, "VAL")
 }
 
 alias("$(P)$(Q)_RBNUMBER", "$(P)$(Q)_RBNUMBER:SP:RBV")
@@ -80,7 +81,6 @@ record(waveform, "$(P)$(Q)_USERNAME")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
-    info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
