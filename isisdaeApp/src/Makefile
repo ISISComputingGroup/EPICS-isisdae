@@ -38,7 +38,11 @@ isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += cas gdd
 isisdae_LIBS += $(EPICS_BASE_IOC_LIBS)
 
-isisicpint_DIR = ../lib/$(EPICS_HOST_ARCH) 
+ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
+isisicpint_DIR = ../lib/windows-x64-debug
+else
+isisicpint_DIR = ../lib/windows-x64
+endif
 isisdae_LIBS_WIN32 += isisicpint
 
 # isisdae.dbd will be created and installed

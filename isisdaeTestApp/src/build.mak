@@ -45,7 +45,11 @@ $(APPNAME)_LIBS += cas gdd
 $(APPNAME)_LIBS_WIN32 += libcurl
 $(APPNAME)_SYS_LIBS_Linux += curl
 
-isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/$(EPICS_HOST_ARCH) 
+ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
+isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64-debug
+else
+isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64
+endif
 $(APPNAME)_LIBS_WIN32 += isisicpint
 
 # isisdaeTest_registerRecordDeviceDriver.cpp derives from isisdaeTest.dbd
