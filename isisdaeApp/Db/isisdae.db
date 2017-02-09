@@ -390,8 +390,25 @@ record(bo, "$(P)$(Q)BEGINRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_BEGINRUN1.PROC")
+	field(FLNK, "$(P)$(Q)BEGINRUN_DAE3.PROC")
 }
+
+record(seq, "$(P)$(Q)BEGINRUN_DAE3")
+{
+    field(DESC, "Extra steps for a parallel DAE3 system")
+	#Begin the DAE3
+	field(DOL1, "$(P)$(Q)BEGINRUN")
+	field(LNK1, "$(DAE3)BEGINRUN")
+	#Begin the DAE2
+	field(LNK2, "$(P)$(Q)_BEGINRUN1.PROC")
+	#Turn the VETO off (There are two channels)
+	field(DO3, "0")
+	field(LNK3, "$(VETO_1)")
+	field(DO4, "0")
+	field(LNK4, "$(VETO_2)")
+	#Delay the VETO to make sure the DAE3 has begun
+	field(DLY3, "$(VETO_DELAY)")
+}	
 
 record(longout, "$(P)$(Q)_BEGINRUN1")
 {
@@ -477,7 +494,24 @@ record(bo, "$(P)$(Q)ENDRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_ENDRUN1.PROC")
+    field(FLNK, "$(P)$(Q)ENDRUN_DAE3.PROC")
+}
+
+record(seq, "$(P)$(Q)ENDRUN_DAE3")
+{
+    field(DESC, "Extra steps for a parallel DAE3 system")
+	#Turn the VETO on (There are two channels)
+	field(DO1, "1")
+	field(LNK1, "$(VETO_1)")
+	field(DO2, "1")
+	field(LNK2, "$(VETO_2)")
+	#Delay the end run to make sure that the veto is on
+	field(DLY3, "$(VETO_DELAY)") 
+	#End the DAE3
+	field(DOL3, "$(P)$(Q)ENDRUN")
+	field(LNK3, "$(DAE3)ENDRUN")
+	#End the DAE2
+	field(LNK4, "$(P)$(Q)_ENDRUN1.PROC")
 }
 
 record(seq, "$(P)$(Q)_ENDRUN1")
