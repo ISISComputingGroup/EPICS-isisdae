@@ -7,4 +7,9 @@ include "asSupport.dbd"
 include "devIocStats.dbd"
 include "caPutLog.dbd"
 include "webget.dbd"
+include "ADSupport.dbd"
+include "NDPluginSupport.dbd"
+include "ADnEDSupport.dbd"
+include "ffmpegServer.dbd"
 registrar("isisdaeRegister")
+registrar("isisdaeADRegister")

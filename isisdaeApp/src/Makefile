@@ -32,10 +32,17 @@ LIBRARY_IOC += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
 isisdae_SRCS += SpectrumPV.cc NORDPV.cc MonLookupPV.cc CountsPV.cc FixedValuePV.cc
 isisdae_SRCS += exChannel.cc exPV.cc exScalarPV.cc exVectorPV.cc exServer.cc
-isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp 
+isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp isisdaeADDriver.cpp
 
 isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
+isisdae_LIBS += ADnEDSupport
 isisdae_LIBS += cas gdd
+isisdae_LIBS += ffmpegServer
+isisdae_LIBS += avdevice
+isisdae_LIBS += avformat
+isisdae_LIBS += avcodec
+isisdae_LIBS += avutil
+isisdae_LIBS += swscale
 isisdae_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
@@ -52,10 +59,10 @@ DBD += isisdae.dbd
 DATA += xml/cluster.xml xml/dae_settings_cluster.xml xml/hardware_periods_cluster.xml xml/monitoring_settings_cluster.xml
 DATA += xml/run_data_cluster.xml xml/tcb_settings_cluster.xml xml/update_settings_cluster.xml
 
+include $(ADCORE)/ADApp/commonLibraryMakefile
 
 #===========================
 
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
-
