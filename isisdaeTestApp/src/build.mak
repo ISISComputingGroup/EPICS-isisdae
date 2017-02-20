@@ -42,6 +42,15 @@ $(APPNAME)_LIBS += utilities
 #$(APPNAME)_LIBS += xxx
 $(APPNAME)_LIBS += isisdae asyn oncrpc zlib pcrecpp pcre pugixml
 $(APPNAME)_LIBS += cas gdd 
+$(APPNAME)_LIBS += ffmpegServer
+$(APPNAME)_LIBS += avdevice
+$(APPNAME)_LIBS += avformat
+$(APPNAME)_LIBS += avcodec
+$(APPNAME)_LIBS += avutil
+$(APPNAME)_LIBS += swscale
+$(APPNAME)_LIBS += ADnEDSupport
+$(APPNAME)_LIBS += ADnEDTransform
+
 $(APPNAME)_LIBS_WIN32 += libcurl
 $(APPNAME)_SYS_LIBS_Linux += curl
 
@@ -67,9 +76,14 @@ $(APPNAME)_SYS_LIBS_WIN32 += wldap32 ws2_32 # advapi32 user32 msxml2
 # Finally link to the EPICS Base libraries
 $(APPNAME)_LIBS += $(EPICS_BASE_IOC_LIBS)
 
-#===========================
+PROD_NAME = $(APPNAME)
+include $(ADCORE)/ADApp/commonDriverMakefile
 
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
 #=============================
+
+
+example_win32_LIBS += simDetector
+
