@@ -30,6 +30,7 @@
 
 #include "isisdaeInterface.h"
 #include "variant_utils.h"
+#include "CRPTMapping.h"
 
 #include <macLib.h>
 #include <epicsGuard.h>
@@ -64,7 +65,7 @@ static void initCOM(void*)
 /// \param[in] progid @copydoc initArg5
 /// \param[in] username @copydoc initArg6
 /// \param[in] password @copydoc initArg7
-isisdaeInterface::isisdaeInterface(const char* host, int options, const char* username, const char* password) : m_dcom(false), m_options(options)
+isisdaeInterface::isisdaeInterface(const char* host, int options, const char* username, const char* password) : m_dcom(false), m_options(options), m_data(NULL), m_data_map(NULL)
 {
     if (checkOption(daeDCOM))
 	{
@@ -285,6 +286,9 @@ void isisdaeInterface::checkConnection()
 	}
 	else if (m_host.size() > 0)
 	{
+		delete m_data_map;
+		m_data_map = NULL;
+		m_data = NULL;
 		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
 		m_pidentity = createIdentity(m_username, m_host, m_password);
@@ -319,9 +323,14 @@ void isisdaeInterface::checkConnection()
 		setIdentity(m_pidentity, mq[ 0 ].pItf);
 		m_icp.Release();
 		m_icp.Attach( reinterpret_cast< isisicpLib::Idae* >( mq[ 0 ].pItf ) ); 
+		m_data_map = new CRPTMapping;
+		m_data = m_data_map->getaddr();
 	}
 	else
 	{
+		delete m_data_map;
+		m_data_map = NULL;
+		m_data = NULL;
 		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		m_pidentity = NULL;
 		m_icp.Release();
@@ -329,7 +338,9 @@ void isisdaeInterface::checkConnection()
 		if( FAILED( hr ) ) 
 		{
  			throw COMexception("CoCreateInstance (ISISICP) ", hr);
-		} 
+		}
+		m_data_map = new CRPTMapping;
+		m_data = m_data_map->getaddr();
 	}
 }
 
@@ -887,3 +898,30 @@ long isisdaeInterface::getSpectrumIntegral(long spectrum_number, long period, fl
     return 0;
 }
 
+long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts)
+{
+#if 0
+	variant_t spectrum_numbers_v, times_low_v, times_high_v, counts_v;
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::getSpectrumIntegral, _1, spectrum_numbers_v, period, times_low_v, times_high_v, &counts_v, _2));
+		double *s = NULL, *t = NULL;
+		accessArrayVariant(&signal_v, &s);
+		long* cv = NULL;
+		accessArrayVariant(&counts_v, &cv);
+		n = arrayVariantLength(&counts_v);
+		for(int i=0; i < n; ++i)
+	    {
+	        signal[i] = s[i];
+			time_channels[i] = t[i];
+	    }
+		unaccessArrayVariant(&signal_v);
+		unaccessArrayVariant(&time_channels_v);
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::getSpectrumIntegral, spectrum_numbers, period, times_low, times_high, boost::ref(counts), _1));
+	}
+#endif
+    return 0;
+}

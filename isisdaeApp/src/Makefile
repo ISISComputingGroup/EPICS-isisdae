@@ -32,7 +32,8 @@ LIBRARY_IOC += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
 isisdae_SRCS += SpectrumPV.cc NORDPV.cc MonLookupPV.cc CountsPV.cc FixedValuePV.cc
 isisdae_SRCS += exChannel.cc exPV.cc exScalarPV.cc exVectorPV.cc exServer.cc
-isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp isisdaeADDriver.cpp
+isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp 
+isisdae_SRCS += isisdaeADDriver.cpp CRPTMapping.cpp
 
 isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += ADnEDSupport
