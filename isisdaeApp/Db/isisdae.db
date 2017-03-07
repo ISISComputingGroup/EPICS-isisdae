@@ -390,7 +390,7 @@ record(bo, "$(P)$(Q)BEGINRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_BEGINRUN1.PROC")
+	field(FLNK, "$(BEGINRUNA=$(P)$(Q)_BEGINRUN1).PROC")
 }
 
 record(longout, "$(P)$(Q)_BEGINRUN1")
@@ -477,7 +477,7 @@ record(bo, "$(P)$(Q)ENDRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_ENDRUN1.PROC")
+    field(FLNK, "$(ENDRUNA=$(P)$(Q)_ENDRUN1).PROC")
 }
 
 record(seq, "$(P)$(Q)_ENDRUN1")
