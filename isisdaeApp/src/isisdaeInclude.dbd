@@ -12,4 +12,3 @@ include "NDPluginSupport.dbd"
 include "ADnEDSupport.dbd"
 include "ffmpegServer.dbd"
 registrar("isisdaeRegister")
-registrar("isisdaeADRegister")

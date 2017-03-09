@@ -5,6 +5,17 @@
 
 < envPaths
 
+epicsEnvSet "WIRING_DIR" "$(ICPCONFIGROOT)/tables"
+epicsEnvSet "WIRING_PATTERN" ".*wiring.*"
+epicsEnvSet "DETECTOR_DIR" "$(ICPCONFIGROOT)/tables"
+epicsEnvSet "DETECTOR_PATTERN" ".*det.*"
+epicsEnvSet "SPECTRA_DIR" "$(ICPCONFIGROOT)/tables"
+epicsEnvSet "SPECTRA_PATTERN" ".*spec.*"
+epicsEnvSet "PERIOD_DIR" "$(ICPCONFIGROOT)/tables"
+epicsEnvSet "PERIOD_PATTERN" ".*period.*"
+epicsEnvSet "TCB_DIR" "$(ICPCONFIGROOT)/tcb"
+epicsEnvSet "TCB_PATTERN" ".*tcb.*"
+
 cd ${TOP}
 
 ## Register all support components
@@ -29,8 +40,11 @@ epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
 asynSetMinTimerPeriod(0.001)
 
+## used for restarting EPICS archiver via web URL
+webgetConfigure("web")
+
 ## local dae, no dcom/labview
-#isisdaeConfigure("icp")
+isisdaeConfigure("icp", 1)
 ## pass 1 as second arg to signify DCOM to either local or remote dae
 #isisdaeConfigure("icp", 1, "localhost")
 #isisdaeConfigure("icp", 1, "ndxchipir", "spudulike", "reliablebeam")
@@ -38,12 +52,20 @@ asynSetMinTimerPeriod(0.001)
 ## make sure xand y sizes are each a multiple of 16
 isisdaeADConfigure("icpad", 16, 16, 1, 0, 0)
 
+## Load the FileLists
+FileListConfigure("WLIST", "$(WIRING_DIR)", "$(WIRING_PATTERN)", 1)
+FileListConfigure("DLIST", "$(DETECTOR_DIR)", "$(DETECTOR_PATTERN)", 1)
+FileListConfigure("SLIST", "$(SPECTRA_DIR)", "$(SPECTRA_PATTERN)", 1)
+FileListConfigure("PLIST", "$(PERIOD_DIR)", "$(PERIOD_PATTERN)", 1)
+FileListConfigure("TLIST", "$(TCB_DIR)", "$(TCB_PATTERN)", 1)
+
 ## Load record instances
 
 ##ISIS## Load common DB records 
 < $(IOCSTARTUP)/dbload.cmd
 
-#dbLoadRecords("$(TOP)/db/isisdae.db","P=$(MYPVPREFIX),Q=DAE:")
+#dbLoadRecords("$(TOP)/db/isisdae.db","S=$(MYPVPREFIX), P=$(MYPVPREFIX),Q=DAE:, WIRINGLIST=WLIST, DETECTORLIST=DLIST, SPECTRALIST=SLIST, PERIODLIST=PLIST, TCBLIST=TLIST")
+#dbLoadRecords("$(TOP)/db/dae_diag.db","P=$(MYPVPREFIX),Q=DAE:")
 
 dbLoadRecords("$(ADSIMDETECTOR)/db/simDetector.template","P=$(MYPVPREFIX),R=cam1:,PORT=icpad,ADDR=0,TIMEOUT=1")
 
@@ -85,5 +107,3 @@ iocInit
 
 ##ISIS## Stuff that needs to be done after iocInit is called e.g. sequence programs 
 < $(IOCSTARTUP)/postiocinit.cmd
-
-
