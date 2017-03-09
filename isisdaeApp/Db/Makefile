@@ -11,6 +11,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
 DB += isisdae.db
+DB += dae_diag.db
 DB += dae3_parallel.db
 
 #----------------------------------------------------

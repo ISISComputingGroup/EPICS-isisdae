@@ -31,6 +31,8 @@
 #include "isisdaeInterface.h"
 #include "variant_utils.h"
 
+#include <boost/tr1/functional.hpp>
+
 #include <macLib.h>
 #include <epicsGuard.h>
 
@@ -157,6 +159,37 @@ T isisdaeInterface::callI( boost::function<T(std::string&)> func )
 
 template <typename T>
 T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
+{
+    BSTR bmessages = NULL;
+	std::string messages, messages_t;
+	checkConnection();
+	T res = func(m_icp, &bmessages);
+	if (SysStringLen(bmessages) > 0)
+	{
+		messages = COLE2CT(bmessages);
+		stripTimeStamp(messages, messages_t);
+		m_allMsgs += messages;
+	}
+	SysFreeString(bmessages);
+	return res;
+}
+
+// may move boost::bind -> tr1 when confirm all is OK
+template<typename T>
+T isisdaeInterface::callItr1( std::tr1::function<T(std::string&)> func )
+{
+		std::string messages, messages_t;
+		T res = func(messages);
+		if (messages.size() > 0)
+		{
+			stripTimeStamp(messages, messages_t);
+			m_allMsgs += messages;
+		}
+		return res;
+}
+
+template <typename T>
+T isisdaeInterface::callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func )
 {
     BSTR bmessages = NULL;
 	std::string messages, messages_t;
@@ -532,7 +565,7 @@ int isisdaeInterface::setUserParameters(long rbno, const std::string& name, cons
 
 long isisdaeInterface::getNumPeriods()
 {
-	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::getNumberOfPeriods, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::getNumberOfPeriods, _1)));
+	return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getNumberOfPeriods, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::getNumberOfPeriods, _1)));
 }
 
 int isisdaeInterface::setPeriod(long period)
@@ -562,13 +595,23 @@ unsigned long isisdaeInterface::getHistogramMemory()
 	return sum;
 }
 
-unsigned long isisdaeInterface::getSpectraSum()
+int isisdaeInterface::getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums)
 {
-   long counts = 0, bin0_counts = 0;
-	long ret = (m_dcom ? callD<int>(boost::bind(&ICPDCOM::sumAllSpectra, _1, &counts, &bin0_counts, _2)) : callI<int>(boost::bind(&ISISICPINT::sumAllSpectra, boost::ref(counts), boost::ref(bin0_counts), _1)));
-    return counts;
+	if (m_dcom)
+	{
+		variant_t sums_v, max_vals_v, spec_nums_v;
+		callDtr1<int>(std::tr1::bind(&ICPDCOM::getSpectraSum, std::tr1::placeholders::_1, period, first_spec, num_spec, spec_type, time_low, time_high, &sums_v, &max_vals_v, &spec_nums_v, std::tr1::placeholders::_2));
+		makeArrayFromVariant(sums, &sums_v);
+		makeArrayFromVariant(max_vals, &max_vals_v);
+		makeArrayFromVariant(spec_nums, &spec_nums_v);
+	}
+	else
+	{
+		callItr1<int>(std::tr1::bind(&ISISICPINT::getSpectraSum, period, first_spec, num_spec, spec_type, time_low, time_high, std::tr1::ref(sums), std::tr1::ref(max_vals), std::tr1::ref(spec_nums), std::tr1::placeholders::_1));
+	}
+    return 0;	
 }
-
+		
 // for ISISICPINT namespace functions
 int isisdaeInterface::getXMLSettingsI(std::string& result, const std::string& template_file, int (*func)(const std::string&, std::string&, std::string&))
 {
@@ -673,6 +716,7 @@ int isisdaeInterface::setUpdateSettingsXML(const std::string& settings)
 int isisdaeInterface::getRunDataFromDAE(std::map<std::string, DAEValue>& values)
 {
     std::string cluster_xml;
+	cluster_xml.reserve(6000);
     int res = (m_dcom ? getXMLSettingsD(cluster_xml, "run_data_cluster.xml", &ICPDCOM::updateStatusXML2) : getXMLSettingsI(cluster_xml, "run_data_cluster.xml", &ISISICPINT::updateStatusXML2)); 
     CComPtr<IXMLDOMDocument> xmldom = createXmlDom(cluster_xml);
 	if (xmldom)
