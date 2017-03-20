@@ -322,6 +322,7 @@ void isisdaeInterface::checkConnection()
 		delete m_data_map;
 		m_data_map = NULL;
 		m_data = NULL;
+		m_spec_integrals = NULL;
 		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
 		m_pidentity = createIdentity(m_username, m_host, m_password);
@@ -355,15 +356,19 @@ void isisdaeInterface::checkConnection()
 		} 
 		setIdentity(m_pidentity, mq[ 0 ].pItf);
 		m_icp.Release();
-		m_icp.Attach( reinterpret_cast< isisicpLib::Idae* >( mq[ 0 ].pItf ) ); 
+		m_icp.Attach( reinterpret_cast< isisicpLib::Idae* >( mq[ 0 ].pItf ) );
+		m_icp->areYouThere();
 		m_data_map = new CRPTMapping;
 		m_data = m_data_map->getaddr();
+		m_data_size = m_data_map->getsize();
+		m_spec_integrals = m_data + m_data_size;
 	}
 	else
 	{
 		delete m_data_map;
 		m_data_map = NULL;
 		m_data = NULL;
+		m_spec_integrals = NULL;
 		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		m_pidentity = NULL;
 		m_icp.Release();
@@ -372,8 +377,11 @@ void isisdaeInterface::checkConnection()
 		{
  			throw COMexception("CoCreateInstance (ISISICP) ", hr);
 		}
+		m_icp->areYouThere();
 		m_data_map = new CRPTMapping;
 		m_data = m_data_map->getaddr();
+		m_data_size = m_data_map->getsize();
+		m_spec_integrals = m_data + m_data_size;
 	}
 }
 
@@ -727,7 +735,7 @@ int isisdaeInterface::setUpdateSettingsXML(const std::string& settings)
 int isisdaeInterface::getRunDataFromDAE(std::map<std::string, DAEValue>& values)
 {
     std::string cluster_xml;
-	cluster_xml.reserve(6000);
+	cluster_xml.reserve(6000); // to avoid string reallocs
     int res = (m_dcom ? getXMLSettingsD(cluster_xml, "run_data_cluster.xml", &ICPDCOM::updateStatusXML2) : getXMLSettingsI(cluster_xml, "run_data_cluster.xml", &ISISICPINT::updateStatusXML2)); 
     CComPtr<IXMLDOMDocument> xmldom = createXmlDom(cluster_xml);
 	if (xmldom)
@@ -944,28 +952,15 @@ long isisdaeInterface::getSpectrumIntegral(long spectrum_number, long period, fl
 
 long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts)
 {
-#if 0
 	variant_t spectrum_numbers_v, times_low_v, times_high_v, counts_v;
 	if (m_dcom)
 	{
-		callD<int>(boost::bind(&ICPDCOM::getSpectrumIntegral, _1, spectrum_numbers_v, period, times_low_v, times_high_v, &counts_v, _2));
-		double *s = NULL, *t = NULL;
-		accessArrayVariant(&signal_v, &s);
-		long* cv = NULL;
-		accessArrayVariant(&counts_v, &cv);
-		n = arrayVariantLength(&counts_v);
-		for(int i=0; i < n; ++i)
-	    {
-	        signal[i] = s[i];
-			time_channels[i] = t[i];
-	    }
-		unaccessArrayVariant(&signal_v);
-		unaccessArrayVariant(&time_channels_v);
+		callD<int>(boost::bind(&ICPDCOM::getSpectraIntegral, _1, spectrum_numbers_v, period, times_low_v, times_high_v, &counts_v, _2));
+		makeArrayFromVariant(counts, &counts_v);
 	}
 	else
 	{
-		callI<int>(boost::bind(&ISISICPINT::getSpectrumIntegral, spectrum_numbers, period, times_low, times_high, boost::ref(counts), _1));
+		callI<int>(boost::bind(&ISISICPINT::getSpectraIntegral, spectrum_numbers, period, times_low, times_high, boost::ref(counts), _1));
 	}
-#endif
     return 0;
 }

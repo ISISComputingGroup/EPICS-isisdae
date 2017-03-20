@@ -28,7 +28,7 @@ isisdaeTest_registerRecordDeviceDriver pdbbase
 # Prefix for all records
 #epicsEnvSet("PREFIX", "$(MYPVPREFIX)")
 # The port name for the detector
-#epicsEnvSet("PORT",   "icpad")
+#epicsEnvSet("PORT",   "icp")
 # The queue size for all plugins
 #epicsEnvSet("QSIZE",  "20")
 # The maximim image width; used to set the maximum size for this driver and for row profiles in the NDPluginStats plugin
@@ -49,9 +49,6 @@ isisdaeConfigure("icp", 1)
 #isisdaeConfigure("icp", 1, "localhost")
 #isisdaeConfigure("icp", 1, "ndxchipir", "spudulike", "reliablebeam")
 
-## make sure xand y sizes are each a multiple of 16
-isisdaeADConfigure("icpad", 16, 16, 1, 0, 0)
-
 ## Load the FileLists
 FileListConfigure("WLIST", "$(WIRING_DIR)", "$(WIRING_PATTERN)", 1)
 FileListConfigure("DLIST", "$(DETECTOR_DIR)", "$(DETECTOR_PATTERN)", 1)
@@ -64,39 +61,39 @@ FileListConfigure("TLIST", "$(TCB_DIR)", "$(TCB_PATTERN)", 1)
 ##ISIS## Load common DB records 
 < $(IOCSTARTUP)/dbload.cmd
 
-#dbLoadRecords("$(TOP)/db/isisdae.db","S=$(MYPVPREFIX), P=$(MYPVPREFIX),Q=DAE:, WIRINGLIST=WLIST, DETECTORLIST=DLIST, SPECTRALIST=SLIST, PERIODLIST=PLIST, TCBLIST=TLIST")
-#dbLoadRecords("$(TOP)/db/dae_diag.db","P=$(MYPVPREFIX),Q=DAE:")
+dbLoadRecords("$(TOP)/db/isisdae.db","S=$(MYPVPREFIX), P=$(MYPVPREFIX),Q=DAE:, WIRINGLIST=WLIST, DETECTORLIST=DLIST, SPECTRALIST=SLIST, PERIODLIST=PLIST, TCBLIST=TLIST")
+dbLoadRecords("$(TOP)/db/dae_diag.db","P=$(MYPVPREFIX),Q=DAE:")
 
-dbLoadRecords("$(ADSIMDETECTOR)/db/simDetector.template","P=$(MYPVPREFIX),R=cam1:,PORT=icpad,ADDR=0,TIMEOUT=1")
+dbLoadRecords("$(TOP)/db/ADisisdae.template","P=$(MYPVPREFIX),R=DAE:,PORT=icp,ADDR=0,TIMEOUT=1")
 
-NDStdArraysConfigure("Image1", 3, 0, "icpad", 0, 0)
+NDStdArraysConfigure("Image1", 3, 0, "icp", 0, 0)
 
 # This waveform allows transporting 8-bit images
-dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icpad,TYPE=Int8,FTVL=UCHAR,NELEMENTS=256,ENABLED=1")
+dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=DAE:image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,TYPE=Int8,FTVL=UCHAR,NELEMENTS=256,ENABLED=1")
 # This waveform allows transporting 32-bit images
-#dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icpad,TYPE=Int32,FTVL=LONG,NELEMENTS=12000000,ENABLED=1")
+#dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=DAE:image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,TYPE=Int32,FTVL=LONG,NELEMENTS=12000000,ENABLED=1")
 
 ## Create an FFT plugin
-#NDFFTConfigure("FFT1", 3, 0, "icpad", 0)
-#dbLoadRecords("NDFFT.template", "P=$(PREFIX),R=FFT1:,PORT=FFT1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),NAME=FFT1,NCHANS=2048")
+#NDFFTConfigure("FFT1", 3, 0, "icp", 0)
+#dbLoadRecords("NDFFT.template", "P=$(PREFIX),R=DAE:FFT1:,PORT=FFT1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),NAME=FFT1,NCHANS=2048")
 
 ffmpegServerConfigure(8081)
 ## ffmpegStreamConfigure(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr, maxMemory)
-ffmpegStreamConfigure("C1.MJPG", 2, 0, "icpad", "0")
-dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegStream.template", "P=FFMPEG:,R=Stream:,PORT=C1.MJPG,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icpad,ENABLED=1")
+ffmpegStreamConfigure("C1.MJPG", 2, 0, "icp", "0")
+dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegStream.template", "P=$(MYPVPREFIX),R=DAE:Stream:,PORT=C1.MJPG,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,ENABLED=1")
 
 ## ffmpegFileConfigure(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr)
-ffmpegFileConfigure("C1.FILE", 16, 0, "icpad", 0)
-dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegFile.template", "P=FFMPEG:,R=File:,PORT=C1.FILE,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icpad,ENABLED=1")
+ffmpegFileConfigure("C1.FILE", 16, 0, "icp", 0)
+dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegFile.template", "P=$(MYPVPREFIX),R=DAE:File:,PORT=C1.FILE,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,ENABLED=1")
 
-NDPvaConfigure("PVA", 3, 0, "icpad", 0, "v4pvname")
-dbLoadRecords("NDPva.template", "P=$(MYPVPREFIX),R=V4:,PORT=PVA,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icpad,ENABLED=1")
+NDPvaConfigure("PVA", 3, 0, "icp", 0, "v4pvname")
+dbLoadRecords("NDPva.template", "P=$(MYPVPREFIX),R=DAE:V4:,PORT=PVA,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,ENABLED=1")
 
 ##ISIS## Stuff that needs to be done after all records are loaded but before iocInit is called 
 < $(IOCSTARTUP)/preiocinit.cmd
 
 ## 0=none,0x1=err,0x2=IO_device,0x4=IO_filter,0x8=IO_driver,0x10=flow,0x20=warning
-#asynSetTraceMask("icpad", -1, 0x11)
+#asynSetTraceMask("icp", -1, 0x11)
 #asynSetTraceMask("Image1", -1, 0x11)
 
 cd ${TOP}/iocBoot/${IOC}
