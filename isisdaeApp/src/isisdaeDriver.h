@@ -106,6 +106,10 @@ private:
 	int P_diagSpecStart; // int		
 	int P_diagSpecNum; // int		
 	int P_diagSpecShow; // int	
+	int P_diagSpecMatch; // int			
+    int P_diagSpecIntLow; //float				
+    int P_diagSpecIntHigh; // float				
+
 	int P_diagSum; // int				
 	
     int P_AllMsgs; // char
@@ -214,6 +218,9 @@ private:
 #define P_diagSpecNumString			"DIAG_SPEC_NUM"
 #define P_diagSpecShowString		"DIAG_SPEC_SHOW"
 #define P_diagSumString				"DIAG_SUM"
+#define P_diagSpecMatchString				"DIAG_SPEC_MATCH"
+#define P_diagSpecIntLowString				"DIAG_SPEC_INTLOW"
+#define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

@@ -696,6 +696,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_diagSpecNumString, asynParamInt32, &P_diagSpecNum);
     createParam(P_diagSpecShowString, asynParamInt32, &P_diagSpecShow);
     createParam(P_diagSumString, asynParamInt32, &P_diagSum);
+    createParam(P_diagSpecMatchString, asynParamInt32, &P_diagSpecMatch);
+    createParam(P_diagSpecIntLowString, asynParamFloat64, &P_diagSpecIntLow);
+    createParam(P_diagSpecIntHighString, asynParamFloat64, &P_diagSpecIntHigh);
 	
     setIntegerParam(P_StateTrans, 0);
 
@@ -1004,7 +1007,10 @@ void isisdaeDriver::pollerThread3()
 		getIntegerParam(P_diagSpecShow, &spec_type);
 		getIntegerParam(P_diagSpecStart, &first_spec);
 		getIntegerParam(P_diagSpecNum, &num_spec);
-		getIntegerParam(P_diagPeriod, &period);		
+		getIntegerParam(P_diagPeriod, &period);
+		getDoubleParam(P_diagSpecIntLow, &time_low);
+		getDoubleParam(P_diagSpecIntHigh, &time_high);
+		
         unlock(); // getSepctraSum may take a while so release asyn lock
 		m_iface->getSpectraSum(period, first_spec, num_spec, spec_type, 
 		     time_low, time_high, sums[i1], max_vals, spec_nums);
@@ -1029,6 +1035,7 @@ void isisdaeDriver::pollerThread3()
 		doCallbacksFloat64Array(reinterpret_cast<epicsFloat64*>(&(rate[0])), n1, P_diagTableCntRate, 0);
 		setIntegerParam(P_diagFrames, fdiff);
 		setIntegerParam(P_diagSum, sum);
+		setIntegerParam(P_diagSpecMatch, n1);
         callParamCallbacks();
 		b = !b;
     }
