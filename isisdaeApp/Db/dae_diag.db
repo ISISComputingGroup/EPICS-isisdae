@@ -91,11 +91,40 @@ record(longin, "$(P)$(Q)DIAG:FRAMES")
     field(SCAN, "I/O Intr")
 }
 
+record(ao, "$(P)$(Q)DIAG:SPEC:INTLOW:SP")
+{
+    field(DESC, "Lower integral limit")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_INTLOW")
+	field(VAL, 0)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(ao, "$(P)$(Q)DIAG:SPEC:INTHIGH:SP")
+{
+    field(DESC, "Upper integral limit")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_INTHIGH")
+	field(VAL, 0)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
 record(longin, "$(P)$(Q)DIAG:SUM")
 {
     field(DESC, "Sum of diag spectra counts")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)DIAG_SUM")
+    field(SCAN, "I/O Intr")
+}
+
+## number of spectra that matched criteria, which may be more than can be returned in a waveform below
+record(longin, "$(P)$(Q)DIAG:SPEC:MATCH")
+{
+    field(DESC, "Number that matched criteria")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_MATCH")
     field(SCAN, "I/O Intr")
 }
 
