@@ -184,7 +184,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 		    beginStateTransition(RS_BEGINNING);
             zeroRunCounters();
-			m_iface->beginRunEx(value, -1);
+			m_iface->beginRunEx(static_cast<long>(value), -1);
 		}
 		else if (function == P_AbortRun)
 		{
@@ -235,11 +235,11 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		}
         else if (function == P_Period)
 		{
-			m_iface->setPeriod(value);
+			m_iface->setPeriod(static_cast<long>(value));
 		}
         else if (function == P_NumPeriods)
 		{
-			m_iface->setNumPeriods(value);
+			m_iface->setNumPeriods(static_cast<long>(value));
 		}
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -521,7 +521,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		    std::string tcb_xml;
 		    if (uncompressString(value_s, tcb_xml) == 0)
 			{
-                unsigned found = tcb_xml.find_last_of(">");  // in cased junk on end
+                size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}        

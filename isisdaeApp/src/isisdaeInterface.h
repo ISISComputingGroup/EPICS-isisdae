@@ -123,6 +123,7 @@ public:
 	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
+	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
 	std::string m_host;
@@ -134,7 +135,6 @@ private:
 	int m_options; ///< the various #lvDCOMOptions currently in use
 	epicsMutex m_lock;
 	bool m_dcom;
-	typedef isisicpLib::Idae ICPDCOM;
 	CComPtr<ICPDCOM> m_icp;
 	COAUTHIDENTITY* m_pidentity;
 
