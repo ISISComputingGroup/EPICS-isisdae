@@ -51,6 +51,7 @@ else
 isisicpint_DIR = ../lib/windows-x64
 endif
 isisdae_LIBS_WIN32 += isisicpint
+isisdae_SYS_LIBS_WIN32 += psapi
 
 # isisdae.dbd will be created and installed
 # see isisdaeInclude.dbd

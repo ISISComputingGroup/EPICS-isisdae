@@ -1447,6 +1447,11 @@ void isisdaeDriver::computeColour(uint32_t value, uint32_t maxval, epicsType& mo
 	}
 }
 
+static double myround(double d)
+{
+    return (d < 0.0) ? ceil(d - 0.5) : floor(d + 0.5);
+}
+
 template <typename epicsType> 
 void isisdaeDriver::computeColour(uint32_t value, uint32_t maxval, epicsType& red, epicsType& green, epicsType& blue)
 {
@@ -1454,7 +1459,7 @@ void isisdaeDriver::computeColour(uint32_t value, uint32_t maxval, epicsType& re
 	epicsType limit = std::numeric_limits<epicsType>::max();
 	if (maxval > 0)
 	{
-		i = (int)round(255.0 * (double)value / (double)maxval);
+		i = (int)myround(255.0 * (double)value / (double)maxval);
 	}
 	else
 	{
