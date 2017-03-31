@@ -106,7 +106,7 @@ public:
     double getMEvents();
     unsigned long getTotalCounts();
     unsigned long getHistogramMemory();
-    unsigned long getSpectraSum();
+    int getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high,                       std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums);
     int getRunDataFromDAE(std::map<std::string, DAEValue>& values);
     int getDAESettingsXML(std::string& result);
     int setDAESettingsXML(const std::string& settings);
@@ -123,6 +123,7 @@ public:
 	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
+	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
 	std::string m_host;
@@ -134,7 +135,6 @@ private:
 	int m_options; ///< the various #lvDCOMOptions currently in use
 	epicsMutex m_lock;
 	bool m_dcom;
-	typedef isisicpLib::Idae ICPDCOM;
 	CComPtr<ICPDCOM> m_icp;
 	COAUTHIDENTITY* m_pidentity;
 
@@ -151,10 +151,12 @@ private:
 	std::string getValue(const std::string& name);
 	// call ISISICPINT functions
 	template <typename T> T callI( boost::function<T(std::string&)> func );
+	template <typename T> T callItr1( std::tr1::function<T(std::string&)> func );
 
 	// call ICPDCOM functions
 	template <typename T> T callD( boost::function<T(ICPDCOM*, BSTR*)> func );
-		   
+	template <typename T> T callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func );
+  
 	int getXMLSettingsI(std::string& result, const std::string& template_file, int (*func)(const std::string&, std::string&, std::string&));
     int getXMLSettingsD(std::string& result, const std::string& template_file, HRESULT (ICPDCOM::*func)(_bstr_t, BSTR*, BSTR*));
 };

@@ -1,0 +1,170 @@
+
+## enable or diable diag
+record(bo, "$(P)$(Q)DIAG:ENABLE:SP")
+{
+    field(DESC, "Enable diag")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_ENABLE")
+	field(VAL, 0)
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(PINI, "YES")
+    # always disable on IOC startup, don't autosave value
+}
+
+## is diag enabled?
+record(bi, "$(P)$(Q)DIAG:ENABLED")
+{
+    field(DESC, "Diag enabled")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_ENABLE")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+    field(SCAN, "I/O Intr")
+}
+
+## period number used for diag spectra
+record(longout, "$(P)$(Q)DIAG:PERIOD:SP")
+{
+    field(DESC, "Diag Period")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_PERIOD")
+	field(PINI, "YES")
+	field(VAL, 1)
+    info(autosaveFields, "VAL")
+}
+
+## starting spectrum number for diag
+record(longout, "$(P)$(Q)DIAG:SPEC:START:SP")
+{
+    field(DESC, "Diag Spec Start")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_START")
+	field(VAL, 1)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+## number of spectra for diag
+record(longout, "$(P)$(Q)DIAG:SPEC:NUM:SP")
+{
+    field(DESC, "Diag Num Spec")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_NUM")
+	field(VAL, 10)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+## select which spectra to show
+record(mbbo, "$(P)$(Q)DIAG:SPEC:SHOW:SP")
+{
+    field(DESC, "Diag Specs To Show")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_SHOW")
+	field(ZRST, "All")
+	field(ZRVL, 0)
+	field(ONST, "Zero Counts Only")
+	field(ONVL, 1)
+	field(TWST, "Non-zero counts only")
+	field(TWVL, 2)
+	field(VAL, 0)
+	field(PINI, "YES")
+    # don't autosave, default to "All" on startup
+}
+
+record(longout, "$(P)$(Q)DIAG:FRAMES:SP")
+{
+    field(DESC, "Min Num Frames for diag")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)DIAG_MIN_FRAMES")
+	field(VAL, 0)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(Q)DIAG:FRAMES")
+{
+    field(DESC, "Num Frames used for diag")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_FRAMES")
+    field(SCAN, "I/O Intr")
+}
+
+record(ao, "$(P)$(Q)DIAG:SPEC:INTLOW:SP")
+{
+    field(DESC, "Lower integral limit")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_INTLOW")
+	field(VAL, 0)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(ao, "$(P)$(Q)DIAG:SPEC:INTHIGH:SP")
+{
+    field(DESC, "Upper integral limit")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn(icp,0,0)DIAG_SPEC_INTHIGH")
+	field(VAL, 0)
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(Q)DIAG:SUM")
+{
+    field(DESC, "Sum of diag spectra counts")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SUM")
+    field(SCAN, "I/O Intr")
+}
+
+## number of spectra that matched criteria, which may be more than can be returned in a waveform below
+record(longin, "$(P)$(Q)DIAG:SPEC:MATCH")
+{
+    field(DESC, "Number that matched criteria")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_MATCH")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)$(Q)DIAG:TABLE:SPEC")
+{
+    field(DESC, "Spectrum Numbers")
+    field(NELM, "256")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)DIAG_TABLE_SPEC")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)$(Q)DIAG:TABLE:SUM")
+{
+    field(DESC, "Spec Integrals")
+    field(NELM, "256")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)DIAG_TABLE_SUM")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)$(Q)DIAG:TABLE:MAX")
+{
+    field(DESC, "Max Spec Bin Count")
+    field(NELM, "256")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)DIAG_TABLE_MAX")
+    field(SCAN, "I/O Intr")
+}
+
+record(waveform, "$(P)$(Q)DIAG:TABLE:CNTRATE")
+{
+    field(DESC, "Count Rate")
+	field(EGU, "Count / Frame")
+    field(NELM, "256")
+    field(FTVL, "DOUBLE")
+    field(DTYP, "asynFloat64ArrayIn")
+    field(INP,  "@asyn(icp,0,0)DIAG_TABLE_CNTRATE")
+    field(SCAN, "I/O Intr")
+}

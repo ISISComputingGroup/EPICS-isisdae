@@ -27,6 +27,7 @@ $(APPNAME)_DBD += caPutLog.dbd
 ## add other dbd here ##
 $(APPNAME)_DBD += isisdae.dbd
 $(APPNAME)_DBD += webget.dbd
+$(APPNAME)_DBD += FileList.dbd
 
 # Add all the support libraries needed by this IOC
 ## ISIS standard libraries ##
@@ -40,7 +41,7 @@ $(APPNAME)_LIBS += autosave
 $(APPNAME)_LIBS += utilities
 ## Add other libraries here ##
 #$(APPNAME)_LIBS += xxx
-$(APPNAME)_LIBS += isisdae asyn oncrpc zlib pcrecpp pcre pugixml
+$(APPNAME)_LIBS += isisdae FileList asyn oncrpc zlib pcrecpp pcre pugixml
 $(APPNAME)_LIBS += cas gdd 
 $(APPNAME)_LIBS += ffmpegServer
 $(APPNAME)_LIBS += avdevice

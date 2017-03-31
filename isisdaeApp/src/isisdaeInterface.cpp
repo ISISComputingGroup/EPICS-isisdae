@@ -31,6 +31,8 @@
 #include "isisdaeInterface.h"
 #include "variant_utils.h"
 
+#include <boost/tr1/functional.hpp>
+
 #include <macLib.h>
 #include <epicsGuard.h>
 
@@ -172,6 +174,37 @@ T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
 	return res;
 }
 
+// may move boost::bind -> tr1 when confirm all is OK
+template<typename T>
+T isisdaeInterface::callItr1( std::tr1::function<T(std::string&)> func )
+{
+		std::string messages, messages_t;
+		T res = func(messages);
+		if (messages.size() > 0)
+		{
+			stripTimeStamp(messages, messages_t);
+			m_allMsgs += messages;
+		}
+		return res;
+}
+
+template <typename T>
+T isisdaeInterface::callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func )
+{
+    BSTR bmessages = NULL;
+	std::string messages, messages_t;
+	checkConnection();
+	T res = func(m_icp, &bmessages);
+	if (SysStringLen(bmessages) > 0)
+	{
+		messages = COLE2CT(bmessages);
+		stripTimeStamp(messages, messages_t);
+		m_allMsgs += messages;
+	}
+	SysFreeString(bmessages);
+	return res;
+}
+
 const std::string& isisdaeInterface::getAllMessages() const
 {
     return m_allMsgs;
@@ -188,7 +221,7 @@ void isisdaeInterface::stripTimeStamp(const std::string& in, std::string& out)
 	memcpy(&tmstr, localtime(&now), sizeof(tmstr));
     strftime(time_str, sizeof(time_str), "%Y-%m-", &tmstr);
     out = in;
-	int pos = 0;
+	size_t pos = 0;
 	while( (pos = out.find(time_str, pos)) != std::string::npos )
 	{
 	    out.erase(pos, 20);
@@ -425,7 +458,7 @@ int isisdaeInterface::snapshotCRPT(const std::string& filename, long do_update, 
 	}
 	else
 	{
-	    return callI<int>(boost::bind(&ISISICPINT::snapshotCRPT, boost::cref(filename), do_update, do_pause, _1));
+	    return callI<int>(boost::bind(&ISISICPINT::snapshotCRPT, boost::cref(filename), (do_update != 0 ? true : false), (do_pause != 0 ? true : false), _1));
 	}
 }
 
@@ -457,7 +490,7 @@ std::string isisdaeInterface::getValue(const std::string& name)
 	{
         _bstr_t bs(CComBSTR(name.c_str()).Detach());
 		BSTR res = callD<_bstr_t>(boost::bind(&ICPDCOM::getValue, _1, bs, _2));
-		return COLE2CT(res);
+		return std::string(COLE2CT(res));
 	}
 	else
 	{
@@ -532,7 +565,7 @@ int isisdaeInterface::setUserParameters(long rbno, const std::string& name, cons
 
 long isisdaeInterface::getNumPeriods()
 {
-	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::getNumberOfPeriods, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::getNumberOfPeriods, _1)));
+	return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getNumberOfPeriods, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::getNumberOfPeriods, _1)));
 }
 
 int isisdaeInterface::setPeriod(long period)
@@ -562,13 +595,38 @@ unsigned long isisdaeInterface::getHistogramMemory()
 	return sum;
 }
 
-unsigned long isisdaeInterface::getSpectraSum()
+// needed for VS2010 and std::tr1::bind, VS2015 was OK without
+struct getSpectraSumWrapStruct
 {
-   long counts = 0, bin0_counts = 0;
-	long ret = (m_dcom ? callD<int>(boost::bind(&ICPDCOM::sumAllSpectra, _1, &counts, &bin0_counts, _2)) : callI<int>(boost::bind(&ISISICPINT::sumAllSpectra, boost::ref(counts), boost::ref(bin0_counts), _1)));
-    return counts;
+    long period;
+	long first_spec;
+	long num_spec;
+	getSpectraSumWrapStruct(long period_, long first_spec_, long num_spec_) : period(period_), first_spec(first_spec_), num_spec(num_spec_) { }
+};
+
+static HRESULT getSpectraSumWrap(isisdaeInterface::ICPDCOM* icp, const getSpectraSumWrapStruct& w, long spec_type, double time_low, double time_high, VARIANT * sums, VARIANT * max_vals, VARIANT * spec_nums, BSTR * messages)
+{
+    return icp->getSpectraSum(w.period, w.first_spec, w.num_spec, spec_type, time_low, time_high, sums, max_vals, spec_nums, messages);
 }
 
+int isisdaeInterface::getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums)
+{
+	if (m_dcom)
+	{
+		variant_t sums_v, max_vals_v, spec_nums_v;
+		getSpectraSumWrapStruct w(period, first_spec, num_spec);
+		callDtr1<int>(std::tr1::bind(&getSpectraSumWrap, std::tr1::placeholders::_1, std::tr1::cref(w), spec_type, time_low, time_high, &sums_v, &max_vals_v, &spec_nums_v, std::tr1::placeholders::_2));
+		makeArrayFromVariant(sums, &sums_v);
+		makeArrayFromVariant(max_vals, &max_vals_v);
+		makeArrayFromVariant(spec_nums, &spec_nums_v);
+	}
+	else
+	{
+		callItr1<int>(std::tr1::bind(&ISISICPINT::getSpectraSum, period, first_spec, num_spec, spec_type, time_low, time_high, std::tr1::ref(sums), std::tr1::ref(max_vals), std::tr1::ref(spec_nums), std::tr1::placeholders::_1));
+	}
+    return 0;	
+}
+		
 // for ISISICPINT namespace functions
 int isisdaeInterface::getXMLSettingsI(std::string& result, const std::string& template_file, int (*func)(const std::string&, std::string&, std::string&))
 {
@@ -673,6 +731,7 @@ int isisdaeInterface::setUpdateSettingsXML(const std::string& settings)
 int isisdaeInterface::getRunDataFromDAE(std::map<std::string, DAEValue>& values)
 {
     std::string cluster_xml;
+	cluster_xml.reserve(6000);
     int res = (m_dcom ? getXMLSettingsD(cluster_xml, "run_data_cluster.xml", &ICPDCOM::updateStatusXML2) : getXMLSettingsI(cluster_xml, "run_data_cluster.xml", &ISISICPINT::updateStatusXML2)); 
     CComPtr<IXMLDOMDocument> xmldom = createXmlDom(cluster_xml);
 	if (xmldom)
@@ -854,8 +913,8 @@ long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, f
 		n = arrayVariantLength(&signal_v);
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
-	        signal[i] = s[i];
-			time_channels[i] = t[i];
+	        signal[i] = static_cast<float>(s[i]);
+			time_channels[i] = static_cast<float>(t[i]);
 	    }
 		unaccessArrayVariant(&signal_v);
 		unaccessArrayVariant(&time_channels_v);
@@ -864,11 +923,11 @@ long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, f
 	{
 		std::vector<double> time_channels_v, signal_v;
 		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, true, boost::ref(sum), _1));
-		n = signal_v.size();
+		n = static_cast<long>(signal_v.size());
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
-	        time_channels[i] = time_channels_v[i];
-	        signal[i] = signal_v[i];
+	        time_channels[i] = static_cast<float>(time_channels_v[i]);
+	        signal[i] = static_cast<float>(signal_v[i]);
 	    }
 	}
     return n;

@@ -1,16 +1,17 @@
 #ifndef ISISDAEDRIVER_H
 #define ISISDAEDRIVER_H
  
-#include "asynPortDriver.h"
+#include "ADDriver.h"
 
 class isisdaeInterface;
 
-class isisdaeDriver : public asynPortDriver 
+class isisdaeDriver : public ADDriver 
 {
 public:
     isisdaeDriver(isisdaeInterface* iface, const char *portName);
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
+ 	static void pollerThreadC3(void* arg);
     enum { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7,
 	        RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
                 
@@ -93,6 +94,24 @@ private:
 	int P_spectraTableFile; // string
 	int P_tcbFile; // string
 	int P_periodsFile; // string
+	
+	int P_diagTableSum; // int array
+	int P_diagTableMax; // int array
+	int P_diagTableSpec; // int array
+	int P_diagTableCntRate; // float array
+	int P_diagFrames; // int
+	int P_diagMinFrames; // int
+	int P_diagEnable;  // int 
+	int P_diagPeriod; // int			
+	int P_diagSpecStart; // int		
+	int P_diagSpecNum; // int		
+	int P_diagSpecShow; // int	
+	int P_diagSpecMatch; // int			
+    int P_diagSpecIntLow; //float				
+    int P_diagSpecIntHigh; // float				
+
+	int P_diagSum; // int				
+	
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define FIRST_ISISDAE_PARAM P_GoodUAH
@@ -106,6 +125,7 @@ private:
 	
 	void pollerThread1();
 	void pollerThread2();
+	void pollerThread3();
     void zeroRunCounters();	
     void updateRunStatus();
 	void reportErrors(const char* exc_text);
@@ -185,6 +205,23 @@ private:
 #define P_spectraTableFileString "SPECFILE"
 #define P_tcbFileString           "TCBFILE"
 #define P_periodsFileString      "PERIODSFILE"
+
+#define P_diagTableSumString		"DIAG_TABLE_SUM"
+#define P_diagTableMaxString		"DIAG_TABLE_MAX"
+#define P_diagTableCntRateString	"DIAG_TABLE_CNTRATE"
+#define P_diagTableSpecString		"DIAG_TABLE_SPEC"
+#define P_diagFramesString			"DIAG_FRAMES"
+#define P_diagMinFramesString		"DIAG_MIN_FRAMES"
+#define P_diagEnableString			"DIAG_ENABLE"
+#define P_diagPeriodString			"DIAG_PERIOD"
+#define P_diagSpecStartString		"DIAG_SPEC_START"
+#define P_diagSpecNumString			"DIAG_SPEC_NUM"
+#define P_diagSpecShowString		"DIAG_SPEC_SHOW"
+#define P_diagSumString				"DIAG_SUM"
+#define P_diagSpecMatchString				"DIAG_SPEC_MATCH"
+#define P_diagSpecIntLowString				"DIAG_SPEC_INTLOW"
+#define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
+
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
 

@@ -8,6 +8,7 @@
 #include <map>
 #include <iomanip>
 #include <sys/timeb.h>
+#include <numeric>
 #include <boost/algorithm/string.hpp>
 
 #include <epicsTypes.h>
@@ -183,7 +184,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 		    beginStateTransition(RS_BEGINNING);
             zeroRunCounters();
-			m_iface->beginRunEx(value, -1);
+			m_iface->beginRunEx(static_cast<long>(value), -1);
 		}
 		else if (function == P_AbortRun)
 		{
@@ -234,11 +235,11 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		}
         else if (function == P_Period)
 		{
-			m_iface->setPeriod(value);
+			m_iface->setPeriod(static_cast<long>(value));
 		}
         else if (function == P_NumPeriods)
 		{
-			m_iface->setNumPeriods(value);
+			m_iface->setNumPeriods(static_cast<long>(value));
 		}
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -520,7 +521,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		    std::string tcb_xml;
 		    if (uncompressString(value_s, tcb_xml) == 0)
 			{
-                unsigned found = tcb_xml.find_last_of(">");  // in cased junk on end
+                size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
                 m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
 			}
 		}        
@@ -561,9 +562,11 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 /// \param[in] dcomint DCOM interface pointer created by lvDCOMConfigure()
 /// \param[in] portName @copydoc initArg0
 isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName) 
-   : asynPortDriver(portName, 
+   : ADDriver(portName, 
                     0, /* maxAddr */ 
                     NUM_ISISDAE_PARAMS,
+					0, // maxBuffers
+					0, // maxMemory
                     asynInt32Mask | asynInt32ArrayMask | asynFloat64Mask | asynFloat64ArrayMask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynInt32ArrayMask | asynFloat64Mask | asynFloat64ArrayMask | asynOctetMask,  /* Interrupt mask */
                     ASYN_CANBLOCK, /* asynFlags.  This driver can block but it is not multi-device */
@@ -571,8 +574,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
                     0, /* Default priority */
                     0),	/* Default stack size*/
 					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false)
-{
-    int i;
+{					
+	int i;
     const char *functionName = "isisdaeDriver";
 //	epicsThreadOnce(&onceId, initCOM, NULL);
 
@@ -681,6 +684,22 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_tcbFileString, asynParamOctet, &P_tcbFile);
     createParam(P_periodsFileString, asynParamOctet, &P_periodsFile);
 	
+    createParam(P_diagTableSumString, asynParamInt32Array, &P_diagTableSum);
+    createParam(P_diagTableSpecString, asynParamInt32Array, &P_diagTableSpec);
+    createParam(P_diagTableMaxString, asynParamInt32Array, &P_diagTableMax);
+    createParam(P_diagTableCntRateString, asynParamFloat64Array, &P_diagTableCntRate);
+    createParam(P_diagFramesString, asynParamInt32, &P_diagFrames);
+    createParam(P_diagMinFramesString, asynParamInt32, &P_diagMinFrames);
+    createParam(P_diagEnableString, asynParamInt32, &P_diagEnable);
+    createParam(P_diagPeriodString, asynParamInt32, &P_diagPeriod);
+    createParam(P_diagSpecStartString, asynParamInt32, &P_diagSpecStart);
+    createParam(P_diagSpecNumString, asynParamInt32, &P_diagSpecNum);
+    createParam(P_diagSpecShowString, asynParamInt32, &P_diagSpecShow);
+    createParam(P_diagSumString, asynParamInt32, &P_diagSum);
+    createParam(P_diagSpecMatchString, asynParamInt32, &P_diagSpecMatch);
+    createParam(P_diagSpecIntLowString, asynParamFloat64, &P_diagSpecIntLow);
+    createParam(P_diagSpecIntHighString, asynParamFloat64, &P_diagSpecIntHigh);
+	
     setIntegerParam(P_StateTrans, 0);
 
     // Create the thread for background tasks (not used at present, could be used for I/O intr scanning) 
@@ -696,6 +715,14 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
                           epicsThreadPriorityMedium,
                           epicsThreadGetStackSize(epicsThreadStackMedium),
                           (EPICSTHREADFUNC)pollerThreadC2, this) == 0)
+    {
+        printf("%s:%s: epicsThreadCreate failure\n", driverName, functionName);
+        return;
+    }
+    if (epicsThreadCreate("isisdaePoller3",
+                          epicsThreadPriorityMedium,
+                          epicsThreadGetStackSize(epicsThreadStackMedium),
+                          (EPICSTHREADFUNC)pollerThreadC3, this) == 0)
     {
         printf("%s:%s: epicsThreadCreate failure\n", driverName, functionName);
         return;
@@ -719,6 +746,16 @@ void isisdaeDriver::pollerThreadC2(void* arg)
 	if (driver != NULL)
 	{
 	    driver->pollerThread2();
+	}
+}
+
+void isisdaeDriver::pollerThreadC3(void* arg)
+{ 
+	epicsThreadSleep(1.0);	// let constructor complete
+    isisdaeDriver* driver = (isisdaeDriver*)arg; 
+	if (driver != NULL)
+	{
+	    driver->pollerThread3();
 	}
 }
 
@@ -940,6 +977,70 @@ void isisdaeDriver::pollerThread2()
 	}
 }	
 			
+void isisdaeDriver::pollerThread3()
+{
+    static const char* functionName = "isisdaePoller3";
+    double delay = 2.0;
+	std::vector<long> sums[2], max_vals, spec_nums;
+	std::vector<double> rate;
+	int frames[2] = {0, 0}, period = 1, first_spec = 1, num_spec = 10, spec_type = 0;
+	double time_low = 0.0, time_high = -1.0;
+	bool b = true;
+	int i1, i2, n1, sum, fdiff, fdiff_min = 0, diag_enable = 0;
+    lock();
+	// read sums alternately into sums[0] and sums[1] by toggling b so a count rate can be calculated
+	while(true)
+	{
+        unlock();
+		epicsThreadSleep(delay);
+		i1 = (b == true ? 0 : 1);
+		i2 = (b == true ? 1 : 0);
+		frames[i1] = m_iface->getGoodFrames(); // read prior to lock in case ICP busy
+        lock();
+		getIntegerParam(P_diagEnable, &diag_enable);
+		if (diag_enable != 1)
+			continue;
+		fdiff = frames[i1] - frames[i2];
+		getIntegerParam(P_diagMinFrames, &fdiff_min);
+		if (fdiff < fdiff_min)
+			continue;
+		getIntegerParam(P_diagSpecShow, &spec_type);
+		getIntegerParam(P_diagSpecStart, &first_spec);
+		getIntegerParam(P_diagSpecNum, &num_spec);
+		getIntegerParam(P_diagPeriod, &period);
+		getDoubleParam(P_diagSpecIntLow, &time_low);
+		getDoubleParam(P_diagSpecIntHigh, &time_high);
+		
+        unlock(); // getSepctraSum may take a while so release asyn lock
+		m_iface->getSpectraSum(period, first_spec, num_spec, spec_type, 
+		     time_low, time_high, sums[i1], max_vals, spec_nums);
+        lock();
+		n1 = sums[i1].size();
+		sum = std::accumulate(sums[i1].begin(), sums[i1].end(), 0);
+		rate.resize(n1);
+		if ( n1 == sums[i2].size() && fdiff > 0 )
+		{
+			for(int i=0; i<n1; ++i)
+			{
+				rate[i] = static_cast<double>(sums[i1][i] - sums[i2][i]) / static_cast<double>(fdiff);
+			}
+		}
+		else
+		{
+			std::fill(rate.begin(), rate.end(), 0.0);
+		}
+	    doCallbacksInt32Array(reinterpret_cast<epicsInt32*>(&(sums[i1][0])), n1, P_diagTableSum, 0);
+	    doCallbacksInt32Array(reinterpret_cast<epicsInt32*>(&(max_vals[0])), n1, P_diagTableMax, 0);
+	    doCallbacksInt32Array(reinterpret_cast<epicsInt32*>(&(spec_nums[0])), n1, P_diagTableSpec, 0);
+		doCallbacksFloat64Array(reinterpret_cast<epicsFloat64*>(&(rate[0])), n1, P_diagTableCntRate, 0);
+		setIntegerParam(P_diagFrames, fdiff);
+		setIntegerParam(P_diagSum, sum);
+		setIntegerParam(P_diagSpecMatch, n1);
+        callParamCallbacks();
+		b = !b;
+    }
+}
+
 void isisdaeDriver::getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value)
 {
 	value = "";

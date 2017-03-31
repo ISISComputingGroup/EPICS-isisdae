@@ -167,6 +167,8 @@ int arrayVariantDimensions(VARIANT* v, int dims_array[], int& ndims)
 	return 0;
 }
 
+
+
 template <typename T> 
 int makeVariantFromArray(VARIANT* v, const std::vector<T>& the_array)
 {
@@ -230,6 +232,30 @@ int makeVariantFromArray(VARIANT* v, const char* the_array, int n)
 }
 
 template int makeVariantFromArray(VARIANT* v, const std::vector<float>& the_array);
+
+/// copy a DCOM array variant into a vector
+template <typename T> 
+int makeArrayFromVariant(std::vector<T>& the_array, VARIANT* v)
+{
+	VARTYPE vt_type = CVarTypeInfo<T>::VT;
+	T* v_array = NULL;
+	if (accessArrayVariant(v, &v_array) != 0)
+	{
+		return -1;		
+	}
+	int n = arrayVariantLength(v);
+	the_array.resize(n);
+	for(int i=0; i<n; ++i)
+	{
+		the_array[i] = v_array[i];
+	}
+	unaccessArrayVariant(v);
+	return 0;
+}
+
+template int makeArrayFromVariant(std::vector<float>& the_array, VARIANT *v);
+template int makeArrayFromVariant(std::vector<long>& the_array, VARIANT *v);
+
 
 /// we need to imitate a DCOM array coming from labview, which has column index fastest varying rather than row  
 int stringTableToVariant(const std::vector< std::vector<std::string> >& string_table, VARIANT* v)
