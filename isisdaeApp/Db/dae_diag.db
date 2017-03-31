@@ -161,7 +161,7 @@ record(waveform, "$(P)$(Q)DIAG:TABLE:MAX")
 record(waveform, "$(P)$(Q)DIAG:TABLE:CNTRATE")
 {
     field(DESC, "Count Rate")
-	field(EGU, "Count / Frame")
+	field(EGU, "count/frame")
     field(NELM, "256")
     field(FTVL, "DOUBLE")
     field(DTYP, "asynFloat64ArrayIn")
