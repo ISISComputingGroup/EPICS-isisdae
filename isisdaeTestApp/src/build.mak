@@ -11,7 +11,7 @@ include $(TOP)/configure/CONFIG
 # Build the IOC application isisdaeTest
 # We actually use $(APPNAME) below so this file can be included by multiple IOCs
 
-PROD_IOC = $(APPNAME)
+PROD_IOC_WIN32 = $(APPNAME)
 # isisdaeTest.dbd will be created and installed
 DBD += $(APPNAME).dbd
 
@@ -41,7 +41,7 @@ $(APPNAME)_LIBS += autosave
 $(APPNAME)_LIBS += utilities
 ## Add other libraries here ##
 #$(APPNAME)_LIBS += xxx
-$(APPNAME)_LIBS += isisdae FileList asyn oncrpc zlib pcrecpp pcre pugixml
+$(APPNAME)_LIBS += isisdae FileList asyn oncrpc zlib efsw libjson pcrecpp pcre pugixml
 $(APPNAME)_LIBS += cas gdd 
 $(APPNAME)_LIBS += ffmpegServer
 $(APPNAME)_LIBS += avdevice
