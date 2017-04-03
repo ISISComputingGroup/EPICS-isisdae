@@ -69,7 +69,8 @@ dbLoadRecords("$(TOP)/db/ADisisdae.template","P=$(MYPVPREFIX),R=DAE:,PORT=icp,AD
 NDStdArraysConfigure("Image1", 3, 0, "icp", 0, 0)
 
 # This waveform allows transporting 8-bit images
-dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=DAE:image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,TYPE=Int8,FTVL=UCHAR,NELEMENTS=256,ENABLED=1")
+# needs to fit in EPICS_CA_MAX_ARRAY_BYTES
+dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=DAE:image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,TYPE=Int8,FTVL=UCHAR,NELEMENTS=150000,ENABLED=1")
 # This waveform allows transporting 32-bit images
 #dbLoadRecords("NDStdArrays.template", "P=$(MYPVPREFIX),R=DAE:image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=icp,TYPE=Int32,FTVL=LONG,NELEMENTS=12000000,ENABLED=1")
 

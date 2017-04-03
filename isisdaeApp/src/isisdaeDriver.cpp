@@ -751,8 +751,10 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 
     // area detector defaults
 //	int maxSizeX = 128, maxSizeY = 128;
-	int maxSizeX = 8, maxSizeY = 8;
-	NDDataType_t dataType = NDUInt16;
+//	int maxSizeX = 8, maxSizeY = 8;
+	int maxSizeX = 512, maxSizeY = 512;
+//	NDDataType_t dataType = NDUInt16;
+	NDDataType_t dataType = NDUInt8;
     status =  setStringParam (ADManufacturer, "STFC ISIS");
     status |= setStringParam (ADModel, "ISISDAE");
     status |= setIntegerParam(ADMaxSizeX, maxSizeX);
@@ -1434,12 +1436,12 @@ int isisdaeDriver::computeImage()
 }
 
 template <typename epicsType> 
-void isisdaeDriver::computeColour(uint32_t value, uint32_t maxval, epicsType& mono)
+void isisdaeDriver::computeColour(double value, double maxval, epicsType& mono)
 {
 	epicsType limit = std::numeric_limits<epicsType>::max();
-	if (maxval > 0)
+	if (maxval > 0.0)
 	{
-		mono = static_cast<epicsType>((double)value / (double)maxval * (double)limit);
+		mono = static_cast<epicsType>(value / maxval * (double)limit);
 	}
 	else
 	{
@@ -1453,13 +1455,13 @@ static double myround(double d)
 }
 
 template <typename epicsType> 
-void isisdaeDriver::computeColour(uint32_t value, uint32_t maxval, epicsType& red, epicsType& green, epicsType& blue)
+void isisdaeDriver::computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue)
 {
 	int i;
 	epicsType limit = std::numeric_limits<epicsType>::max();
-	if (maxval > 0)
+	if (maxval > 0.0)
 	{
-		i = (int)myround(255.0 * (double)value / (double)maxval);
+		i = (int)myround(255.0 * value / maxval);
 	}
 	else
 	{
@@ -1512,25 +1514,31 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
 	const uint32_t* integrals = m_iface->getEventSpecIntegrals();
-	
-    k = 0;
-	uint32_t maxval = 0;
+	int nspec = sizeX * sizeY;
+	double* dintegrals = new double[nspec];
+	for(i=0; i<nspec; ++i)
+	{
+		dintegrals[i] = log(1+integrals[i]);
+	}
+	int spec_start = 11;
+    k = spec_start;
+	double maxval = 0.0;
 	for (i=0; i<sizeY; i++) {
 			for (j=0; j<sizeX; j++) {
-				if (integrals[k] > maxval)
+				if (dintegrals[k] > maxval)
 				{
-					maxval = integrals[k];
+					maxval = dintegrals[k];
 				}
 				++k;
 			}
 	}
 	
-	k = 0;
+    k = spec_start;
 	for (i=0; i<sizeY; i++) {
 		switch (colorMode) {
 			case NDColorModeMono:
 				for (j=0; j<sizeX; j++) {
-					computeColour(integrals[k], maxval, *pMono);
+					computeColour(dintegrals[k], maxval, *pMono);
 					++pMono;
 					++k;
 				}
@@ -1539,7 +1547,7 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
 			case NDColorModeRGB2:
 			case NDColorModeRGB3:
 				for (j=0; j<sizeX; j++) {
-					computeColour(integrals[k], maxval, *pRed, *pGreen, *pBlue);
+					computeColour(dintegrals[k], maxval, *pRed, *pGreen, *pBlue);
 					pRed   += columnStep;
 					pGreen += columnStep;
 					pBlue  += columnStep;
@@ -1551,6 +1559,7 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
 				break;
 		}
 	}
+	delete []dintegrals;
     return(status);
 }
 

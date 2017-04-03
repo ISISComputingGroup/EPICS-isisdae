@@ -138,9 +138,9 @@ private:
 	void setADAcquire(int acquire);
 	int computeImage();
     template <typename epicsType> 
-	  void computeColour(uint32_t value, uint32_t maxval, epicsType& mono);
+	  void computeColour(double value, double maxval, epicsType& mono);
     template <typename epicsType> 
-      void computeColour(uint32_t value, uint32_t maxval, epicsType& red, epicsType& green, epicsType& blue);
+      void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> int computeArray(int sizeX, int sizeY);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
