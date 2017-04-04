@@ -1518,7 +1518,7 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
 	double* dintegrals = new double[nspec];
 	for(i=0; i<nspec; ++i)
 	{
-		dintegrals[i] = log(1+integrals[i]);
+		dintegrals[i] = log(static_cast<double>(1+integrals[i]));
 	}
 	int spec_start = 11;
     k = spec_start;
