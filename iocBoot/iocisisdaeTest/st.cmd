@@ -25,8 +25,9 @@ isisdaeTest_registerRecordDeviceDriver pdbbase
 ##ISIS## Run IOC initialisation 
 < $(IOCSTARTUP)/init.cmd
 
-## used for restarting EPICS archiver via web URL
-webgetConfigure("web")
+## used for restarting and checking EPICS block archiver via web URL
+webgetConfigure("arch1")
+webgetConfigure("arch2")
 
 ## local dae, no dcom/labview
 isisdaeConfigure("icp", 1)

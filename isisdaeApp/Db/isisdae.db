@@ -847,7 +847,10 @@ record(waveform, "$(P)$(Q)BEAMLINEPAR:SP")
 	field(ASG, "NOTRAPW")
 }
 
+##############################################################################################
 ## FileList for wiring tables
+##############################################################################################
+
 record(waveform, "$(P)$(Q)WIRING_DIR:SP")
 {
    field(DESC, "Set directory of wiring tables")
@@ -867,7 +870,6 @@ record(waveform, "$(P)$(Q)WIRING_DIR")
    field(FTVL, "CHAR")
    field(NELM, 256)
 }
-
 
 record(waveform, "$(P)$(Q)WIRINGTABLES")
 {
@@ -899,7 +901,10 @@ record(waveform, "$(P)$(Q)WIRING_PATTERN")
    field(NELM, 256)
 }
 
+##############################################################################################
 ## FileList for detector tables
+##############################################################################################
+
 record(waveform, "$(P)$(Q)DETECTOR_DIR:SP")
 {
    field(DESC, "Set directory of detector tables")
@@ -950,7 +955,10 @@ record(waveform, "$(P)$(Q)DETECTOR_PATTERN")
    field(NELM, 256)
 }
 
-## FileList for spectra tables
+##############################################################################################
+## FileList parameters for spectra tables
+##############################################################################################
+
 record(waveform, "$(P)$(Q)SPECTRA_DIR:SP")
 {
    field(DESC, "Set directory of spectra tables")
@@ -1001,7 +1009,10 @@ record(waveform, "$(P)$(Q)SPECTRA_PATTERN")
    field(NELM, 256)
 }
 
+##############################################################################################
 ## FileList for TCB files
+##############################################################################################
+
 record(waveform, "$(P)$(Q)TCB_DIR:SP")
 {
    field(DESC, "Set directory of TCB files")
@@ -1052,24 +1063,10 @@ record(waveform, "$(P)$(Q)TCB_PATTERN")
    field(NELM, 256)
 }
 
-## records for restarting archive engine on a begin
-## force processing of _RESTART_ARCHIVER via forward link to restart archiver
-record(stringout, "$(P)$(Q)_ARCHIVER_URL")
-{
-    field(DTYP, "asynOctetWrite")
-    field(OUT, "@asyn(web,0,0)URL0")
-	field(PINI, "YES")
-	field(VAL, "http://localhost:4813/restart")
-}
+##############################################################################################
+## FileList parameters for period files
+##############################################################################################
 
-record(stringin, "$(P)$(Q)_RESTART_ARCHIVER")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP, "@asyn(web,0,0)DATA0")
-	field(SCAN, "Passive")
-}
-
-## FileList for period files
 record(waveform, "$(P)$(Q)PERIOD_DIR:SP")
 {
    field(DESC, "Set directory of period files")
@@ -1118,4 +1115,83 @@ record(waveform, "$(P)$(Q)PERIOD_PATTERN")
    field(PINI, "YES")
    field(FTVL, "CHAR")
    field(NELM, 256)
+}
+
+##############################################################################################
+## records for restarting archive engine on a begin
+##############################################################################################
+
+## force processing of _RESTART_ARCHIVER via forward link to restart archiver
+record(seq, "$(P)$(Q)_RESTART_ARCHIVER")
+{
+	field(SELM, "All")
+	field(DOL1, "1")
+	field(DOL2, "1")
+    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER1.PROC")
+	field(DLY2, "5.0")
+    field(LNK2, "$(P)$(Q)_CHECK_ARCHIVER.PROC")
+	field(SCAN, "Passive")
+}
+
+## URL for block archiver restart request
+record(stringout, "$(P)$(Q)_RESTART_ARCHIVER_URL")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT, "@asyn(arch1,0,0)URL0")
+	field(PINI, "YES")
+	field(VAL, "http://localhost:4813/restart")
+}
+
+## ask block archiver to restart
+record(stringin, "$(P)$(Q)_RESTART_ARCHIVER1")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP, "@asyn(arch1,0,0)DATA0")
+	field(SCAN, "Passive")
+}
+
+## URL of block archiver status page
+record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_URL")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT, "@asyn(arch2,0,0)URL0")
+	field(PINI, "YES")
+	field(VAL, "http://localhost:4813/main")
+}
+
+## XPath expression to check status web page for whether archiver is RUNNING
+record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_XPATH")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT, "@asyn(arch2,0,0)XPATH0")
+	field(PINI, "YES")
+	field(VAL, "count(//*[text()='RUNNING'])")
+}
+
+## check block archiver status - contains 1 if RUNNING, 0 if not
+record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
+{
+    field(DTYP, "asynInt32")
+	field(ZNAM, "STOPPED")
+	field(ONAM, "RUNNING")
+    field(INP, "@asyn(arch2,0,0)IDATA0")
+	field(SCAN, "Passive")
+	field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_CALC.PROC")
+}
+
+## if _CHECK_ARCHIVER is 0 (i.e. not RUNNING), signal a hard restart of the block archiver via procServ
+record(calcout, "$(P)$(Q)_CHECK_ARCHIVER_CALC")
+{
+    field(INPA, "$(P)$(Q)_CHECK_ARCHIVER NPP")
+    field(INPB, 1)
+	field(CALC, "A=B")
+	field(OOPT, "When Zero")
+	field(OUT, "$(P)$(Q)_RESTART_ARCHIVER_PS.PROC PP")
+}
+
+## restart block archiver using procServ via procServControl
+record(longout, "$(P)$(Q)_RESTART_ARCHIVER_PS")
+{
+    field(OUT, "$(P)CS:PS:ARBLOCK:RESTART PP")
+    field(VAL, 1)
 }
