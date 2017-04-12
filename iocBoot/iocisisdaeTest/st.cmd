@@ -40,8 +40,9 @@ epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
 asynSetMinTimerPeriod(0.001)
 
-## used for restarting EPICS archiver via web URL
-webgetConfigure("web")
+## used for restarting and checking EPICS block archiver via web URL
+webgetConfigure("arch1")
+webgetConfigure("arch2")
 
 ## local dae, no dcom/labview
 isisdaeConfigure("icp", 1)
