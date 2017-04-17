@@ -25,14 +25,14 @@ include $(TOP)/configure/CONFIG
 
 # Build the IOC support library
 
-USR_INCLUDES += -I"$(TOP)/../../libraries/boost/include"
+USR_INCLUDES += -I"$(TOP)/../../libraries/boost/include" -I"$(AREA_DETECTOR)"
 USR_CXXFLAGS += /EHa /DNOMINMAX
 
 LIBRARY_IOC += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
 isisdae_SRCS += SpectrumPV.cc NORDPV.cc MonLookupPV.cc CountsPV.cc FixedValuePV.cc
 isisdae_SRCS += exChannel.cc exPV.cc exScalarPV.cc exVectorPV.cc exServer.cc
-isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp isisdaeADDriver.cpp
+isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp CRPTMapping.cpp
 
 isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += ADnEDSupport
@@ -51,6 +51,7 @@ else
 isisicpint_DIR = ../lib/windows-x64
 endif
 isisdae_LIBS_WIN32 += isisicpint
+isisdae_SYS_LIBS_WIN32 += psapi
 
 # isisdae.dbd will be created and installed
 # see isisdaeInclude.dbd

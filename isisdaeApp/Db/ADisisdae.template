@@ -1,0 +1,73 @@
+include "ADBase.template"
+
+# number of spectra determined by areaDetctor (SizeX * SizeY)
+
+record(bi, "$(P)$(R)INTG:ENABLE")
+{
+    field(DESC, "Integrals Enabled")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)INTG_ENABLE")
+    field(SCAN, "I/O Intr")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	info(archive, "VAL")
+}
+
+record(bo, "$(P)$(R)INTG:ENABLE:SP")
+{
+    field(DESC, "Enable Integrals")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)INTG_ENABLE")
+	field(PINI, "YES")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)INTG:SPEC:START")
+{
+    field(DESC, "Integrals Spec Start")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)INTG_SPEC_START")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(longout, "$(P)$(R)INTG:SPEC:START:SP")
+{
+    field(DESC, "Integrals Spec Start")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)INTG_SPEC_START")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)INTG:TRANS:MODE")
+{
+    field(DESC, "Integrals Trans Mode")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)INTG_TRANS_MODE")
+    field(SCAN, "I/O Intr")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(TWVL, 2)
+	field(ZRST, "Linear")
+	field(ONST, "Square Root")
+	field(TWST, "Logarithmic")
+	info(archive, "VAL")
+}
+
+record(mbbo, "$(P)$(R)INTG:TRANS:MODE:SP")
+{
+    field(DESC, "Integrals Trans Mode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)INTG_TRANS_MODE")
+	field(PINI, "YES")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(TWVL, 2)
+	field(ZRST, "Linear")
+	field(ONST, "Square Root")
+	field(TWST, "Logarithmic")
+    info(autosaveFields, "VAL")
+}

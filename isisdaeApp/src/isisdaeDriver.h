@@ -12,6 +12,7 @@ public:
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
  	static void pollerThreadC3(void* arg);
+ 	static void pollerThreadC4(void* arg);
     enum { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7,
 	        RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
                 
@@ -27,10 +28,13 @@ public:
 	
 	void beginStateTransition(int state);
 	void endStateTransition();
+    virtual void report(FILE *fp, int details);
+    virtual void setShutter(int open);
 
 private:
 
 	int P_GoodUAH; // double
+	#define FIRST_ISISDAE_PARAM P_GoodUAH
 	int P_GoodUAHPeriod; // double
 	int P_BeginRun; // int
     int P_BeginRunEx; // int
@@ -109,27 +113,40 @@ private:
 	int P_diagSpecMatch; // int			
     int P_diagSpecIntLow; //float				
     int P_diagSpecIntHigh; // float				
-
-	int P_diagSum; // int				
+	int P_diagSum; // int
+	
+	// create area detector views of intregrals of spectra in event mode
+	int P_integralsSpecStart; // int
+	int P_integralsTransformMode; // int
+	int P_integralsEnable; // int
 	
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
-	#define FIRST_ISISDAE_PARAM P_GoodUAH
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
 
 	isisdaeInterface* m_iface;
     int m_RunStatus;  // cached value used in poller thread
     bool m_inStateTrans; 
     float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
+    NDArray* m_pRaw;
 
 	
 	void pollerThread1();
 	void pollerThread2();
 	void pollerThread3();
+	void pollerThread4();
     void zeroRunCounters();	
     void updateRunStatus();
 	void reportErrors(const char* exc_text);
 	void reportMessages();
+	void setADAcquire(int acquire);
+	int computeImage();
+    template <typename epicsType> 
+	  void computeColour(double value, double maxval, epicsType& mono);
+    template <typename epicsType> 
+      void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
+	template <typename epicsType> int computeArray(int spec_start, int trans_mode, int sizeX, int sizeY);
+	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
@@ -221,6 +238,10 @@ private:
 #define P_diagSpecMatchString				"DIAG_SPEC_MATCH"
 #define P_diagSpecIntLowString				"DIAG_SPEC_INTLOW"
 #define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
+
+#define P_integralsSpecStartString				"INTG_SPEC_START"
+#define	P_integralsTransformModeString 			"INTG_TRANS_MODE"
+#define P_integralsEnableString					"INTG_ENABLE"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

@@ -41,6 +41,8 @@
 // The above statement would generate isisicp.tlh and isisicp.tli but we include pre-built versions here
 #include "isisicp.tlh"
 
+class CRPTMapping;
+
 /// Options that can be passed from EPICS iocsh via #lvDCOMConfigure command.
 /// In the iocBoot st.cmd file you will need to add the relevant integer enum values together and pass this single integer value.
 enum isisdaeOptions
@@ -103,6 +105,7 @@ public:
 	long getNumTimeChannels(int spec);
 	long getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals);
     long getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
+    long getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts);
     double getMEvents();
     unsigned long getTotalCounts();
     unsigned long getHistogramMemory();
@@ -123,6 +126,8 @@ public:
 	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
+	const uint32_t* getEventSpecIntegrals() const { return m_spec_integrals; }
+	int getEventSpecIntegralsSize() const;
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
@@ -137,6 +142,10 @@ private:
 	bool m_dcom;
 	CComPtr<ICPDCOM> m_icp;
 	COAUTHIDENTITY* m_pidentity;
+	CRPTMapping* m_data_map;
+	const uint32_t* m_data;
+	uint32_t m_data_size;
+	const uint32_t* m_spec_integrals; ///< event mode spectrum integrals in memory mapped section
 
 	COAUTHIDENTITY* createIdentity(const std::string& user, const std::string& domain, const std::string& pass);
 	HRESULT setIdentity(COAUTHIDENTITY* pidentity, IUnknown* pUnk);
