@@ -358,10 +358,18 @@ void isisdaeInterface::checkConnection()
 		m_icp.Release();
 		m_icp.Attach( reinterpret_cast< isisicpLib::Idae* >( mq[ 0 ].pItf ) );
 		m_icp->areYouThere();
-		m_data_map = new CRPTMapping;
-		m_data = m_data_map->getaddr();
-		m_data_size = m_data_map->getsize();
-		m_spec_integrals = m_data + m_data_size;
+		try
+		{
+			m_data_map = new CRPTMapping;
+			m_data = m_data_map->getaddr();
+			m_data_size = m_data_map->getsize();
+			m_spec_integrals = m_data + m_data_size;
+		}
+		catch(const std::exception& ex)
+		{
+			m_data_map = NULL;
+			std::cerr << "Error mapping CRPT" << std::endl;
+		}
 	}
 	else
 	{
@@ -378,10 +386,18 @@ void isisdaeInterface::checkConnection()
  			throw COMexception("CoCreateInstance (ISISICP) ", hr);
 		}
 		m_icp->areYouThere();
-		m_data_map = new CRPTMapping;
-		m_data = m_data_map->getaddr();
-		m_data_size = m_data_map->getsize();
-		m_spec_integrals = m_data + m_data_size;
+		try
+		{
+			m_data_map = new CRPTMapping;
+			m_data = m_data_map->getaddr();
+			m_data_size = m_data_map->getsize();
+			m_spec_integrals = m_data + m_data_size;
+		}
+		catch(const std::exception& ex)
+		{
+			m_data_map = NULL;
+			std::cerr << "Error mapping CRPT" << std::endl;
+		}
 	}
 }
 
@@ -978,4 +994,9 @@ long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, 
 		callI<int>(boost::bind(&ISISICPINT::getSpectraIntegral, spectrum_numbers, period, times_low, times_high, boost::ref(counts), _1));
 	}
     return 0;
+}
+
+int isisdaeInterface::getEventSpecIntegralsSize() const
+{
+	return ISISCRPT_MAX_SPEC_INTEGRALS;
 }

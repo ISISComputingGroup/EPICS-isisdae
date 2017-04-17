@@ -127,6 +127,7 @@ public:
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
 	const uint32_t* getEventSpecIntegrals() const { return m_spec_integrals; }
+	int getEventSpecIntegralsSize() const;
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

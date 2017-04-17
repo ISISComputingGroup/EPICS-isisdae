@@ -747,6 +747,10 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_diagSpecIntLowString, asynParamFloat64, &P_diagSpecIntLow);
     createParam(P_diagSpecIntHighString, asynParamFloat64, &P_diagSpecIntHigh);
 	
+	createParam(P_integralsEnableString, asynParamInt32, &P_integralsEnable); 
+	createParam(P_integralsSpecStartString, asynParamInt32, &P_integralsSpecStart); 
+	createParam(P_integralsTransformModeString, asynParamInt32, &P_integralsTransformMode); 
+	
     setIntegerParam(P_StateTrans, 0);
 
     // area detector defaults
@@ -775,6 +779,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     status |= setDoubleParam (ADAcquireTime, .001);
     status |= setDoubleParam (ADAcquirePeriod, .005);
     status |= setIntegerParam(ADNumImages, 100);
+    status |= setIntegerParam(P_integralsSpecStart, 1);
+    status |= setIntegerParam(P_integralsTransformMode, 0);
+    status |= setIntegerParam(P_integralsEnable, 0);
 
     if (status) {
         printf("%s: unable to set DAE parameters\n", functionName);
@@ -1149,8 +1156,8 @@ void isisdaeDriver::pollerThread3()
 void isisdaeDriver::pollerThread4()
 {
     static const char* functionName = "isisdaePoller4";
-    double loop_delay = 2.0;
-	int acquiring;
+	int acquiring = 0;
+	int enable = 0;
     int status = asynSuccess;
     int imageCounter;
     int numImages, numImagesCounter;
@@ -1166,12 +1173,13 @@ void isisdaeDriver::pollerThread4()
 	{
 		lock();
 		getIntegerParam(ADAcquire, &acquiring);
+		getIntegerParam(P_integralsEnable, &enable);
         getDoubleParam(ADAcquirePeriod, &acquirePeriod);
-		if (acquiring == 0)
+		if (acquiring == 0 || enable == 0)
 		{
 			old_acquiring = acquiring;
 			unlock();
-			epicsThreadSleep(acquirePeriod);
+			epicsThreadSleep( acquirePeriod + (enable == 0 ? 1.0 : 0.0) );
 			continue;
 		}
 		if (old_acquiring == 0)
@@ -1265,7 +1273,7 @@ int isisdaeDriver::computeImage()
     int binX, binY, minX, minY, sizeX, sizeY, reverseX, reverseY;
     int xDim=0, yDim=1, colorDim=-1;
     int resetImage;
-    int maxSizeX, maxSizeY;
+    int spec_start, trans_mode, maxSizeX, maxSizeY;
     int colorMode;
     int ndims=0;
     NDDimension_t dimsOut[3];
@@ -1288,6 +1296,8 @@ int isisdaeDriver::computeImage()
     status |= getIntegerParam(ADMaxSizeY,     &maxSizeY);
     status |= getIntegerParam(NDColorMode,    &colorMode);
     status |= getIntegerParam(NDDataType,     &itemp); 
+    status |= getIntegerParam(P_integralsSpecStart, &spec_start); 
+    status |= getIntegerParam(P_integralsTransformMode, &trans_mode); 
 	dataType = (NDDataType_t)itemp;
     if (status) asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
                     "%s:%s: error getting parameters\n",
@@ -1373,28 +1383,28 @@ int isisdaeDriver::computeImage()
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt8>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt8>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt16>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt16>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt32>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt32>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat32>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat64>(spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
     }
 
@@ -1472,11 +1482,22 @@ void isisdaeDriver::computeColour(double value, double maxval, epicsType& red, e
 	blue = static_cast<epicsType>((double)RainbowColorB[i] / 255.0 * (double)limit);
 }
 
+#if 0
+void transpose(float *src, float *dst, const int N, const int M) {
+    int i, j, n;
+    for(n = 0; n<N*M; n++) {
+        i = n/N;
+        j = n%N;
+        dst[n] = src[M*j + i];
+    }
+}
+#endif
+
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int sizeX, int sizeY)
+int isisdaeDriver::computeArray(int spec_start, int trans_mode, int sizeX, int sizeY)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
-    int columnStep=0, rowStep=0, colorMode;
+    int columnStep=0, rowStep=0, colorMode, numSpec;
     int status = asynSuccess;
     double exposureTime, gain;
     int i, j, k;
@@ -1484,6 +1505,7 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
     status = getDoubleParam (ADGain,        &gain);
     status = getIntegerParam(NDColorMode,   &colorMode);
     status = getDoubleParam (ADAcquireTime, &exposureTime);
+	status = getIntegerParam(P_NumSpectra,  &numSpec);
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -1514,14 +1536,47 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
 	const uint32_t* integrals = m_iface->getEventSpecIntegrals();
+	int max_spec_int_size = m_iface->getEventSpecIntegralsSize();
 	int nspec = sizeX * sizeY;
-	double* dintegrals = new double[nspec];
-	for(i=0; i<nspec; ++i)
+	if ( (spec_start + nspec) > (numSpec + 1) )
 	{
-		dintegrals[i] = log(static_cast<double>(1+integrals[i]));
+		nspec = numSpec + 1 - spec_start;
 	}
-	int spec_start = 11;
-    k = spec_start;
+	if ( (spec_start + nspec) > max_spec_int_size )
+	{
+		nspec = max_spec_int_size - spec_start;
+	}
+	if (integrals == NULL)
+	{
+		nspec = 0;
+	}
+	double* dintegrals = new double[sizeX * sizeY];
+	if (trans_mode == 0)
+	{
+	    for(i=0; i<nspec; ++i)
+	    {
+		    dintegrals[i] = static_cast<double>(integrals[i+spec_start]);
+	    }
+	}
+	else if (trans_mode == 1)
+	{
+	    for(i=0; i<nspec; ++i)
+	    {
+		    dintegrals[i] = sqrt(static_cast<double>(integrals[i+spec_start]));
+	    }
+	}
+	else if (trans_mode == 2)
+	{
+	    for(i=0; i<nspec; ++i)
+	    {
+		    dintegrals[i] = log(static_cast<double>(1 + integrals[i+spec_start]));
+	    }
+	}
+	for(i=nspec; i < (sizeX * sizeY); ++i)
+	{
+		dintegrals[i] = 0.0;		
+	}
+    k = 0;
 	double maxval = 0.0;
 	for (i=0; i<sizeY; i++) {
 			for (j=0; j<sizeX; j++) {
@@ -1533,7 +1588,7 @@ int isisdaeDriver::computeArray(int sizeX, int sizeY)
 			}
 	}
 	
-    k = spec_start;
+    k = 0;
 	for (i=0; i<sizeY; i++) {
 		switch (colorMode) {
 			case NDColorModeMono:

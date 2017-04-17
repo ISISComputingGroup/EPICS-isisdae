@@ -42,7 +42,15 @@ int CRPTMapping::map()
 	{
 		fsize = fileSizeBytes("c:\\data\\data.run");
 	}
-	m_crpt_data_size = fsize / sizeof(uint32_t) - ISISCRPT_MAX_SPEC_INTEGRALS;
+	if ( fsize > ISISCRPT_MAX_SPEC_INTEGRALS * sizeof(uint32_t) )
+	{
+		m_crpt_data_size = fsize / sizeof(uint32_t) - ISISCRPT_MAX_SPEC_INTEGRALS;
+	}
+	else
+	{
+		unmap();
+		return -1;		
+	}
 	std::cerr << "CRPT data size (words) = " << m_crpt_data_size << std::endl;
 	std::cerr << "Spec integrals size (words) = " << ISISCRPT_MAX_SPEC_INTEGRALS << std::endl;
 	return 0;

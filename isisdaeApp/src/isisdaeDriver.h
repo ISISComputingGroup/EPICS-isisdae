@@ -113,8 +113,12 @@ private:
 	int P_diagSpecMatch; // int			
     int P_diagSpecIntLow; //float				
     int P_diagSpecIntHigh; // float				
-
-	int P_diagSum; // int				
+	int P_diagSum; // int
+	
+	// create area detector views of intregrals of spectra in event mode
+	int P_integralsSpecStart; // int
+	int P_integralsTransformMode; // int
+	int P_integralsEnable; // int
 	
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
@@ -141,7 +145,7 @@ private:
 	  void computeColour(double value, double maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
-	template <typename epicsType> int computeArray(int sizeX, int sizeY);
+	template <typename epicsType> int computeArray(int spec_start, int trans_mode, int sizeX, int sizeY);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
@@ -234,6 +238,10 @@ private:
 #define P_diagSpecMatchString				"DIAG_SPEC_MATCH"
 #define P_diagSpecIntLowString				"DIAG_SPEC_INTLOW"
 #define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
+
+#define P_integralsSpecStartString				"INTG_SPEC_START"
+#define	P_integralsTransformModeString 			"INTG_TRANS_MODE"
+#define P_integralsEnableString					"INTG_ENABLE"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

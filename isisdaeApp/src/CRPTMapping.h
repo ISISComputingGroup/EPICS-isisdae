@@ -21,7 +21,7 @@ class CRPTMapping
 	
         HANDLE m_crpt_data_fm;
         const uint32_t* m_crpt_data;
-		uint32_t m_crpt_data_size;
+		uint32_t m_crpt_data_size; ///< size excluding spec integrals i.e. whole size less #ISISCRPT_MAX_SPEC_INTEGRALS
 		std::string fileNameFromMappedView(void* pMem);
 		int64_t fileSizeBytes(const std::string& filename);
 };
