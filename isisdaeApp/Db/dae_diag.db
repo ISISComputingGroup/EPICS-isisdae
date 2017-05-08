@@ -34,6 +34,14 @@ record(longout, "$(P)$(Q)DIAG:PERIOD:SP")
     info(autosaveFields, "VAL")
 }
 
+record(longin, "$(P)$(Q)DIAG:PERIOD")
+{
+    field(DESC, "Diag Period")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_PERIOD")
+    field(SCAN, "I/O Intr")
+}
+
 ## starting spectrum number for diag
 record(longout, "$(P)$(Q)DIAG:SPEC:START:SP")
 {
@@ -45,6 +53,14 @@ record(longout, "$(P)$(Q)DIAG:SPEC:START:SP")
     info(autosaveFields, "VAL")
 }
 
+record(longin, "$(P)$(Q)DIAG:SPEC:START")
+{
+    field(DESC, "Diag Spec Start")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_START")
+    field(SCAN, "I/O Intr")
+}
+
 ## number of spectra for diag
 record(longout, "$(P)$(Q)DIAG:SPEC:NUM:SP")
 {
@@ -54,6 +70,14 @@ record(longout, "$(P)$(Q)DIAG:SPEC:NUM:SP")
     field(VAL, 10)
     field(PINI, "YES")
     info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(Q)DIAG:SPEC:NUM")
+{
+    field(DESC, "Diag Num Spec")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_NUM")
+    field(SCAN, "I/O Intr")
 }
 
 ## select which spectra to show
@@ -73,19 +97,33 @@ record(mbbo, "$(P)$(Q)DIAG:SPEC:SHOW:SP")
     # don't autosave, default to "All" on startup
 }
 
+record(mbbi, "$(P)$(Q)DIAG:SPEC:SHOW")
+{
+    field(DESC, "Diag Specs To Show")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_SHOW")
+    field(ZRST, "All")
+    field(ZRVL, 0)
+    field(ONST, "Zero Counts Only")
+    field(ONVL, 1)
+    field(TWST, "Non-zero counts only")
+    field(TWVL, 2)
+    field(SCAN, "I/O Intr")
+}
+
 record(longout, "$(P)$(Q)DIAG:FRAMES:SP")
 {
     field(DESC, "Min Num Frames for diag")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)DIAG_MIN_FRAMES")
-    field(VAL, 0)
+    field(VAL, 1)
     field(PINI, "YES")
     info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(Q)DIAG:FRAMES")
 {
-    field(DESC, "Num Frames used for diag")
+    field(DESC, "Actual Num Frames used for diag")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)DIAG_FRAMES")
     field(SCAN, "I/O Intr")
@@ -101,6 +139,14 @@ record(ao, "$(P)$(Q)DIAG:SPEC:INTLOW:SP")
     info(autosaveFields, "VAL")
 }
 
+record(ai, "$(P)$(Q)DIAG:SPEC:INTLOW")
+{
+    field(DESC, "Lower integral limit")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_INTLOW")
+    field(SCAN, "I/O Intr")
+}
+
 record(ao, "$(P)$(Q)DIAG:SPEC:INTHIGH:SP")
 {
     field(DESC, "Upper integral limit")
@@ -109,6 +155,14 @@ record(ao, "$(P)$(Q)DIAG:SPEC:INTHIGH:SP")
     field(VAL, 0)
     field(PINI, "YES")
     info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(Q)DIAG:SPEC:INTHIGH")
+{
+    field(DESC, "Upper integral limit")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)DIAG_SPEC_INTHIGH")
+    field(SCAN, "I/O Intr")
 }
 
 record(longin, "$(P)$(Q)DIAG:SUM")

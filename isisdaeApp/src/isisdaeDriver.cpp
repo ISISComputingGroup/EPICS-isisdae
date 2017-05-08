@@ -1095,11 +1095,15 @@ void isisdaeDriver::pollerThread3()
     double delay = 2.0;
 	std::vector<long> sums[2], max_vals, spec_nums;
 	std::vector<double> rate;
-	int frames[2] = {0, 0}, period = 1, first_spec = 1, num_spec = 10, spec_type = 0;
+	int frames[2] = {0, 0}, period = 1, first_spec = 1, num_spec = 10, spec_type = 0, nmatch;
 	double time_low = 0.0, time_high = -1.0;
 	bool b = true;
 	int i1, i2, n1, sum, fdiff, fdiff_min = 0, diag_enable = 0;
     lock();
+	setIntegerParam(P_diagFrames, 0);
+	setIntegerParam(P_diagSum, 0);
+	setIntegerParam(P_diagSpecMatch, 0);
+    callParamCallbacks();
 	// read sums alternately into sums[0] and sums[1] by toggling b so a count rate can be calculated
 	while(true)
 	{
@@ -1147,7 +1151,9 @@ void isisdaeDriver::pollerThread3()
 		doCallbacksFloat64Array(reinterpret_cast<epicsFloat64*>(&(rate[0])), n1, P_diagTableCntRate, 0);
 		setIntegerParam(P_diagFrames, fdiff);
 		setIntegerParam(P_diagSum, sum);
-		setIntegerParam(P_diagSpecMatch, n1);
+		// spec_array is padded with -1 at end if less than requested matched
+		nmatch = std::count_if(spec_nums.begin(), spec_nums.end(), std::bind2nd(std::greater_equal<int>(),0));
+		setIntegerParam(P_diagSpecMatch, nmatch);
         callParamCallbacks();
 		b = !b;
     }
