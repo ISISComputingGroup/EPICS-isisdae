@@ -28,7 +28,7 @@ include $(TOP)/configure/CONFIG
 USR_INCLUDES += -I"$(TOP)/../../libraries/boost/include" -I"$(AREA_DETECTOR)"
 USR_CXXFLAGS += /EHa /DNOMINMAX
 
-LIBRARY_IOC += isisdae
+LIBRARY_IOC_WIN32 += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
 isisdae_SRCS += SpectrumPV.cc NORDPV.cc MonLookupPV.cc CountsPV.cc FixedValuePV.cc
 isisdae_SRCS += exChannel.cc exPV.cc exScalarPV.cc exVectorPV.cc exServer.cc
