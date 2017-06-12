@@ -550,12 +550,12 @@ inline void exServer::removeAliasName ( pvEntry & entry )
 }
 
 inline double exPV::getScanPeriod ()
-{
-    double curPeriod = this->info.getScanPeriod ();
+{ 
+    double scanPeriod = this->info.getScanPeriod ();
     if ( ! this->interest ) {
-        curPeriod *= 10.0L;
+        scanPeriod *= 100.0L;
     }
-    return curPeriod;
+	return scanPeriod;
 }
 
 inline caStatus exPV::readNoCtx ( smartGDDPointer pProtoIn )
