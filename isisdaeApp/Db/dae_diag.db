@@ -25,12 +25,12 @@ record(bi, "$(P)$(Q)DIAG:ENABLED")
 
 ## Enable the diagnostics for a time period in seconds.
 ##  This record will slowly count down until it gets to 0
-record(calc, "$(P)$(Q)KEEP:DIAG:ENABLE:FOR")
+record(calc, "$(P)$(Q)DIAG:ENABLE:FOR")
 {
     field(DESC, "Enable diagnostics for another s")
     field(SCAN, "1 second")
     field(VAL, "-1")
-    field(INPA, "$(P)$(Q)KEEP:DIAG:ENABLE:FOR")
+    field(INPA, "$(P)$(Q)DIAG:ENABLE:FOR")
     
     field(CALC, "A<=0?0:A-1")
 	field(FLNK, "$(P)$(Q)DIAG:_DISABLE")
@@ -40,7 +40,7 @@ record(calc, "$(P)$(Q)KEEP:DIAG:ENABLE:FOR")
 record(calcout, "$(P)$(Q)DIAG:_DISABLE")
 {
     field(DESC, "Enable, disable diagnostics based on PV")
-    field(INPA, "$(P)$(Q)KEEP:DIAG:ENABLE:FOR")
+    field(INPA, "$(P)$(Q)DIAG:ENABLE:FOR")
     
     field(CALC, "A<=0?0:1")
 	
