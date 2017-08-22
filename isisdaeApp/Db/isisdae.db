@@ -569,7 +569,7 @@ record(bo, "$(P)$(Q)ENDSEWAIT")
 
 record(mbbi, "$(P)$(Q)RUNSTATE")
 {
-    field(DESC, "Run State")
+    field(DESC, "Run State (Integer/Enum)")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNSTATUS")
     field(SCAN, "I/O Intr")
@@ -602,10 +602,15 @@ record(mbbi, "$(P)$(Q)RUNSTATE")
     field(TTVL, 13)
     field(TTST, "STORING")
     info(INTEREST, "HIGH")
-	info(archive, "VAL")
+    info(archive, "VAL")
 }
 
-alias("$(P)$(Q)RUNSTATE", "$(P)$(Q)RUNSTATE_STR")
+record(stringin, "$(P)$(Q)RUNSTATE_STR")
+{
+    field(DESC, "Run State (String)")
+    field(INP, "$(P)$(Q)RUNSTATE CP")
+    info(INTEREST, "HIGH")
+}
 
 record(bi, "$(P)$(Q)STATETRANS")
 {
