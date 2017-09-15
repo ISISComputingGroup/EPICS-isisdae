@@ -1,0 +1,116 @@
+# This db will take all the values written to one DAE (given as O) and transfer them to the one on this instrument. It is used in testing the DAE3 in parallel.
+
+# record(dfanout, "$(P)$(Q)PULL_TITLE")
+# {
+	# field(DOL, "$(O)$(Q)TITLE CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)TITLE:SP PP")
+# }
+
+record(calcout, "$(P)$(Q)PULL_RUNSTATE_CALC")
+{
+	field(INPA, "$(O)$(Q)RUNSTATE CP")
+	field(CALC, "A-5")
+	field(OUT, "$(P)$(Q)PULL_RUNSTATE.SELN")
+	field(FLNK, "$(P)$(Q)PULL_RUNSTATE")
+}
+
+record(seq, "$(P)$(Q)PULL_RUNSTATE")
+{
+	field(SELM, "Specified")
+	field(SELL, "$(P)$(Q)PULL_RUNSTATE_CALC CP")
+
+	field(LNK1, "$(P)$(Q)ENDRUN PP")
+	field(DO1, "1")	
+	
+	field(LNK2, "$(P)$(Q)SAVERUN PP")
+	field(DO2, "1")
+	
+	field(LNK3, "$(P)$(Q)RESUMERUN PP")
+	field(DO3, "1")
+	
+	field(LNK4, "$(P)$(Q)PAUSERUN PP")
+	field(DO4, "1")
+	
+	field(LNK5, "$(P)$(Q)BEGINRUN PP")
+	field(DO5, "1")	
+	
+	field(LNK6, "$(P)$(Q)ABORTRUN PP")
+	field(DO6, "1")
+	
+	field(LNK7, "$(P)$(Q)UPDATERUN PP")
+	field(DO7, "1")
+	
+	field(LNK8, "$(P)$(Q)STORERUN PP")
+	field(DO8, "1")
+}
+
+record(dfanout, "$(P)$(Q)PULL_PERIOD")
+{
+	field(DOL, "$(O)$(Q)PERIOD CP")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)$(Q)PERIOD:SP PP")
+}
+
+record(dfanout, "$(P)$(Q)PULL_NUMPERIODS")
+{
+	field(DOL, "$(O)$(Q)NUMPERIODS CP")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)$(Q)NUMPERIODS:SP PP")
+}
+
+# record(dfanout, "$(P)$(Q)PULL_DAESETTINGS")
+# {
+	# field(DOL, "$(O)$(Q)DAESETTINGS CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)DAESETTINGS:SP PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_TCBSETTINGS")
+# {
+	# field(DOL, "$(O)$(Q)TCBSETTINGS CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)TCBSETTINGS:SP PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_HARDWAREPERIODS")
+# {
+	# field(DOL, "$(O)$(Q)HARDWAREPERIODS CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)HARDWAREPERIODS:SP PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_UPDATESETTINGS")
+# {
+	# field(DOL, "$(O)$(Q)UPDATESETTINGS CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)UPDATESETTINGS:SP PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_WIRING_FILE")
+# {
+	# field(DOL, "$(O)$(Q)WIRINGFILE CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)WIRINGFILE PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_DETECTOR_FILE")
+# {
+	# field(DOL, "$(O)$(Q)DETECTOR_FILE CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)DETECTOR_FILE PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_SPECTRA_FILE")
+# {
+	# field(DOL, "$(O)$(Q)SPECTRA_FILE CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)SPECTRA_FILE PP")
+# }
+
+# record(dfanout, "$(P)$(Q)PULL_SPECTRA_FILE")
+# {
+	# field(DOL, "$(O)$(Q)SPECTRA_FILE CP")
+	# field(OMSL, "closed_loop")
+	# field(OUTA, "$(P)$(Q)SPECTRA_FILE PP")
+# }
