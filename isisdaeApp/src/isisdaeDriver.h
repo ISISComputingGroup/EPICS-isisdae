@@ -85,6 +85,7 @@ private:
     int P_MonitorTo; // double
     int P_TotalDaeCounts; // double
     int P_CountRate; // double
+    int P_CountRateFrame; // double
     int P_EventModeFraction; // double
     int P_GoodFramesTotal; //long
     int P_RawFramesTotal; //long
@@ -204,6 +205,7 @@ private:
 #define P_MonitorToString	"MONITORTO"
 #define P_TotalDaeCountsString	"TOTALDAECOUNTS"
 #define P_CountRateString	"COUNTRATE"
+#define P_CountRateFrameString	"COUNTRATEFRAME"
 #define P_EventModeFractionString	"EVENTMODEFRACTION"
 #define P_MonitorSpectrumString	"MONITORSPECTRUM"
 #define P_DAETimingSourceString	"DAETIMINGSOURCE"

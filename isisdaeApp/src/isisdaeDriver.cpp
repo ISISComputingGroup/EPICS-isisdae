@@ -159,7 +159,14 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 void isisdaeDriver::endStateTransition()
 {
     m_inStateTrans = false;
-	updateRunStatus();
+	try
+	{
+		updateRunStatus();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << ex.what() << std::endl;
+	}
     setIntegerParam(P_StateTrans, 0);
 	callParamCallbacks();
 }
@@ -718,6 +725,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_MonitorToString, asynParamFloat64, &P_MonitorTo);
     createParam(P_TotalDaeCountsString, asynParamFloat64, &P_TotalDaeCounts);
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
+    createParam(P_CountRateFrameString, asynParamFloat64, &P_CountRateFrame);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
 
     createParam(P_StateTransString, asynParamInt32, &P_StateTrans);
@@ -891,7 +899,9 @@ void isisdaeDriver::updateRunStatus()
 {
         static frame_uamp_state fu_state, r_fu_state, p_fu_state;
 		static const char* no_check_frame_uamp = macEnvExpand("$(NOCHECKFUAMP=)");
-
+		static unsigned long old_tc, old_frames;
+		static epicsTime old_tc_ts(epicsTime::getCurrent());
+		
         if (m_inStateTrans)
         {
             return;
@@ -914,6 +924,8 @@ void isisdaeDriver::updateRunStatus()
             m_RunStatus = rs;
         }
 		long frames = m_iface->getGoodFrames();
+        unsigned long tc = m_iface->getTotalCounts();
+		epicsTime tc_ts(epicsTime::getCurrent());
 		double uah = m_iface->getGoodUAH();
 //		long p_frames = m_iface->getGoodFramesPeriod();   // this currently only works in period card mode
 //		double p_uah = m_iface->getGoodUAHPeriod();
@@ -927,12 +939,30 @@ void isisdaeDriver::updateRunStatus()
 		}
 		setDoubleParam(P_GoodUAH, uah);
 //        setDoubleParam(P_GoodUAHPeriod, p_uah);
-        setIntegerParam(P_TotalCounts, m_iface->getTotalCounts());
+		setIntegerParam(P_TotalCounts, tc);
+        setDoubleParam(P_TotalDaeCounts, static_cast<double>(tc) / 1.0e6);
+		double tdiff = static_cast<double>(tc_ts - old_tc_ts);
+		if (tdiff > 0.5)
+		{
+		    if (frames <= old_frames || tc <= old_tc)
+		    {
+                setDoubleParam(P_CountRate, 0.0);
+                setDoubleParam(P_CountRateFrame, 0.0);
+		    }
+			else
+			{
+                setDoubleParam(P_CountRate, static_cast<double>(tc - old_tc) / tdiff * 3600.0 / 1e6); // to make million events per hour			
+                setDoubleParam(P_CountRateFrame, static_cast<double>(tc - old_tc) / static_cast<double>(frames - old_frames));
+			}
+		    old_tc_ts = tc_ts;
+		    old_tc = tc;
+		    old_frames = frames;
+		}
         setIntegerParam(P_GoodFramesTotal, frames);
 //        setIntegerParam(P_GoodFramesPeriod, p_frames);
 		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
-        ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod,P_TotalDaeCounts, P_MonitorCounts
+        ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod, P_MonitorCounts
 }
 
 // zero counters st start of run, done early before actual readbacks
@@ -951,6 +981,7 @@ void isisdaeDriver::zeroRunCounters()
         setIntegerParam(P_MonitorCounts, 0);
         setDoubleParam(P_TotalDaeCounts, 0.0);
         setDoubleParam(P_CountRate, 0.0);
+        setDoubleParam(P_CountRateFrame, 0.0);
 	    callParamCallbacks();
 }
 
@@ -1041,8 +1072,8 @@ void isisdaeDriver::pollerThread2()
         setDoubleParam(P_TotalUAmps, values["TotalUAmps"]);
         setDoubleParam(P_MonitorFrom, values["MonitorFrom"]);
         setDoubleParam(P_MonitorTo, values["MonitorTo"]);
-        setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);
-        setDoubleParam(P_CountRate, values["CountRate"]);
+//        setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);  // now updated in separate loop
+//        setDoubleParam(P_CountRate, values["CountRate"]); // now updated in separate loop
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
         setDoubleParam(P_VetoPC, m_vetopc);
         
@@ -1111,7 +1142,17 @@ void isisdaeDriver::pollerThread3()
 		epicsThreadSleep(delay);
 		i1 = (b == true ? 0 : 1);
 		i2 = (b == true ? 1 : 0);
-		frames[i1] = m_iface->getGoodFrames(); // read prior to lock in case ICP busy
+		try
+		{
+			frames[i1] = m_iface->getGoodFrames(); // read prior to lock in case ICP busy
+		}
+		catch(const std::exception& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			frames[i1] = 0;
+			lock();
+			continue;
+		}
         lock();
 		getIntegerParam(P_diagEnable, &diag_enable);
 		if (diag_enable != 1)
@@ -1128,9 +1169,18 @@ void isisdaeDriver::pollerThread3()
 		getDoubleParam(P_diagSpecIntHigh, &time_high);
 		
         unlock(); // getSepctraSum may take a while so release asyn lock
-		m_iface->getSpectraSum(period, first_spec, num_spec, spec_type, 
-		     time_low, time_high, sums[i1], max_vals, spec_nums);
-        lock();
+		try
+		{
+			m_iface->getSpectraSum(period, first_spec, num_spec, spec_type,
+				time_low, time_high, sums[i1], max_vals, spec_nums);
+		}
+		catch(const std::exception& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			lock();
+			continue;
+		}
+		lock();
 		n1 = sums[i1].size();
 		sum = std::accumulate(sums[i1].begin(), sums[i1].end(), 0);
 		rate.resize(n1);

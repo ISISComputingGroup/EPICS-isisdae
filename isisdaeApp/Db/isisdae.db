@@ -349,6 +349,18 @@ record(ai, "$(P)$(Q)COUNTRATE")
     info(archive, "-5.0 VAL")
 }
 
+record(ai, "$(P)$(Q)COUNTRATEFRAME")
+{
+    field(DESC, "DAE Count Rate")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)COUNTRATEFRAME")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+    info(archive, "-5.0 VAL")
+}
+
 record(ai, "$(P)$(Q)EVENTMODEFRACTION")
 {
     field(DESC, "Event Mode DAE Card Fraction")

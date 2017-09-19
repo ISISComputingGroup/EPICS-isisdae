@@ -26,7 +26,7 @@ include $(TOP)/configure/CONFIG
 # Build the IOC support library
 
 USR_INCLUDES += -I"$(TOP)/../../libraries/boost/include" -I"$(AREA_DETECTOR)"
-USR_CXXFLAGS += /EHa /DNOMINMAX
+USR_CXXFLAGS += -EHa -DNOMINMAX
 
 LIBRARY_IOC_WIN32 += isisdae
 isisdae_SRCS += convertToString.cpp variant_utils.cpp
