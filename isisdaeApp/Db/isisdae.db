@@ -622,6 +622,7 @@ record(stringin, "$(P)$(Q)RUNSTATE_STR")
     field(DESC, "Run State (String)")
     field(INP, "$(P)$(Q)RUNSTATE CP")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(bi, "$(P)$(Q)STATETRANS")
@@ -1211,4 +1212,14 @@ record(longout, "$(P)$(Q)_RESTART_ARCHIVER_PS")
 {
     field(OUT, "$(P)CS:PS:ARBLOCK:RESTART PP")
     field(VAL, 1)
+}
+
+## has simulation mode been enabled in ISISICP
+record(bi, "$(P)$(Q)SIM_MODE")
+{
+    field(DTYP, "asynInt32")
+	field(ZNAM, "No")
+	field(ONAM, "Yes")
+    field(INP, "@asyn(icp,0,0)SIM_MODE")
+	field(SCAN, "I/O Intr")
 }
