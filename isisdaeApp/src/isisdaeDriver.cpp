@@ -758,8 +758,10 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	createParam(P_integralsEnableString, asynParamInt32, &P_integralsEnable); 
 	createParam(P_integralsSpecStartString, asynParamInt32, &P_integralsSpecStart); 
 	createParam(P_integralsTransformModeString, asynParamInt32, &P_integralsTransformMode); 
+	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
     setIntegerParam(P_StateTrans, 0);
+    setIntegerParam(P_simulationMode, 0);
 
     // area detector defaults
 //	int maxSizeX = 128, maxSizeY = 128;
@@ -993,6 +995,7 @@ void isisdaeDriver::pollerThread2()
     double delay = 2.0;  
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
     bool check_settings;
+	static const std::string sim_mode_title("(DAE SIMULATION MODE)"); // prefix added by ICP if simulation mode enabled in icp_config.xml
     std::string daeSettings;
     std::string tcbSettings, tcbSettingComp;
     std::string hardwarePeriodsSettings;
@@ -1039,7 +1042,25 @@ void isisdaeDriver::pollerThread2()
         }
         last_rf = this_rf;
         last_gf = this_gf;
-        setStringParam(P_RunTitle, values["RunTitle"]); 
+		
+		// strip simulation mode prefix from title and instead set simulation PV
+		std::string title(values["RunTitle"]);
+		if ( !title.compare(0, sim_mode_title.size(), sim_mode_title) )
+		{
+			title.erase(0, sim_mode_title.size());
+			// ICP adds an extra space after prefix if title non-zero size
+			if (title.size() > 0 && title[0] == ' ')
+			{
+				title.erase(0, 1);
+			}
+            setIntegerParam(P_simulationMode, 1);
+		}
+		else
+		{
+            setIntegerParam(P_simulationMode, 0);			
+		}
+        setStringParam(P_RunTitle, title.c_str());
+		
         setStringParam(P_RBNumber, values["RBNumber"]); 
 		const char* rn = values["RunNumber"];
         setStringParam(P_RunNumber, rn);
