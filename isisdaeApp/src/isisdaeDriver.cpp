@@ -995,7 +995,7 @@ void isisdaeDriver::pollerThread2()
     double delay = 2.0;  
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
     bool check_settings;
-	static const std::string sim_mode_title("(DAE SIMULATION MODE) "); // prefix added by ICP if simulation mode enabled in icp_config.xml
+	static const std::string sim_mode_title("(DAE SIMULATION MODE)"); // prefix added by ICP if simulation mode enabled in icp_config.xml
     std::string daeSettings;
     std::string tcbSettings, tcbSettingComp;
     std::string hardwarePeriodsSettings;
@@ -1048,6 +1048,11 @@ void isisdaeDriver::pollerThread2()
 		if ( !title.compare(0, sim_mode_title.size(), sim_mode_title) )
 		{
 			title.erase(0, sim_mode_title.size());
+			// ICP adds an extra space after prefix if title non-zero size
+			if (title.size() > 0 && title[0] == ' ')
+			{
+				title.erase(0, 1);
+			}
             setIntegerParam(P_simulationMode, 1);
 		}
 		else
