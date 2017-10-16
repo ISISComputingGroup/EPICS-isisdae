@@ -583,7 +583,15 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 			m_iface->snapshotCRPT(value_s, 1, 1);
             endStateTransition();
 		}        
-        
+        else if (function == P_vetoEnable)
+		{
+			m_iface->setVeto(value_s, true);
+		}        
+        else if (function == P_vetoDisable)
+		{
+			m_iface->setVeto(value_s, false);
+		}        
+    
 		reportMessages();
 		status = ADDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -760,6 +768,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	createParam(P_integralsTransformModeString, asynParamInt32, &P_integralsTransformMode); 
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
+	createParam(P_vetoEnableString, asynParamOctet, &P_vetoEnable);
+	createParam(P_vetoDisableString, asynParamOctet, &P_vetoDisable);
+
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
 

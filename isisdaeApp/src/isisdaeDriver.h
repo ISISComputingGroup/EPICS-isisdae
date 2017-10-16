@@ -120,6 +120,8 @@ private:
 	int P_integralsSpecStart; // int
 	int P_integralsTransformMode; // int
 	int P_integralsEnable; // int
+	int P_vetoEnable;   // string
+	int P_vetoDisable;   // string
 	
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
@@ -246,6 +248,9 @@ private:
 #define P_integralsEnableString					"INTG_ENABLE"
 
 #define P_simulationModeString					"SIM_MODE"
+
+#define P_vetoEnableString					"VETO_ENABLE"
+#define P_vetoDisableString					"VETO_DISABLE"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

@@ -426,6 +426,12 @@ int isisdaeInterface::endSEWait()
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::endSEWait, _1, _2)) : callI<int>(boost::bind(&ISISICPINT::endSEWait, _1)));
 }
 
+int isisdaeInterface::setVeto(const std::string& veto, bool enable)
+{
+    _bstr_t veto_(CComBSTR(veto.c_str()).Detach());
+	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::setVeto, _1, veto_, (enable ? 1 : 0), _2)) : callI<int>(boost::bind(&ISISICPINT::setVeto, veto, enable, _1)));	
+}
+
 int isisdaeInterface::beginRunEx(long options, long period)
 {
     //This method allows the dae to begin running in the paused and/or waiting states
