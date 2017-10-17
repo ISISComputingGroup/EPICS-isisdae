@@ -779,16 +779,16 @@ record(stringout, "$(P)$(Q)VETO:ENABLE:SP")
 {
     field(DESC, "Enable veto")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn(icp,0,0)VETO_ENABLE")
-	info(archive, "VAL")
+    field(OUT,  "@asyn(icp,0,0)VETO_ENABLE")
+    info(archive, "VAL")
 }
 
 record(stringout, "$(P)$(Q)VETO:DISABLE:SP")
 {
     field(DESC, "Disable veto")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn(icp,0,0)VETO_DISABLE")
-	info(archive, "VAL")
+    field(OUT,  "@asyn(icp,0,0)VETO_DISABLE")
+    info(archive, "VAL")
 }
 
 record(waveform, "$(P)$(Q)ALLMSGS")
