@@ -122,6 +122,7 @@ public:
     int getMonitoringSettingsXML(std::string& result);
     int setMonitoringSettingsXML(const std::string& settings);
     int getVetoStatus(std::string& result);
+    int setVeto(const std::string& veto, bool enable);
 	const std::string& getAllMessages() const;
 	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
