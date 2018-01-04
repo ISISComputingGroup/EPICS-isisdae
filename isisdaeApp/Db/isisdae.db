@@ -1238,4 +1238,6 @@ record(bi, "$(P)$(Q)SIM_MODE")
 	field(ONAM, "Yes")
     field(INP, "@asyn(icp,0,0)SIM_MODE")
 	field(SCAN, "I/O Intr")
+	info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
