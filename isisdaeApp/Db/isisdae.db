@@ -1233,6 +1233,7 @@ record(longout, "$(P)$(Q)_RESTART_ARCHIVER_PS")
 ## has simulation mode been enabled in ISISICP
 record(bi, "$(P)$(Q)SIM_MODE")
 {
+    field(DESC, "Is DAE in simulation mode")
     field(DTYP, "asynInt32")
 	field(ZNAM, "No")
 	field(ONAM, "Yes")
