@@ -1,16 +1,18 @@
 #ifndef ISISDAEDRIVER_H
 #define ISISDAEDRIVER_H
  
-#include "asynPortDriver.h"
+#include "ADDriver.h"
 
 class isisdaeInterface;
 
-class isisdaeDriver : public asynPortDriver 
+class isisdaeDriver : public ADDriver 
 {
 public:
     isisdaeDriver(isisdaeInterface* iface, const char *portName);
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
+ 	static void pollerThreadC3(void* arg);
+ 	static void pollerThreadC4(void* arg);
     enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7,
 	        RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
 	const char* RunStateNames[14] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING",
@@ -28,10 +30,13 @@ public:
 	
 	void beginStateTransition(int state);
 	void endStateTransition();
+    virtual void report(FILE *fp, int details);
+    virtual void setShutter(int open);
 
 private:
 
 	int P_GoodUAH; // double
+	#define FIRST_ISISDAE_PARAM P_GoodUAH
 	int P_GoodUAHPeriod; // double
 	int P_BeginRun; // int
     int P_BeginRunEx; // int
@@ -82,6 +87,7 @@ private:
     int P_MonitorTo; // double
     int P_TotalDaeCounts; // double
     int P_CountRate; // double
+    int P_CountRateFrame; // double
     int P_EventModeFraction; // double
     int P_GoodFramesTotal; //long
     int P_RawFramesTotal; //long
@@ -95,25 +101,59 @@ private:
 	int P_spectraTableFile; // string
 	int P_tcbFile; // string
 	int P_periodsFile; // string
+	
+	int P_diagTableSum; // int array
+	int P_diagTableMax; // int array
+	int P_diagTableSpec; // int array
+	int P_diagTableCntRate; // float array
+	int P_diagFrames; // int
+	int P_diagMinFrames; // int
+	int P_diagEnable;  // int 
+	int P_diagPeriod; // int			
+	int P_diagSpecStart; // int		
+	int P_diagSpecNum; // int		
+	int P_diagSpecShow; // int	
+	int P_diagSpecMatch; // int			
+    int P_diagSpecIntLow; //float				
+    int P_diagSpecIntHigh; // float				
+	int P_diagSum; // int
+	int P_simulationMode; // int
+	// create area detector views of intregrals of spectra in event mode
+	int P_integralsSpecStart; // int
+	int P_integralsTransformMode; // int
+	int P_integralsEnable; // int
+	int P_vetoEnable;   // string
+	int P_vetoDisable;   // string
+	
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
-	#define FIRST_ISISDAE_PARAM P_GoodUAH
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
 
 	isisdaeInterface* m_iface;
     int m_RunStatus;  // cached value used in poller thread
     bool m_inStateTrans; 
     float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
+    NDArray* m_pRaw;
 
 	/// mapping of run state to disallowed asyn commands
 	std::map< int, std::vector<int> > m_disallowedStateCommand;
 	
 	void pollerThread1();
 	void pollerThread2();
+	void pollerThread3();
+	void pollerThread4();
     void zeroRunCounters();	
     void updateRunStatus();
 	void reportErrors(const char* exc_text);
 	void reportMessages();
+	void setADAcquire(int acquire);
+	int computeImage();
+    template <typename epicsType> 
+	  void computeColour(double value, double maxval, epicsType& mono);
+    template <typename epicsType> 
+      void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
+	template <typename epicsType> int computeArray(int spec_start, int trans_mode, int sizeX, int sizeY);
+	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
@@ -171,6 +211,7 @@ private:
 #define P_MonitorToString	"MONITORTO"
 #define P_TotalDaeCountsString	"TOTALDAECOUNTS"
 #define P_CountRateString	"COUNTRATE"
+#define P_CountRateFrameString	"COUNTRATEFRAME"
 #define P_EventModeFractionString	"EVENTMODEFRACTION"
 #define P_MonitorSpectrumString	"MONITORSPECTRUM"
 #define P_DAETimingSourceString	"DAETIMINGSOURCE"
@@ -189,6 +230,32 @@ private:
 #define P_spectraTableFileString "SPECFILE"
 #define P_tcbFileString           "TCBFILE"
 #define P_periodsFileString      "PERIODSFILE"
+
+#define P_diagTableSumString		"DIAG_TABLE_SUM"
+#define P_diagTableMaxString		"DIAG_TABLE_MAX"
+#define P_diagTableCntRateString	"DIAG_TABLE_CNTRATE"
+#define P_diagTableSpecString		"DIAG_TABLE_SPEC"
+#define P_diagFramesString			"DIAG_FRAMES"
+#define P_diagMinFramesString		"DIAG_MIN_FRAMES"
+#define P_diagEnableString			"DIAG_ENABLE"
+#define P_diagPeriodString			"DIAG_PERIOD"
+#define P_diagSpecStartString		"DIAG_SPEC_START"
+#define P_diagSpecNumString			"DIAG_SPEC_NUM"
+#define P_diagSpecShowString		"DIAG_SPEC_SHOW"
+#define P_diagSumString				"DIAG_SUM"
+#define P_diagSpecMatchString				"DIAG_SPEC_MATCH"
+#define P_diagSpecIntLowString				"DIAG_SPEC_INTLOW"
+#define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
+
+#define P_integralsSpecStartString				"INTG_SPEC_START"
+#define	P_integralsTransformModeString 			"INTG_TRANS_MODE"
+#define P_integralsEnableString					"INTG_ENABLE"
+
+#define P_simulationModeString					"SIM_MODE"
+
+#define P_vetoEnableString					"VETO_ENABLE"
+#define P_vetoDisableString					"VETO_DISABLE"
+
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
 
