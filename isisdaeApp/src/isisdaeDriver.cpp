@@ -656,6 +656,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     const char *functionName = "isisdaeDriver";
 //	epicsThreadOnce(&onceId, initCOM, NULL);
 
+    // list commands that are not allowed when you are in the given run state
 	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
 	m_disallowedStateCommand[RS_RUNNING] << P_BeginRun << P_BeginRunEx << P_ResumeRun;
 	m_disallowedStateCommand[RS_PAUSED] << P_BeginRun << P_BeginRunEx << P_PauseRun;

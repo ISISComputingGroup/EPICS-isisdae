@@ -135,7 +135,7 @@ private:
     float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
     NDArray* m_pRaw;
 
-	/// mapping of run state to disallowed asyn commands
+	/// mapping of run state to disallowed asyn commands when in that state
 	std::map< int, std::vector<int> > m_disallowedStateCommand;
 	
 	void pollerThread1();
