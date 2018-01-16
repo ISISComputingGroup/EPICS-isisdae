@@ -656,13 +656,6 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     const char *functionName = "isisdaeDriver";
 //	epicsThreadOnce(&onceId, initCOM, NULL);
 
-    // list commands that are not allowed when you are in the given run state
-	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
-	m_disallowedStateCommand[RS_RUNNING] << P_BeginRun << P_BeginRunEx << P_ResumeRun;
-	m_disallowedStateCommand[RS_PAUSED] << P_BeginRun << P_BeginRunEx << P_PauseRun;
-	m_disallowedStateCommand[RS_WAITING] = m_disallowedStateCommand[RS_RUNNING];
-	m_disallowedStateCommand[RS_VETOING] = m_disallowedStateCommand[RS_RUNNING];
-
 	std::map<std::string,std::string> res;
 	m_iface->getParams(res);
 	for(std::map<std::string,std::string>::const_iterator it=res.begin(); it != res.end(); ++it)
@@ -792,6 +785,13 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	
 	createParam(P_vetoEnableString, asynParamOctet, &P_vetoEnable);
 	createParam(P_vetoDisableString, asynParamOctet, &P_vetoDisable);
+
+    // list commands that are not allowed when you are in the given run state
+	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
+	m_disallowedStateCommand[RS_RUNNING] << P_BeginRun << P_BeginRunEx << P_ResumeRun;
+	m_disallowedStateCommand[RS_PAUSED] << P_BeginRun << P_BeginRunEx << P_PauseRun;
+	m_disallowedStateCommand[RS_WAITING] = m_disallowedStateCommand[RS_RUNNING];
+	m_disallowedStateCommand[RS_VETOING] = m_disallowedStateCommand[RS_RUNNING];
 
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
