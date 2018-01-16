@@ -6,6 +6,7 @@
 #include <exception>
 #include <iostream>
 #include <map>
+#include <vector>
 #include <iomanip>
 #include <sys/timeb.h>
 #include <numeric>
@@ -208,6 +209,13 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 	m_iface->resetMessages();
 	try
 	{
+		const std::vector<int>& disallowed = m_disallowedStateCommand[m_RunStatus];
+		if ( std::find(disallowed.begin(), disallowed.end(), function) != disallowed.end() )
+		{
+			std::ostringstream mess;
+			mess << "Cannot execute command \"" << paramName << "\" when in state \"" << RunStateNames[m_RunStatus] << "\"";
+			throw std::runtime_error(mess.str());
+		}			
 		if (function == P_BeginRun)
 		{
 		    beginStateTransition(RS_BEGINNING);
@@ -616,6 +624,13 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 	}
 }
 
+/// vector insert helper for use with m_disallowedStateCommand
+template <typename T>
+std::vector<T>& operator<<(std::vector<T>& vec, const T& val)
+{
+	vec.push_back(val);
+	return vec;
+}
 
 /// Constructor for the isisdaeDriver class.
 /// Calls constructor for the asynPortDriver base class.
@@ -770,6 +785,13 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	
 	createParam(P_vetoEnableString, asynParamOctet, &P_vetoEnable);
 	createParam(P_vetoDisableString, asynParamOctet, &P_vetoDisable);
+
+    // list commands that are not allowed when you are in the given run state
+	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
+	m_disallowedStateCommand[RS_RUNNING] << P_BeginRun << P_BeginRunEx << P_ResumeRun;
+	m_disallowedStateCommand[RS_PAUSED] << P_BeginRun << P_BeginRunEx << P_PauseRun;
+	m_disallowedStateCommand[RS_WAITING] = m_disallowedStateCommand[RS_RUNNING];
+	m_disallowedStateCommand[RS_VETOING] = m_disallowedStateCommand[RS_RUNNING];
 
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
