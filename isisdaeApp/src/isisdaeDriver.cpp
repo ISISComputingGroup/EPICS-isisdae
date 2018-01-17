@@ -42,6 +42,8 @@ static epicsThreadOnceId onceId = EPICS_THREAD_ONCE_INIT;
 
 static const char *driverName="isisdaeDriver";
 
+const char* isisdaeDriver::RunStateNames[14] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING" };
+
 void isisdaeDriver::reportErrors(const char* exc_text)
 {
 		std::string msgs = m_iface->getAllMessages();
