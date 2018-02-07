@@ -579,6 +579,7 @@ record(bo, "$(P)$(Q)ENDSEWAIT")
     field(ONAM, "1")
 }
 
+## 2 for RUNNING and 4 for WAITING are used in a runcontrol check, so be careful about changing numbers
 record(mbbi, "$(P)$(Q)RUNSTATE")
 {
     field(DESC, "Run State (Integer/Enum)")

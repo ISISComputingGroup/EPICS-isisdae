@@ -26,6 +26,8 @@ include $(TOP)/configure/CONFIG
 # Build the IOC support library
 
 USR_INCLUDES += -I"$(TOP)/../../libraries/boost/include" -I"$(AREA_DETECTOR)"
+
+## We use -EHa so windows structured exceptions are catachable with C++ catch(...) 
 USR_CXXFLAGS += -EHa -DNOMINMAX
 
 LIBRARY_IOC_WIN32 += isisdae
