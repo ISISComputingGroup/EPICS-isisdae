@@ -1204,7 +1204,14 @@ void isisdaeDriver::pollerThread3()
 		}
 		catch(const std::exception& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) " << ex.what() << std::endl;
+			frames[i1] = 0;
+			lock();
+			continue;
+		}
+		catch(...) // catch windows Structured Exceptions
+		{
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) generic exception" << std::endl;
 			frames[i1] = 0;
 			lock();
 			continue;
@@ -1232,7 +1239,13 @@ void isisdaeDriver::pollerThread3()
 		}
 		catch(const std::exception& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) " << ex.what() << std::endl;
+			lock();
+			continue;
+		}
+		catch(...) // catch windows Structured Exceptions
+		{
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) generic exception" << std::endl;
 			lock();
 			continue;
 		}
