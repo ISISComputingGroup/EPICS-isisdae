@@ -44,6 +44,39 @@ static const char *driverName="isisdaeDriver";
 
 const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING" };
 
+/// An STL exception describing a Win32 Structured Exception. 
+/// Code needs to be compiled with /EHa if you wish to use this via _set_se_translator().
+/// Note that _set_se_translator() needs to be called on a per thread basis
+class Win32StructuredException : public std::runtime_error
+{
+public:
+	explicit Win32StructuredException(const std::string& message) : std::runtime_error(message) { }
+	explicit Win32StructuredException(unsigned int code, EXCEPTION_POINTERS *pExp) : std::runtime_error(win32_message(code, pExp)) { }
+private:
+	static std::string win32_message(unsigned int code, EXCEPTION_POINTERS * pExp);
+};
+
+std::string Win32StructuredException::win32_message(unsigned int code, EXCEPTION_POINTERS * pExp)
+{
+	char buffer[256];
+	_snprintf(buffer, sizeof(buffer), "Win32StructuredException code 0x%x pExpCode 0x%x pExpAddress %p", code, pExp->ExceptionRecord->ExceptionCode, pExp->ExceptionRecord->ExceptionAddress);
+	buffer[sizeof(buffer)-1] = '\0';
+	return std::string(buffer);
+}
+
+/// Function to translate a Win32 structured exception into a standard C++ exception. 
+/// This is registered via registerStructuredExceptionHandler()
+static void seTransFunction(unsigned int u, EXCEPTION_POINTERS* pExp)
+{
+	throw Win32StructuredException(u, pExp);
+}
+
+/// Register a handler for Win32 structured exceptions. This needs to be done on a per thread basis.
+static void registerStructuredExceptionHandler()
+{
+	_set_se_translator(seTransFunction);
+}
+
 void isisdaeDriver::reportErrors(const char* exc_text)
 {
 		std::string msgs = m_iface->getAllMessages();
@@ -168,7 +201,7 @@ void isisdaeDriver::endStateTransition()
 	}
 	catch (const std::exception& ex)
 	{
-		std::cerr << ex.what() << std::endl;
+		std::cerr << "endStateTransition exception: " << ex.what() << std::endl;
 	}
     setIntegerParam(P_StateTrans, 0);
 	callParamCallbacks();
@@ -207,10 +240,11 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
-	m_iface->resetMessages();
 	try
 	{
+	    m_iface->resetMessages();
 		const std::vector<int>& disallowed = m_disallowedStateCommand[m_RunStatus];
 		if ( std::find(disallowed.begin(), disallowed.end(), function) != disallowed.end() )
 		{
@@ -317,10 +351,11 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
 	int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
-	m_iface->resetMessages();
 	try
 	{
+	    m_iface->resetMessages();
 		status = ADDriver::readValue(pasynUser, functionName, &value);
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -341,13 +376,14 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
 template<typename T>
 asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn)
 {
-  int function = pasynUser->reason;
-  asynStatus status = asynSuccess;
-  const char *paramName = NULL;
+    int function = pasynUser->reason;
+    asynStatus status = asynSuccess;
+    const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
-	m_iface->resetMessages();
 	try
 	{
+	    m_iface->resetMessages();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s\n", 
               driverName, functionName, function, paramName);
@@ -396,6 +432,7 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
 {
 	int function = pasynUser->reason;
+	registerStructuredExceptionHandler();
 	if (function < FIRST_ISISDAE_PARAM)
 	{
 		return ADDriver::readFloat64Array(pasynUser, value, nElements, nIn);
@@ -409,6 +446,7 @@ asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *va
 asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn)
 {
 	int function = pasynUser->reason;
+	registerStructuredExceptionHandler();
 	if (function < FIRST_ISISDAE_PARAM)
 	{
 		return ADDriver::readInt32Array(pasynUser, value, nElements, nIn);
@@ -435,18 +473,18 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	int status=0;
 	const char *functionName = "readOctet";
     const char *paramName = NULL;
-	getParamName(function, &paramName);
-	m_iface->resetMessages();
-	// we don't do much yet
-	return ADDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
-
 	std::string value_s;
+	registerStructuredExceptionHandler();
+	getParamName(function, &paramName);
 	try
 	{
-		if (m_iface == NULL)
-		{
-			throw std::runtime_error("m_iface is NULL");
-		}
+	    m_iface->resetMessages();
+	    // we don't do much yet
+	    return ADDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
+    }
+#if 0
+	try
+	{
 //		m_iface->getLabviewValue(paramName, &value_s);
 		if ( value_s.size() > maxChars ) // did we read more than we have space for?
 		{
@@ -471,6 +509,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 		callParamCallbacks(); // this flushes P_ErrMsgs
 		return asynSuccess;
 	}
+#endif
 	catch(const std::exception& ex)
 	{
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
@@ -507,6 +546,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
     const char* functionName = "writeOctet";
 	std::string value_s;
@@ -519,9 +559,9 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
     {
         value_s.assign(value, maxChars);
     }
-	m_iface->resetMessages();
 	try
 	{
+	    m_iface->resetMessages();
         if (function == P_RunTitle)
         {
 			m_iface->setRunTitle(value_s);
@@ -913,6 +953,8 @@ void isisdaeDriver::pollerThread1()
     static const char* functionName = "isisdaePoller1";
     unsigned long counter = 0;
     double delay = 0.2;
+
+	registerStructuredExceptionHandler();
     lock();
 	while(true)
 	{
@@ -925,7 +967,7 @@ void isisdaeDriver::pollerThread1()
         }
         catch(const std::exception& ex)
         {
-            std::cerr << ex.what() << std::endl;
+            std::cerr << "updateRunStatus exception: " << ex.what() << std::endl;
         }
         callParamCallbacks();        
         ++counter;
@@ -1037,6 +1079,7 @@ void isisdaeDriver::pollerThread2()
     std::string updateSettings;
     std::string vetoStatus;
 
+	registerStructuredExceptionHandler();
     lock();
 	while(true)
 	{
@@ -1064,7 +1107,7 @@ void isisdaeDriver::pollerThread2()
         }
         catch(const std::exception& ex)
         {
-            std::cerr << ex.what() << std::endl;
+            std::cerr << "pollerThread2 exception: " << ex.what() << std::endl;
             continue;
         }
         if (this_rf > last_rf)
@@ -1158,7 +1201,13 @@ void isisdaeDriver::pollerThread2()
         }          
 		std::list<std::string> messages;
 		std::string all_msgs;
-		m_iface->getAsyncMessages(messages);
+		try {
+		    m_iface->getAsyncMessages(messages);
+		}
+        catch(const std::exception& ex)
+        {
+            std::cerr << "getAsyncMessages exception: " << ex.what() << std::endl;
+        }
 		for(std::list<std::string>::const_iterator it=messages.begin(); it != messages.end(); ++it)
 		{
 			std::string mess_ts;
@@ -1174,7 +1223,7 @@ void isisdaeDriver::pollerThread2()
 		callParamCallbacks();        
         ++counter;
 	}
-}	
+}
 			
 void isisdaeDriver::pollerThread3()
 {
@@ -1186,6 +1235,8 @@ void isisdaeDriver::pollerThread3()
 	double time_low = 0.0, time_high = -1.0;
 	bool b = true;
 	int i1, i2, n1, sum, fdiff, fdiff_min = 0, diag_enable = 0;
+
+ 	registerStructuredExceptionHandler();
     lock();
 	setIntegerParam(P_diagFrames, 0);
 	setIntegerParam(P_diagSum, 0);
@@ -1204,7 +1255,7 @@ void isisdaeDriver::pollerThread3()
 		}
 		catch(const std::exception& ex)
 		{
-			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) " << ex.what() << std::endl;
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics): " << ex.what() << std::endl;
 			frames[i1] = 0;
 			lock();
 			continue;
@@ -1239,7 +1290,7 @@ void isisdaeDriver::pollerThread3()
 		}
 		catch(const std::exception& ex)
 		{
-			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) " << ex.what() << std::endl;
+			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics): " << ex.what() << std::endl;
 			lock();
 			continue;
 		}
@@ -1294,6 +1345,7 @@ void isisdaeDriver::pollerThread4()
     epicsTimeStamp startTime, endTime;
     double elapsedTime;
 
+	registerStructuredExceptionHandler();
 	while(true)
 	{
 		lock();
@@ -1660,8 +1712,15 @@ int isisdaeDriver::computeArray(int spec_start, int trans_mode, int sizeX, int s
     }
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
-	const uint32_t* integrals = m_iface->getEventSpecIntegrals();
-	int max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+	const uint32_t* integrals;
+	int max_spec_int_size;
+	try {
+        integrals = m_iface->getEventSpecIntegrals();
+	    max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+	}
+	catch(...) {
+		return status;
+	}
 	int nspec = sizeX * sizeY;
 	if ( (spec_start + nspec) > (numSpec + 1) )
 	{
@@ -1809,30 +1868,35 @@ static void daeCASThread(void* arg)
     unsigned    maxSimultAsyncIO = 1000u;
 	isisdaeInterface* iface = static_cast<isisdaeInterface*>(arg);
     printf("starting cas server\n");
+	registerStructuredExceptionHandler();
 	pvPrefix = macEnvExpand("$(MYPVPREFIX)DAE:");
     try {
         pCAS = new exServer ( pvPrefix, aliasCount, 
             scanOn != 0, syncScan == 0, asyncDelay,
             maxSimultAsyncIO, iface );
     }
-    catch ( ... ) {
+    catch(...) {
         errlogSevPrintf (errlogMajor, "Server initialization error\n" );
         errlogFlush ();
         return;
     }
     
     pCAS->setDebugLevel(debugLevel);
-    try
+    while (true) 
     {
-        while (true) 
-        {
+	    try {
             fileDescriptorManager.process(1000.0);
-        }
+		}
+        catch(const std::exception& ex) {
+            std::cerr << "daeCASThread exception: " << ex.what() << std::endl;
+			epicsThreadSleep(30);
+		}
+        catch(...) {
+            std::cerr << "daeCASThread exception" << std::endl;
+			epicsThreadSleep(30);
+		}			
     }
-    catch(const std::exception& ex)
-    {
-        std::cerr << ex.what() << std::endl;
-    }
+    errlogSevPrintf (errlogMajor, "daeCASThread exiting\n" );
     //pCAS->show(2u);
     delete pCAS;
     errlogFlush ();
@@ -1862,6 +1926,7 @@ extern "C" {
 /// \param[in] password @copydoc initArg7
 int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password)
 {
+	registerStructuredExceptionHandler();
 	try
 	{
 		isisdaeInterface* iface = new isisdaeInterface(host, options, username, password);
