@@ -240,6 +240,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
 	try
 	{
@@ -350,6 +351,7 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
 	int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
 	try
 	{
@@ -377,6 +379,7 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
 	try
 	{
@@ -429,6 +432,7 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
 {
 	int function = pasynUser->reason;
+	registerStructuredExceptionHandler();
 	if (function < FIRST_ISISDAE_PARAM)
 	{
 		return ADDriver::readFloat64Array(pasynUser, value, nElements, nIn);
@@ -442,6 +446,7 @@ asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *va
 asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn)
 {
 	int function = pasynUser->reason;
+	registerStructuredExceptionHandler();
 	if (function < FIRST_ISISDAE_PARAM)
 	{
 		return ADDriver::readInt32Array(pasynUser, value, nElements, nIn);
@@ -469,6 +474,7 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	const char *functionName = "readOctet";
     const char *paramName = NULL;
 	std::string value_s;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
 	try
 	{
@@ -540,6 +546,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
     const char* functionName = "writeOctet";
 	std::string value_s;
