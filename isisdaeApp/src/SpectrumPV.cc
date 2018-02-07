@@ -39,7 +39,16 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         return false;
     }
 
-    int n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax);
+    int n = 0;
+	try {
+	    n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax);
+	}
+	catch(...) {
+		std::cerr << "Exception in SpectrumPV::getNewValue" << std::endl;
+        delete[] pX;
+        delete[] pY;
+		return false;
+	}
 	m_nord = n;  // number of elements used
 	
 	if (m_axis == 'Y')
