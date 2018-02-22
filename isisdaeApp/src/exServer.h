@@ -229,6 +229,8 @@ private:
     //
     expireStatus expire ( const epicsTime & currentTime );
 
+	epicsEvent timerDone; // a timer has fired and completed a scan
+	
     //
     // Std PV Attribute fetch support
     //
