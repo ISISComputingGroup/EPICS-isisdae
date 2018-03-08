@@ -109,7 +109,19 @@ caStatus exPV::update ( const gdd & valueIn )
 epicsTimerNotify::expireStatus
 exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
-    this->scan();
+	try 
+	{
+        this->scan();
+	}
+	catch(const std::exception& ex)
+	{
+		errlogSevPrintf(errlogMajor, "exPV::expire: Scan failed: %s", ex.what());
+	}
+	catch(...)
+	{
+		errlogSevPrintf(errlogMajor, "exPV::expire: Scan failed");
+	}
+	this->timerDone.signal();
     if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
         return expireStatus ( restart, this->getScanPeriod() );
     }
@@ -317,9 +329,14 @@ caStatus exPV::write ( const casCtx &, const gdd & valueIn )
 //
 caStatus exPV::read ( const casCtx &, gdd & protoIn )
 {
+	static int wait_time = 5.0;   ///< time to wait for a read to complete, return last cached value otherwise 
+	// we will always be scanning values, but at a slower rate if (interest == false)
+	// only forcing an update on (interest == false) means reads and monitors will always get the same value
 	if (!(this->interest && this->scanOn && this->getScanPeriod() > 0.0))
 	{
-	    this->scan(); // force an update of the value if not monitoring actively
+		this->timerDone.tryWait();   // to clear event, or wait(0.0) ?
+        this->timer.start ( *this, 0.0 ); // force an update of the value if not monitoring actively
+		this->timerDone.wait(wait_time);
 	}
     return this->ft.read ( *this, protoIn );
 }
