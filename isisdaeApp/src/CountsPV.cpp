@@ -18,8 +18,12 @@ bool CountsPV::getNewValue(smartGDDPointer& pDD)
 	try {
         cas.iface()->getSpectrumIntegral(m_spec, m_period, 0.0, -1.0, counts);
 	}
+	catch(const std::exception& ex) {
+		std::cerr << "Exception in CountsPV::getNewValue(): " << ex.what() << std::endl;
+		return false;
+	}
 	catch(...) {
-		std::cerr << "Exception in CountsPV::getNewValue" << std::endl;
+		std::cerr << "Exception in CountsPV::getNewValue()" << std::endl;
 		return false;
 	}
 	if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == counts) )

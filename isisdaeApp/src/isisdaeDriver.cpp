@@ -969,6 +969,10 @@ void isisdaeDriver::pollerThread1()
         {
             std::cerr << "updateRunStatus exception: " << ex.what() << std::endl;
         }
+        catch(...)
+        {
+            std::cerr << "updateRunStatus exception" << std::endl;
+        }
         callParamCallbacks();        
         ++counter;
     }
@@ -1110,6 +1114,11 @@ void isisdaeDriver::pollerThread2()
             std::cerr << "pollerThread2 exception: " << ex.what() << std::endl;
             continue;
         }
+        catch(...)
+        {
+            std::cerr << "pollerThread2 exception" << std::endl;
+            continue;
+        }
         if (this_rf > last_rf)
         {
             m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf) / static_cast<double>(this_rf - last_rf));
@@ -1207,6 +1216,10 @@ void isisdaeDriver::pollerThread2()
         catch(const std::exception& ex)
         {
             std::cerr << "getAsyncMessages exception: " << ex.what() << std::endl;
+        }
+        catch(...)
+        {
+            std::cerr << "getAsyncMessages exception" << std::endl;
         }
 		for(std::list<std::string>::const_iterator it=messages.begin(); it != messages.end(); ++it)
 		{

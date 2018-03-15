@@ -43,8 +43,14 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 	try {
 	    n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax);
 	}
+	catch(const std::exception& ex) {
+		std::cerr << "Exception in SpectrumPV::getNewValue(): " << ex.what() << std::endl;
+        delete[] pX;
+        delete[] pY;
+		return false;
+	}
 	catch(...) {
-		std::cerr << "Exception in SpectrumPV::getNewValue" << std::endl;
+		std::cerr << "Exception in SpectrumPV::getNewValue()" << std::endl;
         delete[] pX;
         delete[] pY;
 		return false;
