@@ -13,6 +13,7 @@ include $(TOP)/configure/CONFIG
 DB += isisdae.db
 DB += dae_diag.db
 DB += dae3_parallel.db
+DB += dae3_pull.db
 DB += ADisisdae.template
 
 #----------------------------------------------------
