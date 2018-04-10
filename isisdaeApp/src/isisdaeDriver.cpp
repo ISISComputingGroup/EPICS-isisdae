@@ -1262,6 +1262,11 @@ void isisdaeDriver::pollerThread3()
 		epicsThreadSleep(delay);
 		i1 = (b == true ? 0 : 1);
 		i2 = (b == true ? 1 : 0);
+        lock();
+		getIntegerParam(P_diagEnable, &diag_enable);
+		if (diag_enable != 1)
+			continue;
+        unlock(); // read without lock in case icp busy 
 		try
 		{
 			frames[i1] = m_iface->getGoodFrames(); // read prior to lock in case ICP busy
@@ -1280,11 +1285,12 @@ void isisdaeDriver::pollerThread3()
 			lock();
 			continue;
 		}
-        lock();
-		getIntegerParam(P_diagEnable, &diag_enable);
-		if (diag_enable != 1)
-			continue;
 		fdiff = frames[i1] - frames[i2];
+		if (fdiff < 0) { // likely means new run started
+			frames[i2] = 0;
+			sums[i2].fill(0);
+			fdiff = frames[i1];
+		}
 		getIntegerParam(P_diagMinFrames, &fdiff_min);
 		if (fdiff < fdiff_min)
 			continue;
