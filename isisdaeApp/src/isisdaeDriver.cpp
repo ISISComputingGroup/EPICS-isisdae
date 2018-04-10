@@ -1288,7 +1288,7 @@ void isisdaeDriver::pollerThread3()
 		fdiff = frames[i1] - frames[i2];
 		if (fdiff < 0) { // likely means new run started
 			frames[i2] = 0;
-			sums[i2].fill(0);
+			std::fill(sums[i2].begin(), sums[i2].end(), 0);
 			fdiff = frames[i1];
 		}
 		getIntegerParam(P_diagMinFrames, &fdiff_min);
