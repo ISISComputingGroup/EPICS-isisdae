@@ -164,4 +164,16 @@
     <Name>EventModeCardFraction</Name>
     <Val></Val>
   </DBL>
+  <DBL>
+    <Name>EventModeBufferUsedFraction</Name>
+    <Val></Val>
+  </DBL>
+  <DBL>
+    <Name>EventModeFileMB</Name>
+    <Val></Val>
+  </DBL>
+  <DBL>
+     <Name>EventModeDataRate</Name>
+     <Val></Val>
+  </DBL>
 </Cluster>
