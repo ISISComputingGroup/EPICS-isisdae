@@ -332,7 +332,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, convertToString(value).c_str());
 		reportMessages();
-		return asynSuccess;
+		status = asynSuccess;
 	}
 	catch(const std::exception& ex)
 	{
@@ -341,10 +341,20 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
                   driverName, functionName, status, function, paramName, convertToString(value).c_str(), ex.what());
 		reportErrors(ex.what());
 		endStateTransition();
-		return asynError;
+		status = asynError;
 	}
+	if (status == asynSuccess)
+	{
+		asynPortDriver::writeInt32(pasynUser, value); // to update parameter and do callbacks
+	}
+	else
+	{
+	    callParamCallbacks(); // this flushes P_ErrMsgs
+	}
+	return status;
 }
 
+// need to consider function < FIRST_ISISDAE_PARAM here or elsewhere if used. 
 template<typename T>
 asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionName, T* value)
 {
@@ -403,30 +413,30 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 
 asynStatus isisdaeDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 {
-	asynStatus stat = writeValue(pasynUser, "writeFloat64", value);
-    if (stat == asynSuccess)
-    {
-        stat = ADDriver::writeFloat64(pasynUser, value);
-    }
+	int function = pasynUser->reason;
+	if (function < FIRST_ISISDAE_PARAM)
+	{
+	    registerStructuredExceptionHandler();
+        return ADDriver::writeFloat64(pasynUser, value);
+	}
 	else
 	{
-	    callParamCallbacks(); // this flushes P_ErrMsgs
+		return writeValue(pasynUser, "writeFloat64", value);
 	}
-    return stat;
 }
 
 asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
-    asynStatus stat = writeValue(pasynUser, "writeInt32", value);
-    if (stat == asynSuccess)
-    {
-        stat = ADDriver::writeInt32(pasynUser, value);
-    }
+	int function = pasynUser->reason;
+	if (function < FIRST_ISISDAE_PARAM)
+	{
+	    registerStructuredExceptionHandler();
+        return ADDriver::writeInt32(pasynUser, value);
+	}
 	else
 	{
-	    callParamCallbacks(); // this flushes P_ErrMsgs
+		return writeValue(pasynUser, "writeInt32", value);
 	}
-    return stat;
 }
 
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
@@ -459,10 +469,10 @@ asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value,
 
 //asynStatus isisdaeDriver::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
 //{
-//	return readValue(pasynUser, "readFloat64", value);
+//	return readValue(pasynUser, "readFloat64", value);   // need to check function < FIRST_ISISDAE_PARAM etc
 //}
 
-//asynStatus isisdaeDriver::readInt32(asynUser *pasynUser, epicsInt32 *value)
+//asynStatus isisdaeDriver::readInt32(asynUser *pasynUser, epicsInt32 *value) // // need to check function < FIRST_ISISDAE_PARAM etc
 //{
 //	return readValue(pasynUser, "readInt32", value);
 //}
@@ -478,10 +488,17 @@ asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t max
 	getParamName(function, &paramName);
 	try
 	{
-	    m_iface->resetMessages();
-	    // we don't do much yet
-	    return ADDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
-    }
+	    if (function < FIRST_ISISDAE_PARAM)
+	    {
+	        return ADDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
+	    }
+	    else
+	    {
+	        m_iface->resetMessages();
+	        // we don't do much yet
+	        return asynPortDriver::readOctet(pasynUser, value, maxChars, nActual, eomReason);
+        }
+	}
 #if 0
 	try
 	{
@@ -643,13 +660,20 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		}        
     
 		reportMessages();
-		status = ADDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
+	    if (function < FIRST_ISISDAE_PARAM)
+		{
+		    status = ADDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual);
+		}
+		else
+		{
+		    status = asynPortDriver::writeOctet(pasynUser, value_s.c_str(), value_s.size(), nActual); // update parameters and do callbacks
+		}
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
               driverName, functionName, function, paramName, value_s.c_str());
-        if (status == asynSuccess)
+        if (status == asynSuccess && *nActual == value_s.size())
         {
-		    *nActual = maxChars;   // to keep result happy in case we skipped an embedded trailing NULL
+		    *nActual = maxChars;   // to keep result happy in case we skipped an embedded trailing NULL when creating value_s
         }
 		return status;
 	}
