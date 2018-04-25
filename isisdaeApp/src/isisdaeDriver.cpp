@@ -866,6 +866,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
+	setIntegerParam(P_diagEnable, 0);
 
     // area detector defaults
 //	int maxSizeX = 128, maxSizeY = 128;
