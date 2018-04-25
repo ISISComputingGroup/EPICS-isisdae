@@ -343,14 +343,6 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		endStateTransition();
 		status = asynError;
 	}
-	if (status == asynSuccess)
-	{
-		asynPortDriver::writeInt32(pasynUser, value); // to update parameter and do callbacks
-	}
-	else
-	{
-	    callParamCallbacks(); // this flushes P_ErrMsgs
-	}
 	return status;
 }
 
@@ -419,9 +411,14 @@ asynStatus isisdaeDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 	    registerStructuredExceptionHandler();
         return ADDriver::writeFloat64(pasynUser, value);
 	}
+	asynStatus stat = writeValue(pasynUser, "writeFloat64", value);
+	if (stat == asynSuccess)
+	{
+		asynPortDriver::writeFloat64(pasynUser, value); // to update parameter and do callbacks
+	}
 	else
 	{
-		return writeValue(pasynUser, "writeFloat64", value);
+		callParamCallbacks(); // this flushes P_ErrMsgs
 	}
 }
 
@@ -433,9 +430,14 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	    registerStructuredExceptionHandler();
         return ADDriver::writeInt32(pasynUser, value);
 	}
+	asynStatus stat = writeValue(pasynUser, "writeInt32", value);
+	if (stat == asynSuccess)
+	{
+		asynPortDriver::writeInt32(pasynUser, value); // to update parameter and do callbacks
+	}
 	else
 	{
-		return writeValue(pasynUser, "writeInt32", value);
+		callParamCallbacks(); // this flushes P_ErrMsgs
 	}
 }
 
