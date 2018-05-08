@@ -44,6 +44,8 @@ exPV::exPV ( exServer & casIn, pvInfo & setup,
     //
     assert (this->info.getElementCount()>=1u);
 
+	memset(&(this->lastTimer), 0, sizeof(this->lastTimer));
+
     //
     // start a very slow background scan 
     // (we will speed this up to the normal rate when
@@ -109,9 +111,11 @@ caStatus exPV::update ( const gdd & valueIn )
 epicsTimerNotify::expireStatus
 exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
+	epicsGuard<epicsMutex> _lock(timerLock);
 	try 
 	{
         this->scan();
+	    epicsTimeGetCurrent(&(this->lastTimer));	
 	}
 	catch(const std::exception& ex)
 	{
@@ -329,15 +333,27 @@ caStatus exPV::write ( const casCtx &, const gdd & valueIn )
 //
 caStatus exPV::read ( const casCtx &, gdd & protoIn )
 {
-	static int wait_time = 5.0;   ///< time to wait for a read to complete, return last cached value otherwise 
+//	static const double wait_time = 5.0;   ///< time to wait for a read to complete, return last cached value otherwise 
+	static const double cache_time = 1.0;   ///< time to consider a value valid for 
 	// we will always be scanning values, but at a slower rate if (interest == false)
 	// only forcing an update on (interest == false) means reads and monitors will always get the same value
-	if (!(this->interest && this->scanOn && this->getScanPeriod() > 0.0))
+    epicsTimeStamp now;
+	epicsTimeGetCurrent(&now);
+	double tdiff;
+    {
+		epicsGuard<epicsMutex> _lock(timerLock);
+		tdiff = epicsTimeDiffInSeconds(&now, &(this->lastTimer));
+    }
+	if ( (this->interest && this->scanOn && this->getScanPeriod() > 0.0) || (tdiff < cache_time) )
 	{
-		this->timerDone.tryWait();   // to clear event, or wait(0.0) ?
-        this->timer.start ( *this, 0.0 ); // force an update of the value if not monitoring actively
-		this->timerDone.wait(wait_time);
+        return this->ft.read ( *this, protoIn );
 	}
+	// using timer queue not quite working, they don't seem to run until after the read() so end up
+	// waiting for wait_time. revert back to old way for now
+//	this->timerDone.tryWait();   // to clear event, or wait(0.0) ?
+//  this->timer.start ( *this, 0.0 ); // force an update of the value if not monitoring actively
+//	this->timerDone.wait(wait_time);
+	this->expire(epicsTime()); // does a scan
     return this->ft.read ( *this, protoIn );
 }
 

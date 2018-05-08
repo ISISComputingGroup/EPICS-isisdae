@@ -211,6 +211,7 @@ public:
 
 protected:
 	epicsMutex scanLock;
+	epicsMutex timerLock;
     smartGDDPointer pValue;
     exServer & cas;
     epicsTimer & timer;
@@ -230,6 +231,7 @@ private:
     expireStatus expire ( const epicsTime & currentTime );
 
 	epicsEvent timerDone; // a timer has fired and completed a scan
+	epicsTimeStamp lastTimer; // last time we ran timer task
 	
     //
     // Std PV Attribute fetch support
