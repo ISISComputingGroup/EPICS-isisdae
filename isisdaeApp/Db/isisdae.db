@@ -385,13 +385,13 @@ record(ai, "$(P)$(Q)EVENTMODEBUFUSED")
 
 record(ai, "$(P)$(Q)EVENTMODEFILEMB")
 {
-    field(DESC, "Event Mode File MB")
+    field(DESC, "Event Mode File Size")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)EVENTMODEFILEMB")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
-	field(EGU, "")
+	field(EGU, "MB")
 }
 
 record(ai, "$(P)$(Q)EVENTMODEDATARATE")
@@ -402,7 +402,7 @@ record(ai, "$(P)$(Q)EVENTMODEDATARATE")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
-	field(EGU, "")
+	field(EGU, "MB /s")
 }
 
 record(ai, "$(P)$(Q)GOODUAH")
