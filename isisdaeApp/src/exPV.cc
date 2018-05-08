@@ -10,6 +10,7 @@
 //
 // Example EPICS CA server
 //
+#include <iostream>
 #include "exServer.h"
 #include "gddApps.h"
 
@@ -31,13 +32,14 @@ class exFixedStringDestructor: public gddDestructor {
 // exPV::exPV()
 //
 exPV::exPV ( exServer & casIn, pvInfo & setup, 
-            bool preCreateFlag, bool scanOnIn ) : 
+            bool preCreateFlag, bool scanOnIn, bool asyncIO ) : 
     cas ( casIn ),
     timer ( cas.createTimer() ),
     info ( setup ),
     interest ( false ),
     preCreate ( preCreateFlag ),
-    scanOn ( scanOnIn )
+    scanOn ( scanOnIn ),
+	m_asyncIO(asyncIO)
 {
     //
     // no dataless PV allowed
@@ -111,19 +113,19 @@ caStatus exPV::update ( const gdd & valueIn )
 epicsTimerNotify::expireStatus
 exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
-	epicsGuard<epicsMutex> _lock(timerLock);
 	try 
 	{
         this->scan();
+	    epicsGuard<epicsMutex> _lock(timerLock);
 	    epicsTimeGetCurrent(&(this->lastTimer));	
 	}
 	catch(const std::exception& ex)
 	{
-		errlogSevPrintf(errlogMajor, "exPV::expire: Scan failed: %s", ex.what());
+		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed: %s", ex.what());
 	}
 	catch(...)
 	{
-		errlogSevPrintf(errlogMajor, "exPV::expire: Scan failed");
+		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed");
 	}
 	this->timerDone.signal();
     if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
@@ -152,6 +154,7 @@ caStatus exPV::interestRegister ()
     }
 
     this->interest = true;
+//	std::cerr << "CAS: Interest registered in PV \"" << getName() << "\"" << std::endl;
     if ( this->scanOn && this->getScanPeriod() > 0.0 && 
             this->getScanPeriod() < this->timer.getExpireDelay() ) {
         this->timer.start ( *this, this->getScanPeriod() );
@@ -165,7 +168,8 @@ caStatus exPV::interestRegister ()
 //
 void exPV::interestDelete()
 {
-    this->interest = false;
+//	std::cerr << "CAS: Interest unregistered in PV \"" << getName() << "\"" << std::endl;
+	this->interest = false;
 }
 
 //
@@ -178,8 +182,9 @@ void exPV::show ( unsigned level ) const
             printf ( "exPV: cond=%d\n", this->pValue->getStat () );
             printf ( "exPV: sevr=%d\n", this->pValue->getSevr () );
             printf ( "exPV: value=%f\n", static_cast < double > ( * this->pValue ) );
+			printf ( "exPV: scanOn=%d scanPeriod=%f\n", (this->scanOn?1:0), this->getScanPeriod() );
         }
-        printf ( "exPV: interest=%d\n", this->interest );
+        printf ( "exPV: interest=%d\n", (this->interest?1:0) );
         this->timer.show ( level - 1u );
     }
 }
@@ -331,10 +336,9 @@ caStatus exPV::write ( const casCtx &, const gdd & valueIn )
 // exPV::read()
 // (synchronous default)
 //
-caStatus exPV::read ( const casCtx &, gdd & protoIn )
+caStatus exPV::read ( const casCtx & ctx, gdd & protoIn )
 {
-//	static const double wait_time = 5.0;   ///< time to wait for a read to complete, return last cached value otherwise 
-	static const double cache_time = 1.0;   ///< time to consider a value valid for 
+	static const double cache_time = 0.5;   ///< time to consider a value valid for 
 	// we will always be scanning values, but at a slower rate if (interest == false)
 	// only forcing an update on (interest == false) means reads and monitors will always get the same value
     epicsTimeStamp now;
@@ -348,13 +352,21 @@ caStatus exPV::read ( const casCtx &, gdd & protoIn )
 	{
         return this->ft.read ( *this, protoIn );
 	}
-	// using timer queue not quite working, they don't seem to run until after the read() so end up
-	// waiting for wait_time. revert back to old way for now
-//	this->timerDone.tryWait();   // to clear event, or wait(0.0) ?
-//  this->timer.start ( *this, 0.0 ); // force an update of the value if not monitoring actively
-//	this->timerDone.wait(wait_time);
+	if (m_asyncIO)
+	{
+		myAsyncReadIO *pIO = new myAsyncReadIO(ctx, protoIn, *this);  // will delete itself on IO completion
+		return S_casApp_asyncCompletion;
+	}
+	else
+	{
+		return doRead(ctx, protoIn);
+	}
+}
+
+caStatus exPV::doRead ( const casCtx & ctx, gdd & protoIn )
+{
 	this->expire(epicsTime()); // does a scan
-    return this->ft.read ( *this, protoIn );
+    return this->ft.read(*this, protoIn);	
 }
 
 //

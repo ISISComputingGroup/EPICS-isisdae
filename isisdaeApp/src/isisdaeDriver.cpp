@@ -471,15 +471,65 @@ asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value,
     return stat;
 }
 
-//asynStatus isisdaeDriver::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
-//{
-//	return readValue(pasynUser, "readFloat64", value);   // need to check function < FIRST_ISISDAE_PARAM etc
-//}
+asynStatus isisdaeDriver::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
+{
+	int function = pasynUser->reason;
+	const char *functionName = "readFloat64";
+    const char *paramName = NULL;
+	registerStructuredExceptionHandler();
+	getParamName(function, &paramName);
+	try
+	{
+	    if (function < FIRST_ISISDAE_PARAM)
+	    {
+	        return ADDriver::readFloat64(pasynUser, value);
+	    }
+	    else
+	    {
+	        m_iface->resetMessages();
+	        return asynPortDriver::readFloat64(pasynUser, value);
+        }
+	}
+	catch(const std::exception& ex)
+	{
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s: function=%d, name=%s, error=%s", 
+                  driverName, functionName, function, paramName, ex.what());
+		reportErrors(ex.what());
+		callParamCallbacks(); // this flushes P_ErrMsgs
+		return asynError;
+	}
+}
 
-//asynStatus isisdaeDriver::readInt32(asynUser *pasynUser, epicsInt32 *value) // // need to check function < FIRST_ISISDAE_PARAM etc
-//{
-//	return readValue(pasynUser, "readInt32", value);
-//}
+asynStatus isisdaeDriver::readInt32(asynUser *pasynUser, epicsInt32 *value)
+{
+	int function = pasynUser->reason;
+	const char *functionName = "readInt32";
+    const char *paramName = NULL;
+	registerStructuredExceptionHandler();
+	getParamName(function, &paramName);
+	try
+	{
+	    if (function < FIRST_ISISDAE_PARAM)
+	    {
+	        return ADDriver::readInt32(pasynUser, value);
+	    }
+	    else
+	    {
+	        m_iface->resetMessages();
+	        return asynPortDriver::readInt32(pasynUser, value);
+        }
+	}
+	catch(const std::exception& ex)
+	{
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s: function=%d, name=%s, error=%s", 
+                  driverName, functionName, function, paramName, ex.what());
+		reportErrors(ex.what());
+		callParamCallbacks(); // this flushes P_ErrMsgs
+		return asynError;
+	}
+}
 
 asynStatus isisdaeDriver::readOctet(asynUser *pasynUser, char *value, size_t maxChars, size_t *nActual, int *eomReason)
 {
@@ -1902,9 +1952,10 @@ void isisdaeDriver::report(FILE *fp, int details)
     ADDriver::report(fp, details);
 }
 
+static exServer *pCAS = NULL;
+
 static void daeCASThread(void* arg)
 {
-    exServer    *pCAS;
     unsigned    debugLevel = 0u;
     double      executionTime = 0.0;
     double      asyncDelay = 0.1;
@@ -1962,6 +2013,11 @@ static void daeCASThread(void* arg)
 		
 extern "C" {
 
+void isisdaeShowPCAS(int level)
+{
+	pCAS->show(level);
+}
+
 /// EPICS iocsh callable function to call constructor of lvDCOMInterface().
 /// \param[in] portName @copydoc initArg0
 /// \param[in] configSection @copydoc initArg1
@@ -2014,6 +2070,8 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 
 // EPICS iocsh shell commands 
 
+// isisdaeConfigure
+
 static const iocshArg initArg0 = { "portName", iocshArgString};			///< The name of the asyn driver port we will create
 static const iocshArg initArg1 = { "options", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
 static const iocshArg initArg2 = { "host", iocshArgString};				///< host name where LabVIEW is running ("" for localhost) 
@@ -2033,9 +2091,23 @@ static void initCallFunc(const iocshArgBuf *args)
     isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval);
 }
 
+// isisdaeShowPCAS
+
+static const iocshArg initArg0PC = { "level", iocshArgInt };
+
+static const iocshArg * const initArgsPC[] = { &initArg0PC };
+
+static const iocshFuncDef initFuncDefPC = { "isisdaeShowPCAS", sizeof(initArgsPC) / sizeof(iocshArg*), initArgsPC };
+
+static void initCallFuncPC(const iocshArgBuf *args)
+{
+	isisdaeShowPCAS(args[0].ival);
+}
+
 static void isisdaeRegister(void)
 {
-    iocshRegister(&initFuncDef, initCallFunc);
+	iocshRegister(&initFuncDef, initCallFunc);
+	iocshRegister(&initFuncDefPC, initCallFuncPC);
 }
 
 epicsExportRegistrar(isisdaeRegister);

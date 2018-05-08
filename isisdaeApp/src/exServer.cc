@@ -74,7 +74,7 @@ exServer::exServer ( const char * const pvPrefix,
 			m_ntc = 8000;
 		}
 	}
-	std::cerr << "Spectrum array max size set to " << m_ntc << std::endl;
+	std::cerr << "CAS: Spectrum array max size set to " << m_ntc << std::endl;
 	
     exPV::initFT();
 	setDebugLevel(5);
@@ -281,7 +281,12 @@ void exServer::show (unsigned level) const
     //
     this->stringResTbl.show(level);
 
-    //
+	for (std::map<std::string, pvInfo*>::const_iterator it = m_pvList.begin(); it != m_pvList.end(); ++it)
+	{
+		std::cerr << "PV: \"" << it->second->getName() << "\"" << std::endl;
+		it->second->getPV()->show(level);
+	}
+	//
     // print information about ca server libarary
     // internals
     //
@@ -371,7 +376,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 {
 	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:C", prefix, period, spec);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "count", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "cnt", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new CountsPV(*this, *pPVI, true, scanOn, spec, period);
     pPVI->setPV(pPV);
@@ -400,7 +405,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 	}
 
     sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, spec);
-	pPVI = createFixedPV(buffer, std::string("count"), "", aitEnumString);
+	pPVI = createFixedPV(buffer, std::string("cnt"), "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:C.EGU", prefix, spec);
