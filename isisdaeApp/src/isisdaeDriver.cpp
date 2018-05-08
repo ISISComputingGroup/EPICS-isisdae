@@ -420,6 +420,7 @@ asynStatus isisdaeDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 	{
 		callParamCallbacks(); // this flushes P_ErrMsgs
 	}
+	return stat;
 }
 
 asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
@@ -439,6 +440,7 @@ asynStatus isisdaeDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	{
 		callParamCallbacks(); // this flushes P_ErrMsgs
 	}
+	return stat;
 }
 
 asynStatus isisdaeDriver::readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn)
@@ -1919,7 +1921,7 @@ static void daeCASThread(void* arg)
     unsigned    syncScan = true;
     unsigned    maxSimultAsyncIO = 1000u;
 	isisdaeInterface* iface = static_cast<isisdaeInterface*>(arg);
-    printf("starting cas server\n");
+    printf("CAS: starting cas server\n");
 	registerStructuredExceptionHandler();
 	pvPrefix = macEnvExpand("$(MYPVPREFIX)DAE:");
     try {
@@ -1928,7 +1930,7 @@ static void daeCASThread(void* arg)
             maxSimultAsyncIO, iface );
     }
     catch(...) {
-        errlogSevPrintf (errlogMajor, "Server initialization error\n" );
+        errlogSevPrintf (errlogMajor, "CAS: Server initialization error\n" );
         errlogFlush ();
         return;
     }
@@ -1937,18 +1939,18 @@ static void daeCASThread(void* arg)
     while (true) 
     {
 	    try {
-            fileDescriptorManager.process(1000.0);
+            fileDescriptorManager.process(0.1);
 		}
         catch(const std::exception& ex) {
-            std::cerr << "daeCASThread exception: " << ex.what() << std::endl;
-			epicsThreadSleep(30);
+            std::cerr << "CAS: daeCASThread exception: " << ex.what() << std::endl;
+			epicsThreadSleep(5.0);
 		}
         catch(...) {
-            std::cerr << "daeCASThread exception" << std::endl;
-			epicsThreadSleep(30);
+            std::cerr << "CAS: daeCASThread exception" << std::endl;
+			epicsThreadSleep(5.0);
 		}			
     }
-    errlogSevPrintf (errlogMajor, "daeCASThread exiting\n" );
+    errlogSevPrintf (errlogMajor, "CAS: daeCASThread exiting\n" );
     //pCAS->show(2u);
     delete pCAS;
     errlogFlush ();
