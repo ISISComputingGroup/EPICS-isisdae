@@ -2004,6 +2004,7 @@ static void daeCASThread(void* arg)
     errlogSevPrintf (errlogMajor, "CAS: daeCASThread exiting\n" );
     //pCAS->show(2u);
     delete pCAS;
+	pCAS = NULL;
     errlogFlush ();
 }
 
@@ -2022,7 +2023,14 @@ extern "C" {
 
 void isisdaeShowPCAS(int level)
 {
-	pCAS->show(level);
+	if (pCAS != NULL)
+	{
+	    pCAS->show(level);
+	}
+	else
+	{
+		std::cerr << "CAS: channel access server is not running" << std::endl;
+	}
 }
 
 /// EPICS iocsh callable function to call constructor of lvDCOMInterface().
