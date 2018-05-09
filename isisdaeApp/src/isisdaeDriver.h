@@ -87,6 +87,9 @@ private:
     int P_CountRate; // double
     int P_CountRateFrame; // double
     int P_EventModeFraction; // double
+	int P_EventModeBufferUsedFraction; // double
+	int P_EventModeFileMB; //double
+	int P_EventModeDataRate; //double
     int P_GoodFramesTotal; //long
     int P_RawFramesTotal; //long
     int P_GoodFramesPeriod; //long
@@ -211,6 +214,9 @@ private:
 #define P_CountRateString	"COUNTRATE"
 #define P_CountRateFrameString	"COUNTRATEFRAME"
 #define P_EventModeFractionString	"EVENTMODEFRACTION"
+#define P_EventModeBufferUsedFractionString "EVENTMODEBUFFERUSED"
+#define P_EventModeFileMBString "EVENTMODEFILEMB"
+#define P_EventModeDataRateString "EVENTMODEDATARATE"
 #define P_MonitorSpectrumString	"MONITORSPECTRUM"
 #define P_DAETimingSourceString	"DAETIMINGSOURCE"
 #define P_PeriodTypeString	"PERIODTYPE"

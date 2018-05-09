@@ -372,6 +372,39 @@ record(ai, "$(P)$(Q)EVENTMODEFRACTION")
 	field(EGU, "")
 }
 
+record(ai, "$(P)$(Q)EVENTMODEBUFUSED")
+{
+    field(DESC, "Event Mode Buffer used Fraction")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)EVENTMODEBUFFERUSED")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
+	field(EGU, "")
+}
+
+record(ai, "$(P)$(Q)EVENTMODEFILEMB")
+{
+    field(DESC, "Event Mode File Size")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)EVENTMODEFILEMB")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
+	field(EGU, "MB")
+}
+
+record(ai, "$(P)$(Q)EVENTMODEDATARATE")
+{
+    field(DESC, "Event Mode Data Rate")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)EVENTMODEDATARATE")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
+	field(EGU, "MB /s")
+}
+
 record(ai, "$(P)$(Q)GOODUAH")
 {
     field(DESC, "DAE Good Microamps")

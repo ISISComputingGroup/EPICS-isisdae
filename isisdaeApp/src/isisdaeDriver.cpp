@@ -870,6 +870,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
     createParam(P_CountRateFrameString, asynParamFloat64, &P_CountRateFrame);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
+    createParam(P_EventModeBufferUsedFractionString, asynParamFloat64, &P_EventModeBufferUsedFraction);
+	createParam(P_EventModeFileMBString, asynParamFloat64, &P_EventModeFileMB);
+	createParam(P_EventModeDataRateString, asynParamFloat64, &P_EventModeDataRate);
 
     createParam(P_StateTransString, asynParamInt32, &P_StateTrans);
 	
@@ -915,6 +918,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
+	setIntegerParam(P_diagEnable, 0);
 
     // area detector defaults
 //	int maxSizeX = 128, maxSizeY = 128;
@@ -1261,7 +1265,10 @@ void isisdaeDriver::pollerThread2()
 //        setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);  // now updated in separate loop
 //        setDoubleParam(P_CountRate, values["CountRate"]); // now updated in separate loop
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
-        setDoubleParam(P_VetoPC, m_vetopc);
+		setDoubleParam(P_EventModeBufferUsedFraction, values["EventModeBufferUsedFraction"]);
+		setDoubleParam(P_EventModeFileMB, values["EventModeFileMB"]);
+		setDoubleParam(P_EventModeDataRate, values["EventModeDataRate"]);
+		setDoubleParam(P_VetoPC, m_vetopc);
         
         setStringParam(P_VetoStatus, vetoStatus.c_str() );
         if (check_settings) 
