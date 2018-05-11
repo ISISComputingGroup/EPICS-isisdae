@@ -38,6 +38,7 @@
 // C++
 #include <list>
 #include <map>
+#include <iostream>
 
 //
 // EPICS
@@ -144,7 +145,7 @@ class exPV : public casPV, public epicsTimerNotify,
     public tsSLNode < exPV > {
 public:
     exPV ( exServer & cas, pvInfo & setup, 
-        bool preCreateFlag, bool scanOn );
+        bool preCreateFlag, bool scanOn, bool asyncIO );
     virtual ~exPV();
 
     void show ( unsigned level ) const;
@@ -189,9 +190,10 @@ public:
     // If no one is watching scan the PV with 10.0
     // times the specified period
     //
-    double getScanPeriod ();
+    double getScanPeriod () const;
 
     caStatus read ( const casCtx &, gdd & protoIn );
+    caStatus doRead ( const casCtx &, gdd & protoIn );
 
     caStatus readNoCtx ( smartGDDPointer pProtoIn );
 
@@ -219,6 +221,7 @@ protected:
     bool interest;
     bool preCreate;
     bool scanOn;
+	bool m_asyncIO;
     static epicsTime currentTime;
 
     virtual caStatus updateValue ( const gdd & ) = 0;
@@ -259,9 +262,9 @@ private:
 class exScalarPV : public exPV {
 public:
     exScalarPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn ) :
+        bool preCreateFlag, bool scanOnIn, bool asyncIO ) :
         exPV ( cas, setup, 
-            preCreateFlag, scanOnIn) {}
+            preCreateFlag, scanOnIn, asyncIO) {}
     void scan();
 	virtual bool getNewValue(smartGDDPointer& pDD) = 0;  // return true if value changed and monitors shoul;d be signalled
 private:
@@ -326,9 +329,9 @@ private:
 class exVectorPV : public exPV {
 public:
     exVectorPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn ) :
+        bool preCreateFlag, bool scanOnIn, bool asyncIO ) :
         exPV ( cas, setup, 
-            preCreateFlag, scanOnIn) {  m_size = this->info.getElementCount(); }
+            preCreateFlag, scanOnIn, asyncIO) {  m_size = this->info.getElementCount(); }
     void scan();
 	virtual bool getNewValue(smartGDDPointer& pDD) = 0;  // return true if value changed and monitors shoul;d be signalled
 
@@ -363,6 +366,37 @@ private:
 	int m_nord;
     SpectrumPV & operator = ( const SpectrumPV & );
     SpectrumPV ( const SpectrumPV & );
+};
+
+class myAsyncReadIO : public casAsyncReadIO
+{
+	exPV& m_pv;
+	gdd* m_value;
+	const casCtx & m_ctx;
+
+	public:
+
+    myAsyncReadIO(const casCtx & ctx, gdd & protoIn, exPV& pv) : casAsyncReadIO(ctx), m_pv(pv), m_ctx(ctx)
+	{
+		m_value = &protoIn;
+		m_value->reference();
+	    epicsThreadCreate("myAsyncReadIO", epicsThreadPriorityMedium, epicsThreadStackMedium, readThread, this); 
+	}
+		
+    static void readThread(void* arg)
+    {
+		myAsyncReadIO* aio = (myAsyncReadIO*)arg;
+		aio->readThread();
+	}
+	
+    void readThread()
+	{
+        caStatus status, status1;
+        status = m_pv.doRead(m_ctx, *m_value);
+		status1 = postIOCompletion(status, *m_value);
+        if (status1 != S_casApp_success)
+           std::cerr << "CAS: Error returned by postIOCompletion" << std::endl;
+	}
 };
 
 //
@@ -553,7 +587,7 @@ inline void exServer::removeAliasName ( pvEntry & entry )
     assert ( pE == &entry );
 }
 
-inline double exPV::getScanPeriod ()
+inline double exPV::getScanPeriod () const
 { 
     double scanPeriod = this->info.getScanPeriod ();
     if ( ! this->interest ) {

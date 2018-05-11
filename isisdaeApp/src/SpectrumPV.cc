@@ -9,7 +9,7 @@
 /// the #NORDPV class. It thus looks a bit like an EPICS Waveform record and, like waveform, export an NELM field too.   
 
 SpectrumPV::SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, char axis, int spec, int period )
-	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn), m_axis(axis), m_spec(spec), m_period(period), m_nord(0)
+	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn, true), m_axis(axis), m_spec(spec), m_period(period), m_nord(0)
 {
 
 }
@@ -44,13 +44,13 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 	    n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax);
 	}
 	catch(const std::exception& ex) {
-		std::cerr << "Exception in SpectrumPV::getNewValue(): " << ex.what() << std::endl;
+		std::cerr << "CAS: Exception in SpectrumPV::getNewValue(): " << ex.what() << std::endl;
         delete[] pX;
         delete[] pY;
 		return false;
 	}
 	catch(...) {
-		std::cerr << "Exception in SpectrumPV::getNewValue()" << std::endl;
+		std::cerr << "CAS: Exception in SpectrumPV::getNewValue()" << std::endl;
         delete[] pX;
         delete[] pY;
 		return false;
