@@ -32,6 +32,8 @@
 #include "variant_utils.h"
 #include "CRPTMapping.h"
 
+#include <utilities.h>
+
 #include <boost/tr1/functional.hpp>
 
 #include <macLib.h>
@@ -311,11 +313,23 @@ HRESULT isisdaeInterface::setIdentity(COAUTHIDENTITY* pidentity, IUnknown* pUnk)
 void isisdaeInterface::checkConnection()
 {
 	epicsThreadOnce(&onceId, initCOM, NULL);
-	HRESULT hr;
+	HRESULT hr = E_FAIL;
 	epicsGuard<epicsMutex> _lock(m_lock);
-	if ( (m_icp != NULL) && (m_icp->areYouThere() == S_OK) )
+	maybeWaitForISISICP();
+	try
 	{
-		;
+		if (m_icp != NULL)
+		{
+			hr = m_icp->areYouThere();
+		}
+	}
+	catch(...)
+	{
+		epicsThreadSleep(5.0); // to give previous process time to die
+	}
+	if (hr == S_OK)
+	{
+		return;
 	}
 	else if (m_host.size() > 0)
 	{
@@ -323,6 +337,12 @@ void isisdaeInterface::checkConnection()
 		m_data_map = NULL;
 		m_data = NULL;
 		m_spec_integrals = NULL;
+		m_pidentity = NULL;
+		if (m_icp != NULL)
+		{
+			m_icp.Release();
+		}
+		maybeWaitForISISICP();
 		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
 		m_pidentity = createIdentity(m_username, m_host, m_password);
@@ -355,7 +375,6 @@ void isisdaeInterface::checkConnection()
  			throw COMexception("CoCreateInstanceEx (ISISICP)(mq) ", mq[ 0 ].hr);
 		} 
 		setIdentity(m_pidentity, mq[ 0 ].pItf);
-		m_icp.Release();
 		m_icp.Attach( reinterpret_cast< isisicpLib::Idae* >( mq[ 0 ].pItf ) );
 		m_icp->areYouThere();
 		try
@@ -377,9 +396,13 @@ void isisdaeInterface::checkConnection()
 		m_data_map = NULL;
 		m_data = NULL;
 		m_spec_integrals = NULL;
-		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		m_pidentity = NULL;
-		m_icp.Release();
+		if (m_icp != NULL)
+		{
+			m_icp.Release();
+		}
+		maybeWaitForISISICP();
+		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_LOCAL_SERVER);
 		if( FAILED( hr ) ) 
 		{
@@ -399,6 +422,33 @@ void isisdaeInterface::checkConnection()
 			std::cerr << "Error mapping CRPT" << std::endl;
 		}
 	}
+}
+
+double isisdaeInterface::maybeWaitForISISICP()
+{
+		if (checkOption(daeSECI))
+		{
+			return waitForISISICP();
+		}
+		else
+		{
+			return 0.0;
+		}
+}
+
+double isisdaeInterface::waitForISISICP()
+{
+	static double min_uptime = 20.0;
+	double icpuptime = getProcessUptime("isisicp.exe");
+	if (icpuptime < min_uptime)
+	{
+	    std::cerr << "ISISICP not currently running - waiting for ISISICP uptime of " << min_uptime << " seconds..." << std::endl;
+        while ( (icpuptime = getProcessUptime("isisicp.exe")) < min_uptime )
+	    {
+		    epicsThreadSleep(5.0);
+	    }
+	}
+	return icpuptime;
 }
 
 double isisdaeInterface::getGoodUAH()

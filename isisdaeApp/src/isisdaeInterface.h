@@ -47,7 +47,8 @@ class CRPTMapping;
 /// In the iocBoot st.cmd file you will need to add the relevant integer enum values together and pass this single integer value.
 enum isisdaeOptions
 {
-    daeDCOM = 1 				///< If the LabVIEW VI is idle when we connect to it, issue a warning message  
+    daeDCOM = 1, 				///< If the LabVIEW VI is idle when we connect to it, issue a warning message 
+    daeSECI = 2	                ///< we are running on a seci instrumenbt, so wait for isisicp rather than start it
 };	
 
 class DAEValue
@@ -129,6 +130,8 @@ public:
 	static void stripTimeStamp(const std::string& in, std::string& out);
 	const uint32_t* getEventSpecIntegrals() const { return m_spec_integrals; }
 	int getEventSpecIntegralsSize() const;
+	void checkConnection();
+	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
@@ -138,7 +141,7 @@ private:
 	CLSID m_clsid;
 	std::string m_username;
 	std::string m_password;
-	int m_options; ///< the various #lvDCOMOptions currently in use
+	int m_options; ///< the various #isisdaeOptions currently in use
 	epicsMutex m_lock;
 	bool m_dcom;
 	CComPtr<ICPDCOM> m_icp;
@@ -151,14 +154,14 @@ private:
 	COAUTHIDENTITY* createIdentity(const std::string& user, const std::string& domain, const std::string& pass);
 	HRESULT setIdentity(COAUTHIDENTITY* pidentity, IUnknown* pUnk);
 	static void epicsExitFunc(void* arg);
-	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
-	void checkConnection();
     int extractValues(std::map<std::string, DAEValue>& values, CComPtr<IXMLDOMDocument> spXMLDOM);
     int extractValues(const char* name, DAEValue::DAEType type, std::map<std::string, DAEValue>& values, CComPtr<IXMLDOMDocument> spXMLDOM);
     int loadFromFile(const std::string& filename, std::string& xml);
     CComPtr<IXMLDOMDocument> createXmlDom(const std::string& xml);
     void getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* name, BSTR* value, DAEValue::DAEType);
 	std::string getValue(const std::string& name);
+	double waitForISISICP();
+	double maybeWaitForISISICP();
 	// call ISISICPINT functions
 	template <typename T> T callI( boost::function<T(std::string&)> func );
 	template <typename T> T callItr1( std::tr1::function<T(std::string&)> func );

@@ -1034,7 +1034,7 @@ void isisdaeDriver::pollerThread1()
 {
     static const char* functionName = "isisdaePoller1";
     unsigned long counter = 0;
-    double delay = 0.2;
+    double delay = (m_iface->checkOption(daeSECI) ? 3.0 : 0.2);
 
 	registerStructuredExceptionHandler();
     lock();
@@ -1045,7 +1045,8 @@ void isisdaeDriver::pollerThread1()
         lock();
         try
         {
-            updateRunStatus();
+			m_iface->checkConnection();
+			updateRunStatus();
         }
         catch(const std::exception& ex)
         {
@@ -1155,7 +1156,8 @@ void isisdaeDriver::pollerThread2()
     static const char* functionName = "isisdaePoller2";
 	std::map<std::string, DAEValue> values;
     unsigned long counter = 0;
-    double delay = 2.0;  
+	double delay = (m_iface->checkOption(daeSECI) ? 5.0 : 2.0);
+
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
     bool check_settings;
 	static const std::string sim_mode_title("(DAE SIMULATION MODE)"); // prefix added by ICP if simulation mode enabled in icp_config.xml
@@ -1179,7 +1181,8 @@ void isisdaeDriver::pollerThread2()
         check_settings = ( (counter == 0) || (m_RunStatus == RS_SETUP && counter % 2 == 0) || (counter % 10 == 0) );
         try
         {
-            m_iface->getRunDataFromDAE(values);
+			m_iface->checkConnection();
+			m_iface->getRunDataFromDAE(values);
             m_iface->getVetoStatus(vetoStatus);
             if (check_settings)
             {
@@ -1326,7 +1329,7 @@ void isisdaeDriver::pollerThread2()
 void isisdaeDriver::pollerThread3()
 {
     static const char* functionName = "isisdaePoller3";
-    double delay = 2.0;
+	double delay = (m_iface->checkOption(daeSECI) ? 5.0 : 2.0);
 	std::vector<long> sums[2], max_vals, spec_nums;
 	std::vector<double> rate;
 	int frames[2] = {0, 0}, period = 1, first_spec = 1, num_spec = 10, spec_type = 0, nmatch;
