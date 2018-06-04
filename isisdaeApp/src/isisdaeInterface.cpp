@@ -325,23 +325,35 @@ void isisdaeInterface::checkConnection()
 	}
 	catch(...)
 	{
-		epicsThreadSleep(5.0); // to give previous process time to die
+		if (checkOption(daeSECI))
+		{
+			std::cerr << "Terminating as in SECI mode and ICP not present" << std::endl;
+			epicsExit(0);
+		}
 	}
 	if (hr == S_OK)
 	{
 		return;
 	}
-	else if (m_host.size() > 0)
+	if (m_icp != NULL)
+	{
+		try
+		{
+		    m_icp.Release();
+		}
+ 	    catch(...)
+	    {
+		    ;
+		}
+		epicsThreadSleep(10.0); // to give previous process time to die
+	}
+	if (m_host.size() > 0)
 	{
 		delete m_data_map;
 		m_data_map = NULL;
 		m_data = NULL;
 		m_spec_integrals = NULL;
 		m_pidentity = NULL;
-		if (m_icp != NULL)
-		{
-			m_icp.Release();
-		}
 		maybeWaitForISISICP();
 		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
@@ -397,10 +409,6 @@ void isisdaeInterface::checkConnection()
 		m_data = NULL;
 		m_spec_integrals = NULL;
 		m_pidentity = NULL;
-		if (m_icp != NULL)
-		{
-			m_icp.Release();
-		}
 		maybeWaitForISISICP();
 		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_LOCAL_SERVER);
