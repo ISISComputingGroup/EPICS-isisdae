@@ -315,7 +315,6 @@ void isisdaeInterface::checkConnection()
 	epicsThreadOnce(&onceId, initCOM, NULL);
 	HRESULT hr = E_FAIL;
 	epicsGuard<epicsMutex> _lock(m_lock);
-	maybeWaitForISISICP();
 	try
 	{
 		if (m_icp != NULL)
@@ -345,7 +344,7 @@ void isisdaeInterface::checkConnection()
 	    {
 		    ;
 		}
-		epicsThreadSleep(10.0); // to give previous process time to die
+		epicsThreadSleep(5.0);
 	}
 	if (m_host.size() > 0)
 	{
@@ -355,6 +354,7 @@ void isisdaeInterface::checkConnection()
 		m_spec_integrals = NULL;
 		m_pidentity = NULL;
 		maybeWaitForISISICP();
+		std::cerr << "(Re)Making connection to ISISICP on " + m_host << std::endl;
 		m_allMsgs.append("(Re)Making connection to ISISICP on " + m_host + "\n");
 		CComBSTR host(m_host.c_str());
 		m_pidentity = createIdentity(m_username, m_host, m_password);
@@ -410,6 +410,7 @@ void isisdaeInterface::checkConnection()
 		m_spec_integrals = NULL;
 		m_pidentity = NULL;
 		maybeWaitForISISICP();
+		std::cerr << "(Re)Making local connection to ISISICP" << std::endl;
 		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_LOCAL_SERVER);
 		if( FAILED( hr ) ) 
