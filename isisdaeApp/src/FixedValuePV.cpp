@@ -6,10 +6,10 @@
 #include "gddApps.h"
 #include "isisdaeInterface.h"
 
-/// class for a PV that has a fixed, unchaning value
+/// class for a PV that has a fixed, unchanging value
 
 template <typename T>
-FixedValuePV<T>::FixedValuePV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const T& value ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, false), m_value(value), m_first_call(true)
+FixedValuePV<T>::FixedValuePV ( exServer & cas, pvInfo &setup, bool preCreateFlag, const T& value ) : exScalarPV(cas, setup, preCreateFlag, false, false), m_value(value), m_first_call(true)
 {
 
 }

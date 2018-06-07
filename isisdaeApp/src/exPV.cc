@@ -365,7 +365,7 @@ caStatus exPV::read ( const casCtx & ctx, gdd & protoIn )
 
 caStatus exPV::doRead ( const casCtx & ctx, gdd & protoIn )
 {
-	this->expire(epicsTime()); // does a scan
+	this->expire(epicsTime()); // does a scan directly
     return this->ft.read(*this, protoIn);	
 }
 

@@ -277,7 +277,7 @@ private:
 class NORDPV : public exScalarPV {
 public:
     NORDPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int& nord );
+        bool preCreateFlag, int& nord );
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
     int& m_nord;
@@ -301,7 +301,7 @@ template <typename T>
 class FixedValuePV : public exScalarPV {
 public:
     FixedValuePV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, const T& value);
+        bool preCreateFlag, const T& value);
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
     T m_value;
@@ -313,10 +313,10 @@ private:
 class MonLookupPV : public exScalarPV {
 public:
     MonLookupPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int monitor );
+        bool preCreateFlag, int monitor );
 	virtual bool getNewValue(smartGDDPointer& pDD);
 	static MonLookupPV* create(exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int monitor) { return new MonLookupPV(cas, setup, preCreateFlag, scanOnIn, monitor); }
+        bool preCreateFlag, int monitor) { return new MonLookupPV(cas, setup, preCreateFlag, monitor); }
 private:
     int m_monitor;
     MonLookupPV & operator = ( const MonLookupPV & );
