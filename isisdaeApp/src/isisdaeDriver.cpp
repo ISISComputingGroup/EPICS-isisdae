@@ -1157,6 +1157,7 @@ void isisdaeDriver::pollerThread2()
 	std::map<std::string, DAEValue> values;
     unsigned long counter = 0;
 	double delay = (m_iface->checkOption(daeSECI) ? 5.0 : 2.0);
+	double beam_current;
 
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
     bool check_settings;
@@ -1261,7 +1262,16 @@ void isisdaeDriver::pollerThread2()
         setIntegerParam(P_PeriodSequence, values["PeriodSequence"]);
         setIntegerParam(P_MonitorSpectrum, values["MonitorSpectrum"]);
         
-        setDoubleParam(P_BeamCurrent, values["BeamCurrent"]);
+        beam_current = values["BeamCurrent"];
+		if (beam_current > 0.0)
+		{
+            setDoubleParam(P_BeamCurrent, beam_current);
+		}
+		else
+		{
+            setDoubleParam(P_BeamCurrent, 0.0);
+		}
+
         setDoubleParam(P_TotalUAmps, values["TotalUAmps"]);
         setDoubleParam(P_MonitorFrom, values["MonitorFrom"]);
         setDoubleParam(P_MonitorTo, values["MonitorTo"]);
