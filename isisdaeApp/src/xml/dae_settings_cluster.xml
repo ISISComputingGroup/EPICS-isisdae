@@ -1,107 +1,123 @@
 <Cluster>
-	<Name>Cluster</Name>
-	<NumElts>19</NumElts>
-	<I32>
-		<Name>Monitor Spectrum</Name>
-		<Val>0</Val>
-	</I32>
-	<DBL>
-		<Name>from</Name>
-		<Val>0</Val>
-	</DBL>
-	<DBL>
-		<Name>to</Name>
-		<Val>0</Val>
-	</DBL>
-	<String>
-		<Name>Wiring Table</Name>
-		<Val>C:\LabVIEW Modules\dae\wiring_4.dat</Val>
-	</String>
-	<String>
-		<Name>Detector Table</Name>
-		<Val>C:\LabVIEW Modules\dae\detector_4.dat</Val>
-	</String>
-	<String>
-		<Name>Spectra Table</Name>
-		<Val>C:\LabVIEW Modules\dae\spectra_4.dat</Val>
-	</String>
-	<EW>
-		<Name>DAETimingSource</Name>
-		<Choice>ISIS</Choice>
-		<Choice>Internal Test Clock</Choice>
-		<Choice>SMP</Choice>
-		<Choice>Muon Cerenkov</Choice>
-		<Choice>Muon MS</Choice>
-		<Choice>ISIS (first TS1)</Choice>
-		<Choice>TS1 Only</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>SMP (Chopper) Veto</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>Veto 0</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>Muon MS Mode</Name>
-		<Choice>DISABLED</Choice>
-		<Choice>ENABLED</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name> Fermi Chopper Veto</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<DBL>
-		<Name>FC Delay</Name>
-		<Val>0</Val>
-	</DBL>
-	<DBL>
-		<Name>FC Width</Name>
-		<Val>0</Val>
-	</DBL>
-	<EW>
-		<Name>Veto 1</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>Veto 2</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>Veto 3</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name>Muon Cerenkov Pulse</Name>
-		<Choice>FIRST</Choice>
-		<Choice>SECOND</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name> TS2 Pulse Veto</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
-	<EW>
-		<Name> ISIS 50Hz Veto</Name>
-		<Choice>NO</Choice>
-		<Choice>YES</Choice>
-		<Val>0</Val>
-	</EW>
+<Name>Data Acquisition</Name>
+<NumElts>23</NumElts>
+<I32>
+<Name>Monitor Spectrum</Name>
+<Val>0</Val>
+</I32>
+<DBL>
+<Name>from</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<DBL>
+<Name>to</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<String>
+<Name>Wiring Table</Name>
+<Val>C:\development\InstrumentControl\ICP-clean\tables\offspec\wsf_wiring_event.dat</Val>
+</String>
+<String>
+<Name>Detector Table</Name>
+<Val>C:\development\InstrumentControl\ICP-clean\tables\offspec\wsf_detector.dat</Val>
+</String>
+<String>
+<Name>Spectra Table</Name>
+<Val>C:\development\InstrumentControl\ICP-clean\tables\offspec\wsf_spectra_772.dat</Val>
+</String>
+<EW>
+<Name>DAETimingSource</Name>
+<Choice>ISIS</Choice>
+<Choice>Internal Test Clock</Choice>
+<Choice>SMP</Choice>
+<Choice>Muon Cerenkov</Choice>
+<Choice>Muon MS</Choice>
+<Choice>ISIS (first TS1)</Choice>
+<Choice>TS1 Only</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>SMP (Chopper) Veto</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>Veto 0</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>Muon MS Mode</Name>
+<Choice>DISABLED</Choice>
+<Choice>ENABLED</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name> Fermi Chopper Veto</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<DBL>
+<Name>FC Delay</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<DBL>
+<Name>FC Width</Name>
+<Val>0.00000000000000</Val>
+</DBL>
+<EW>
+<Name>Veto 1</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>Veto 2</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>Veto 3</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name>Muon Cerenkov Pulse</Name>
+<Choice>FIRST</Choice>
+<Choice>SECOND</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name> TS2 Pulse Veto</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<EW>
+<Name> ISIS 50Hz Veto</Name>
+<Choice>NO</Choice>
+<Choice>YES</Choice>
+<Val>0</Val>
+</EW>
+<String>
+<Name>Veto 0 Name</Name>
+<Val>test</Val>
+</String>
+<String>
+<Name>Veto 1 Name</Name>
+<Val></Val>
+</String>
+<String>
+<Name>Veto 2 Name</Name>
+<Val></Val>
+</String>
+<String>
+<Name>Veto 3 Name</Name>
+<Val></Val>
+</String>
 </Cluster>
