@@ -1249,6 +1249,7 @@ void isisdaeDriver::pollerThread2()
 			{
 				setIntegerParam(P_vetoFramesExt0, veto_frames[i]);
 				setDoubleParam(P_vetoPCExt0, static_cast<double>(veto_frames[i] - last_ext_veto[0]) / frames_diff);
+				setStringParam(P_vetoNameExt0, veto_aliases[i]);
 				last_ext_veto[0] = veto_frames[i];
 			}
 			if (veto_names[i] == "EXT1")
@@ -1256,17 +1257,20 @@ void isisdaeDriver::pollerThread2()
 				setIntegerParam(P_vetoFramesExt1, veto_frames[i]);
 				setDoubleParam(P_vetoPCExt1, static_cast<double>(veto_frames[i] - last_ext_veto[1]) / frames_diff);
 				last_ext_veto[1] = veto_frames[i];
+				setStringParam(P_vetoNameExt1, veto_aliases[i]);
 			}
 			if (veto_names[i] == "EXT2")
 			{
 				setIntegerParam(P_vetoFramesExt2, veto_frames[i]);
 				setDoubleParam(P_vetoPCExt2, static_cast<double>(veto_frames[i] - last_ext_veto[2]) / frames_diff);
+				setStringParam(P_vetoNameExt2, veto_aliases[i]);
 				last_ext_veto[2] = veto_frames[i];
 			}
 			if (veto_names[i] == "EXT3")
 			{
 				setIntegerParam(P_vetoFramesExt3, veto_frames[i]);
 				setDoubleParam(P_vetoPCExt3, static_cast<double>(veto_frames[i] - last_ext_veto[3]) / frames_diff);
+				setStringParam(P_vetoNameExt3, veto_aliases[i]);
 				last_ext_veto[3] = veto_frames[i];
 			}
 		}

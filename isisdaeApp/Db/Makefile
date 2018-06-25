@@ -15,6 +15,7 @@ DB += dae_diag.db
 DB += dae3_parallel.db
 DB += dae3_pull.db
 DB += ADisisdae.template
+DB += veto.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

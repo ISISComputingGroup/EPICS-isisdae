@@ -1,0 +1,7 @@
+file "veto.template" {
+    pattern { NAME }
+    { "EXT0" }
+    { "EXT1" }
+    { "EXT2" }
+    { "EXT3" }
+}
