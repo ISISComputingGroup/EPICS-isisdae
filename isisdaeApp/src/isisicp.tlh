@@ -707,7 +707,7 @@ extern "C" const GUID __declspec(selectany) IID_Idae =
 // Wrapper method implementations
 //
 
-#include "c:\instrument\apps\epics\support\isisdae\master\isisdaeapp\src\o.windows-x64-debug\isisicp.tli"
+#include "isisicp.tli"
 
 } // namespace isisicpLib
 
