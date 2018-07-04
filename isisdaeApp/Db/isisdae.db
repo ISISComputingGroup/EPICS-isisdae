@@ -669,6 +669,26 @@ record(bi, "$(P)$(Q)STATETRANS")
     field(SCAN, "I/O Intr")
 }
 
+# number of seconds in transition state
+record(ai, "$(P)$(Q)STATETRANS:TIME")
+{
+    field(VAL, "0")
+    field(DESC, "Time in state transition")
+	field(EGU, "s")
+	field(PREC, "1")
+}
+
+# calculate number of seconds in transition state
+record(calcout, "$(P)$(Q)STATETRANS:TIME:_CALC")
+{
+    field(INPA, "$(P)$(Q)STATETRANS NPP")
+    field(INPB, "$(P)$(Q)STATETRANS:TIME NPP")
+	field(CALC, "A != 0 ? B + 1 : 0")
+	field(OOPT, "On Change")
+    field(OUT, "$(P)$(Q)STATETRANS:TIME PP")
+    field(SCAN, "1 second")
+}
+
 record(longin, "$(P)$(Q)PERIOD")
 {
     field(DESC, "DAE Period Number")

@@ -126,6 +126,19 @@ private:
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
 	
+	int P_vetoFramesExt0;   // int
+	int P_vetoFramesExt1;   // int
+	int P_vetoFramesExt2;   // int
+	int P_vetoFramesExt3;   // int
+	int P_vetoNameExt0;   // string
+	int P_vetoNameExt1;   // string
+	int P_vetoNameExt2;   // string
+	int P_vetoNameExt3;   // string
+	int P_vetoPCExt0;   // double
+	int P_vetoPCExt1;   // double
+	int P_vetoPCExt2;   // double
+	int P_vetoPCExt3;   // double
+
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
@@ -259,6 +272,19 @@ private:
 
 #define P_vetoEnableString					"VETO_ENABLE"
 #define P_vetoDisableString					"VETO_DISABLE"
+
+#define P_vetoFramesExt0String					"VETO_FRAMES_EXT0"
+#define P_vetoFramesExt1String					"VETO_FRAMES_EXT1"
+#define P_vetoFramesExt2String					"VETO_FRAMES_EXT2"
+#define P_vetoFramesExt3String					"VETO_FRAMES_EXT3"
+#define P_vetoNameExt0String					"VETO_NAME_EXT0"
+#define P_vetoNameExt1String					"VETO_NAME_EXT1"
+#define P_vetoNameExt2String					"VETO_NAME_EXT2"
+#define P_vetoNameExt3String					"VETO_NAME_EXT3"
+#define P_vetoPCExt0String					"VETO_PC_EXT0"
+#define P_vetoPCExt1String					"VETO_PC_EXT1"
+#define P_vetoPCExt2String					"VETO_PC_EXT2"
+#define P_vetoPCExt3String					"VETO_PC_EXT3"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

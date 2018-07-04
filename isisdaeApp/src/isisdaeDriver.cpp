@@ -908,6 +908,18 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	
 	createParam(P_vetoEnableString, asynParamOctet, &P_vetoEnable);
 	createParam(P_vetoDisableString, asynParamOctet, &P_vetoDisable);
+	createParam(P_vetoFramesExt0String, asynParamInt32, &P_vetoFramesExt0); 
+	createParam(P_vetoFramesExt1String, asynParamInt32, &P_vetoFramesExt1); 
+	createParam(P_vetoFramesExt2String, asynParamInt32, &P_vetoFramesExt2); 
+	createParam(P_vetoFramesExt3String, asynParamInt32, &P_vetoFramesExt3); 
+	createParam(P_vetoNameExt0String, asynParamOctet, &P_vetoNameExt0); 
+	createParam(P_vetoNameExt1String, asynParamOctet, &P_vetoNameExt1); 
+	createParam(P_vetoNameExt2String, asynParamOctet, &P_vetoNameExt2); 
+	createParam(P_vetoNameExt3String, asynParamOctet, &P_vetoNameExt3); 
+	createParam(P_vetoPCExt0String, asynParamFloat64, &P_vetoPCExt0); 
+	createParam(P_vetoPCExt1String, asynParamFloat64, &P_vetoPCExt1); 
+	createParam(P_vetoPCExt2String, asynParamFloat64, &P_vetoPCExt2); 
+	createParam(P_vetoPCExt3String, asynParamFloat64, &P_vetoPCExt3); 
 
     // list commands that are not allowed when you are in the given run state
 	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
@@ -1148,6 +1160,14 @@ void isisdaeDriver::zeroRunCounters()
         setDoubleParam(P_TotalDaeCounts, 0.0);
         setDoubleParam(P_CountRate, 0.0);
         setDoubleParam(P_CountRateFrame, 0.0);
+        setIntegerParam(P_vetoFramesExt0, 0);
+        setIntegerParam(P_vetoFramesExt1, 0);
+        setIntegerParam(P_vetoFramesExt2, 0);
+        setIntegerParam(P_vetoFramesExt3, 0);
+        setDoubleParam(P_vetoPCExt0, 0.0);
+        setDoubleParam(P_vetoPCExt1, 0.0);
+        setDoubleParam(P_vetoPCExt2, 0.0);
+        setDoubleParam(P_vetoPCExt3, 0.0);
 	    callParamCallbacks();
 }
 
@@ -1160,6 +1180,8 @@ void isisdaeDriver::pollerThread2()
 	double beam_current;
 
     long this_rf = 0, this_gf = 0, last_rf = 0, last_gf = 0;
+	double frames_diff;
+	long last_ext_veto[4] = { 0, 0, 0, 0 };
     bool check_settings;
 	static const std::string sim_mode_title("(DAE SIMULATION MODE)"); // prefix added by ICP if simulation mode enabled in icp_config.xml
     std::string daeSettings;
@@ -1167,6 +1189,8 @@ void isisdaeDriver::pollerThread2()
     std::string hardwarePeriodsSettings;
     std::string updateSettings;
     std::string vetoStatus;
+	std::vector<std::string> veto_names, veto_aliases;
+	std::vector<long> veto_enabled, veto_frames;
 
 	registerStructuredExceptionHandler();
     lock();
@@ -1192,7 +1216,8 @@ void isisdaeDriver::pollerThread2()
                 m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
                 m_iface->getUpdateSettingsXML(updateSettings);
             }
-            this_gf = m_iface->getGoodFrames();        
+            this_gf = m_iface->getGoodFrames();
+		    m_iface->getVetoInfo(veto_names, veto_aliases, veto_enabled, veto_frames);
 		    this_rf = m_iface->getRawFrames();
         }
         catch(const std::exception& ex)
@@ -1207,14 +1232,48 @@ void isisdaeDriver::pollerThread2()
         }
         if (this_rf > last_rf)
         {
-            m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf) / static_cast<double>(this_rf - last_rf));
+			frames_diff = static_cast<double>(this_rf - last_rf); 
+            m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf)) / frames_diff;
         }
         else
         {
             m_vetopc = 0.0;
-        }
+			frames_diff = -1e10;  // make -ve so (now - last / frames) is small positive
+         }
         last_rf = this_rf;
         last_gf = this_gf;
+		
+		for(int i=0; i<veto_names.size(); ++i)
+		{
+			if (veto_names[i] == "EXT0")
+			{
+				setIntegerParam(P_vetoFramesExt0, veto_frames[i]);
+				setDoubleParam(P_vetoPCExt0, static_cast<double>(veto_frames[i] - last_ext_veto[0]) / frames_diff);
+				setStringParam(P_vetoNameExt0, veto_aliases[i]);
+				last_ext_veto[0] = veto_frames[i];
+			}
+			if (veto_names[i] == "EXT1")
+			{
+				setIntegerParam(P_vetoFramesExt1, veto_frames[i]);
+				setDoubleParam(P_vetoPCExt1, static_cast<double>(veto_frames[i] - last_ext_veto[1]) / frames_diff);
+				last_ext_veto[1] = veto_frames[i];
+				setStringParam(P_vetoNameExt1, veto_aliases[i]);
+			}
+			if (veto_names[i] == "EXT2")
+			{
+				setIntegerParam(P_vetoFramesExt2, veto_frames[i]);
+				setDoubleParam(P_vetoPCExt2, static_cast<double>(veto_frames[i] - last_ext_veto[2]) / frames_diff);
+				setStringParam(P_vetoNameExt2, veto_aliases[i]);
+				last_ext_veto[2] = veto_frames[i];
+			}
+			if (veto_names[i] == "EXT3")
+			{
+				setIntegerParam(P_vetoFramesExt3, veto_frames[i]);
+				setDoubleParam(P_vetoPCExt3, static_cast<double>(veto_frames[i] - last_ext_veto[3]) / frames_diff);
+				setStringParam(P_vetoNameExt3, veto_aliases[i]);
+				last_ext_veto[3] = veto_frames[i];
+			}
+		}
 		
 		// strip simulation mode prefix from title and instead set simulation PV
 		std::string title(values["RunTitle"]);

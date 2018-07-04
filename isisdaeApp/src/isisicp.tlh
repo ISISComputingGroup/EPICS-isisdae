@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2d5a9df1).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24213.1 (44c622c4).
 //
-// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tlh
+// c:\instrument\apps\epics\support\isisdae\master\isisdaeapp\src\o.windows-x64-debug\isisicp.tlh
 //
 // C++ source equivalent of Win32 type library isisicp.tlb
-// compiler-generated file created 02/15/14 at 01:05:47 - DO NOT EDIT!
+// compiler-generated file created 06/22/18 at 18:01:20 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -348,6 +348,18 @@ Idae : IDispatch
         _bstr_t status_xml_in,
         BSTR * status_xml_out,
         BSTR * messages );
+    HRESULT getEventSpectraIntegral (
+        long spec_start,
+        long nspectra,
+        long period,
+        VARIANT * counts,
+        BSTR * messages );
+    HRESULT getVetoInfo (
+        VARIANT * names,
+        VARIANT * alias,
+        VARIANT * enabled,
+        VARIANT * frames,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -664,6 +676,18 @@ Idae : IDispatch
         /*[in]*/ BSTR status_xml_in,
         /*[out]*/ BSTR * status_xml_out,
         /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getEventSpectraIntegral (
+        /*[in]*/ long spec_start,
+        /*[in]*/ long nspectra,
+        /*[in]*/ long period,
+        /*[out]*/ VARIANT * counts,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getVetoInfo (
+        /*[out]*/ VARIANT * names,
+        /*[out]*/ VARIANT * alias,
+        /*[out]*/ VARIANT * enabled,
+        /*[out]*/ VARIANT * frames,
+        /*[out]*/ BSTR * messages ) = 0;
 };
 
 //
@@ -683,7 +707,7 @@ extern "C" const GUID __declspec(selectany) IID_Idae =
 // Wrapper method implementations
 //
 
-#include "isisicp.tli"
+#include "c:\instrument\apps\epics\support\isisdae\master\isisdaeapp\src\o.windows-x64-debug\isisicp.tli"
 
 } // namespace isisicpLib
 

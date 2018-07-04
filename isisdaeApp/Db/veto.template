@@ -1,0 +1,43 @@
+record(longin, "$(P)$(Q)VETO:$(NAME):FRAMES")
+{
+    field(DESC, "$(NAME) Frames")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)VETO_FRAMES_$(NAME)")
+    field(SCAN, "I/O Intr")
+	field(EGU, "frame")
+}
+
+record(ai, "$(P)$(Q)VETO:$(NAME):PC")
+{
+    field(DESC, "$(NAME) Vetoing %")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)VETO_PC_$(NAME)")
+    field(SCAN, "I/O Intr")
+	field(EGU, "%")
+#	field(ADEL, 5.0)
+#	info(archive, "-5.0 VAL")
+}
+
+record(stringin, "$(P)$(Q)VETO:$(NAME):ALIAS")
+{
+    field(DESC, "$(NAME) Alias")
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn(icp,0,0)VETO_NAME_$(NAME)")
+    field(SCAN, "I/O Intr")
+}
+
+## doesn't work (yet) - need to update via DAE GUI panel
+#record(stringout, "$(P)$(Q)VETO:$(NAME):ALIAS:SP")
+#{
+#    field(DESC, "Set $(NAME) Alias")
+#    field(DTYP, "asynOctetWrite")
+#    field(OUT,  "@asyn(icp,0,0)VETO_NAME_$(NAME)")
+#}
+
+#record(bi, "$(P)$(Q)VETO:$(NAME):ENABLED")
+#{
+#    field(DESC, "$(NAME) Enabled")
+#    field(DTYP, "asynInt32")
+#    field(INP,  "@asyn(icp,0,0)VETO_ENABLED_$(NAME)")
+#    field(SCAN, "I/O Intr")
+#}

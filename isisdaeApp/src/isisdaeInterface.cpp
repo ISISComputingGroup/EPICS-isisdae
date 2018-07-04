@@ -1065,3 +1065,20 @@ int isisdaeInterface::getEventSpecIntegralsSize() const
 {
 	return ISISCRPT_MAX_SPEC_INTEGRALS;
 }
+
+void isisdaeInterface::getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames)
+{
+	variant_t names_v, alias_v, enabled_v, frames_v;
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::getVetoInfo, _1, &names_v, &alias_v, &enabled_v, &frames_v, _2));
+		makeArrayFromVariant(names, &names_v);
+		makeArrayFromVariant(alias, &alias_v);
+		makeArrayFromVariant(enabled, &enabled_v);
+		makeArrayFromVariant(frames, &frames_v);
+	}
+	else
+	{
+//		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));
+	}
+}

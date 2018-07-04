@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2d5a9df1).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24213.1 (44c622c4).
 //
-// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tli
+// c:\instrument\apps\epics\support\isisdae\master\isisdaeapp\src\o.windows-x64-debug\isisicp.tli
 //
 // Wrapper implementations for Win32 type library isisicp.tlb
-// compiler-generated file created 02/15/14 at 01:05:47 - DO NOT EDIT!
+// compiler-generated file created 06/22/18 at 18:01:20 - DO NOT EDIT!
 
 #pragma once
 
@@ -521,6 +521,18 @@ inline long Idae::getNumberOfPeriods ( BSTR * messages ) {
 
 inline HRESULT Idae::updateStatusXML2 ( _bstr_t status_xml_in, BSTR * status_xml_out, BSTR * messages ) {
     HRESULT _hr = raw_updateStatusXML2(status_xml_in, status_xml_out, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getEventSpectraIntegral ( long spec_start, long nspectra, long period, VARIANT * counts, BSTR * messages ) {
+    HRESULT _hr = raw_getEventSpectraIntegral(spec_start, nspectra, period, counts, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::getVetoInfo ( VARIANT * names, VARIANT * alias, VARIANT * enabled, VARIANT * frames, BSTR * messages ) {
+    HRESULT _hr = raw_getVetoInfo(names, alias, enabled, frames, messages);
     if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
     return _hr;
 }
