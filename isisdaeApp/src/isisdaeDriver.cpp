@@ -1233,7 +1233,7 @@ void isisdaeDriver::pollerThread2()
         if (this_rf > last_rf)
         {
 			frames_diff = static_cast<double>(this_rf - last_rf); 
-            m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf)) / frames_diff;
+            m_vetopc = 100.0 * (1.0 - static_cast<double>(this_gf - last_gf) / frames_diff);
         }
         else
         {
