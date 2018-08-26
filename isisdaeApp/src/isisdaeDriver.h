@@ -8,7 +8,7 @@ class isisdaeInterface;
 class isisdaeDriver : public ADDriver 
 {
 public:
-    isisdaeDriver(isisdaeInterface* iface, const char *portName);
+    isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet, int maxSizeX, int maxSizeY);
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
  	static void pollerThreadC3(void* arg);
@@ -29,7 +29,7 @@ public:
 	void beginStateTransition(int state);
 	void endStateTransition();
     virtual void report(FILE *fp, int details);
-    virtual void setShutter(int open);
+    virtual void setShutter(int addr, int open);
 
 private:
 
@@ -123,6 +123,11 @@ private:
 	int P_integralsSpecStart; // int
 	int P_integralsTransformMode; // int
 	int P_integralsEnable; // int
+	int P_integralsMode; // int
+	int P_integralsUpdateRate; // float
+	int P_integralsCountRate; // float
+	int P_integralsSpecCountRate; // float
+	
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
 	
@@ -161,12 +166,12 @@ private:
 	void reportErrors(const char* exc_text);
 	void reportMessages();
 	void setADAcquire(int acquire);
-	int computeImage();
+	int computeImage(int addr);
     template <typename epicsType> 
 	  void computeColour(double value, double maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
-	template <typename epicsType> int computeArray(int spec_start, int trans_mode, int sizeX, int sizeY);
+	template <typename epicsType> int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
@@ -267,6 +272,10 @@ private:
 #define P_integralsSpecStartString				"INTG_SPEC_START"
 #define	P_integralsTransformModeString 			"INTG_TRANS_MODE"
 #define P_integralsEnableString					"INTG_ENABLE"
+#define P_integralsModeString					"INTG_MODE"
+#define P_integralsUpdateRateString				"INTG_UPD_RATE"
+#define P_integralsCountRateString				"INTG_RATE"
+#define P_integralsSpecCountRateString			"INTG_SPEC_RATE"
 
 #define P_simulationModeString					"SIM_MODE"
 

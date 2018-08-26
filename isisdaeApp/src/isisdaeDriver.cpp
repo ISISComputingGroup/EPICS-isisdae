@@ -215,23 +215,26 @@ void isisdaeDriver::setADAcquire(int acquire)
     asynStatus status = asynSuccess;
 
     /* Ensure that ADStatus is set correctly before we set ADAcquire.*/
-    getIntegerParam(ADStatus, &adstatus);
-    getIntegerParam(ADAcquire, &acquiring);
-    getIntegerParam(ADImageMode, &imageMode);
-      if (acquire && !acquiring) {
-        setStringParam(ADStatusMessage, "Acquiring data");
-        setIntegerParam(ADStatus, ADStatusAcquire); 
-        setIntegerParam(ADAcquire, 1); 
-      }
-      if (!acquire && acquiring) {
-        setIntegerParam(ADAcquire, 0); 
-        setStringParam(ADStatusMessage, "Acquisition stopped");
-        if (imageMode == ADImageContinuous) {
-          setIntegerParam(ADStatus, ADStatusIdle);
-        } else {
-          setIntegerParam(ADStatus, ADStatusAborted);
-        }
-      }
+	for(int i=0; i<maxAddr; ++i)
+	{
+		getIntegerParam(i, ADStatus, &adstatus);
+		getIntegerParam(i, ADAcquire, &acquiring);
+		getIntegerParam(i, ADImageMode, &imageMode);
+		  if (acquire && !acquiring) {
+			setStringParam(i, ADStatusMessage, "Acquiring data");
+			setIntegerParam(i, ADStatus, ADStatusAcquire); 
+			setIntegerParam(i, ADAcquire, 1); 
+		  }
+		  if (!acquire && acquiring) {
+			setIntegerParam(i, ADAcquire, 0); 
+			setStringParam(i, ADStatusMessage, "Acquisition stopped");
+			if (imageMode == ADImageContinuous) {
+			  setIntegerParam(i, ADStatus, ADStatusIdle);
+			} else {
+			  setIntegerParam(i, ADStatus, ADStatusAborted);
+			}
+		  }
+	}
 }
 
 template<typename T>
@@ -756,16 +759,15 @@ std::vector<T>& operator<<(std::vector<T>& vec, const T& val)
 /// Calls constructor for the asynPortDriver base class.
 /// \param[in] dcomint DCOM interface pointer created by lvDCOMConfigure()
 /// \param[in] portName @copydoc initArg0
-isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName) 
+isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet, int maxSizeX, int maxSizeY)
    : ADDriver(portName, 
-                    1, /* maxAddr */ 
+                    (ndet < 1 ? 1 : ndet), /* maxAddr */
                     NUM_ISISDAE_PARAMS,
 					0, // maxBuffers
 					0, // maxMemory
                     asynInt32Mask | asynInt32ArrayMask | asynFloat64Mask | asynFloat64ArrayMask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynInt32ArrayMask | asynFloat64Mask | asynFloat64ArrayMask | asynOctetMask,  /* Interrupt mask */
-                    ASYN_CANBLOCK, /* asynFlags.  This driver can block but it is not multi-device */
-					// need to think about ASYN_MULTIDEVICE for future multiple AD views
+                    ASYN_CANBLOCK | ASYN_MULTIDEVICE, /* asynFlags.  This driver can block and is multi-device from the point of view of area detector live views */
                     1, /* Autoconnect */
                     0, /* Default priority */
                     0),	/* Default stack size*/
@@ -904,6 +906,11 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	createParam(P_integralsEnableString, asynParamInt32, &P_integralsEnable); 
 	createParam(P_integralsSpecStartString, asynParamInt32, &P_integralsSpecStart); 
 	createParam(P_integralsTransformModeString, asynParamInt32, &P_integralsTransformMode); 
+	createParam(P_integralsModeString, asynParamInt32, &P_integralsMode); 
+	createParam(P_integralsUpdateRateString, asynParamFloat64, &P_integralsUpdateRate); 
+	createParam(P_integralsCountRateString, asynParamFloat64, &P_integralsCountRate); 
+	createParam(P_integralsSpecCountRateString, asynParamFloat64, &P_integralsSpecCountRate); 
+	
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
 	createParam(P_vetoEnableString, asynParamOctet, &P_vetoEnable);
@@ -933,35 +940,36 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName)
 	setIntegerParam(P_diagEnable, 0);
 
     // area detector defaults
-//	int maxSizeX = 128, maxSizeY = 128;
-//	int maxSizeX = 8, maxSizeY = 8;
-	int maxSizeX = 512, maxSizeY = 512;
 //	NDDataType_t dataType = NDUInt16;
+//	NDDataType_t dataType = NDFloat32;
 	NDDataType_t dataType = NDUInt8;
-    status =  setStringParam (ADManufacturer, "STFC ISIS");
-    status |= setStringParam (ADModel, "ISISDAE");
-    status |= setIntegerParam(ADMaxSizeX, maxSizeX);
-    status |= setIntegerParam(ADMaxSizeY, maxSizeY);
-    status |= setIntegerParam(ADMinX, 0);
-    status |= setIntegerParam(ADMinY, 0);
-    status |= setIntegerParam(ADBinX, 1);
-    status |= setIntegerParam(ADBinY, 1);
-    status |= setIntegerParam(ADReverseX, 0);
-    status |= setIntegerParam(ADReverseY, 0);
-    status |= setIntegerParam(ADSizeX, maxSizeX);
-    status |= setIntegerParam(ADSizeY, maxSizeY);
-    status |= setIntegerParam(NDArraySizeX, maxSizeX);
-    status |= setIntegerParam(NDArraySizeY, maxSizeY);
-    status |= setIntegerParam(NDArraySize, 0);
-    status |= setIntegerParam(NDDataType, dataType);
-    status |= setIntegerParam(ADImageMode, ADImageContinuous);
-    status |= setDoubleParam (ADAcquireTime, .001);
-    status |= setDoubleParam (ADAcquirePeriod, .005);
-    status |= setIntegerParam(ADNumImages, 100);
-    status |= setIntegerParam(P_integralsSpecStart, 1);
-    status |= setIntegerParam(P_integralsTransformMode, 0);
-    status |= setIntegerParam(P_integralsEnable, 0);
-
+	for(int i=0; i<ndet; ++i)
+	{
+		status =  setStringParam (i, ADManufacturer, "STFC ISIS");
+		status |= setStringParam (i, ADModel, "ISISDAE");
+		status |= setIntegerParam(i, ADMaxSizeX, maxSizeX);
+		status |= setIntegerParam(i, ADMaxSizeY, maxSizeY);
+		status |= setIntegerParam(i, ADMinX, 0);
+		status |= setIntegerParam(i, ADMinY, 0);
+		status |= setIntegerParam(i, ADBinX, 1);
+		status |= setIntegerParam(i, ADBinY, 1);
+		status |= setIntegerParam(i, ADReverseX, 0);
+		status |= setIntegerParam(i, ADReverseY, 0);
+		status |= setIntegerParam(i, ADSizeX, maxSizeX);
+		status |= setIntegerParam(i, ADSizeY, maxSizeY);
+		status |= setIntegerParam(i, NDArraySizeX, maxSizeX);
+		status |= setIntegerParam(i, NDArraySizeY, maxSizeY);
+		status |= setIntegerParam(i, NDArraySize, 0);
+		status |= setIntegerParam(i, NDDataType, dataType);
+		status |= setIntegerParam(i, ADImageMode, ADImageContinuous);
+		status |= setDoubleParam (i, ADAcquireTime, .001);
+		status |= setDoubleParam (i, ADAcquirePeriod, .005);
+		status |= setIntegerParam(i, ADNumImages, 100);
+		status |= setIntegerParam(i, P_integralsSpecStart, 1);
+		status |= setIntegerParam(i, P_integralsTransformMode, 0);
+		status |= setIntegerParam(i, P_integralsEnable, 0);
+		status |= setIntegerParam(i, P_integralsMode, 0);
+	}
     if (status) {
         printf("%s: unable to set DAE parameters\n", functionName);
         return;
@@ -1508,117 +1516,129 @@ void isisdaeDriver::pollerThread3()
 void isisdaeDriver::pollerThread4()
 {
     static const char* functionName = "isisdaePoller4";
-	int acquiring = 0;
-	int enable = 0;
+	int acquiring, enable;
+	int all_acquiring, all_enable;
     int status = asynSuccess;
     int imageCounter;
     int numImages, numImagesCounter;
     int imageMode;
     int arrayCallbacks;
-    int old_acquiring = 0;
     NDArray *pImage;
     double acquireTime, acquirePeriod, delay;
     epicsTimeStamp startTime, endTime;
     double elapsedTime;
+    int* old_acquiring = new int[maxAddr];
+	memset(old_acquiring, 0, maxAddr * sizeof(int));
 
 	registerStructuredExceptionHandler();
 	while(true)
 	{
-		lock();
-		getIntegerParam(ADAcquire, &acquiring);
-		getIntegerParam(P_integralsEnable, &enable);
-        getDoubleParam(ADAcquirePeriod, &acquirePeriod);
-		if (acquiring == 0 || enable == 0)
+		all_acquiring = all_enable = 0;
+		for(int i=0; i<maxAddr; ++i)
 		{
-			old_acquiring = acquiring;
-			unlock();
-			epicsThreadSleep( acquirePeriod + (enable == 0 ? 1.0 : 0.0) );
-			continue;
-		}
-		if (old_acquiring == 0)
-		{
-            setIntegerParam(ADNumImagesCounter, 0);
-			old_acquiring = acquiring;
-        }
-        setIntegerParam(ADStatus, ADStatusAcquire); 
-		epicsTimeGetCurrent(&startTime);
-        getIntegerParam(ADImageMode, &imageMode);
+		    this->lock();
+			acquiring = enable = 0;
+		    getIntegerParam(i, ADAcquire, &acquiring);
+		    getIntegerParam(i, P_integralsEnable, &enable);
+            getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
+			all_acquiring |= acquiring;
+			all_enable |= enable;
+		    if (acquiring == 0 || enable == 0)
+		    {
+			    old_acquiring[i] = acquiring;
+				this->unlock();
+//				epicsThreadSleep( acquirePeriod );
+				continue;
+			}
+		    if (old_acquiring[i] == 0)
+		    {
+                setIntegerParam(i, ADNumImagesCounter, 0);
+			    old_acquiring[i] = acquiring;
+            }
+            setIntegerParam(i, ADStatus, ADStatusAcquire); 
+		    epicsTimeGetCurrent(&startTime);
+            getIntegerParam(i, ADImageMode, &imageMode);
 
-        /* Get the exposure parameters */
-        getDoubleParam(ADAcquireTime, &acquireTime);  // not really used
+            /* Get the exposure parameters */
+            getDoubleParam(i, ADAcquireTime, &acquireTime);  // not really used
 
-        setShutter(ADShutterOpen);
-        callParamCallbacks();
+            setShutter(i, ADShutterOpen);
+            callParamCallbacks();
             
-        /* Update the image */
-        status = computeImage();
-//        if (status) continue;
+            /* Update the image */
+            status = computeImage(i);
+//            if (status) continue;
 
-		// could sleep to make up to acquireTime
+		    // could sleep to make up to acquireTime
 		
-        /* Close the shutter */
-        setShutter(ADShutterClosed);
+            /* Close the shutter */
+            setShutter(i, ADShutterClosed);
         
-        setIntegerParam(ADStatus, ADStatusReadout);
-        /* Call the callbacks to update any changes */
-        callParamCallbacks();
+            setIntegerParam(i, ADStatus, ADStatusReadout);
+            /* Call the callbacks to update any changes */
+            callParamCallbacks();
 
-        pImage = this->pArrays[0];
+            pImage = this->pArrays[i];
 
-        /* Get the current parameters */
-        getIntegerParam(NDArrayCounter, &imageCounter);
-        getIntegerParam(ADNumImages, &numImages);
-        getIntegerParam(ADNumImagesCounter, &numImagesCounter);
-        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
-        imageCounter++;
-        numImagesCounter++;
-        setIntegerParam(NDArrayCounter, imageCounter);
-        setIntegerParam(ADNumImagesCounter, numImagesCounter);
+            /* Get the current parameters */
+            getIntegerParam(i, NDArrayCounter, &imageCounter);
+            getIntegerParam(i, ADNumImages, &numImages);
+            getIntegerParam(i, ADNumImagesCounter, &numImagesCounter);
+            getIntegerParam(i, NDArrayCallbacks, &arrayCallbacks);
+            ++imageCounter;
+            ++numImagesCounter;
+            setIntegerParam(i, NDArrayCounter, imageCounter);
+            setIntegerParam(i, ADNumImagesCounter, numImagesCounter);
 
-        /* Put the frame number and time stamp into the buffer */
-        pImage->uniqueId = imageCounter;
-        pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
-        updateTimeStamp(&pImage->epicsTS);
+            /* Put the frame number and time stamp into the buffer */
+            pImage->uniqueId = imageCounter;
+            pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
+            updateTimeStamp(&pImage->epicsTS);
 
-        /* Get any attributes that have been defined for this driver */
-        this->getAttributes(pImage->pAttributeList);
+            /* Get any attributes that have been defined for this driver */
+            this->getAttributes(pImage->pAttributeList);
 
-        if (arrayCallbacks) {
-          /* Call the NDArray callback */
-          /* Must release the lock here, or we can get into a deadlock, because we can
-           * block on the plugin lock, and the plugin can be calling us */
-          this->unlock();
-          asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-                    "%s:%s: calling imageData callback\n", driverName, functionName);
-          doCallbacksGenericPointer(pImage, NDArrayData, 0);
-          this->lock();
-        }
+            if (arrayCallbacks) {
+              /* Call the NDArray callback */
+              /* Must release the lock here, or we can get into a deadlock, because we can
+               * block on the plugin lock, and the plugin can be calling us */
+              this->unlock();
+              asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+                    "%s:%s: calling imageData callback addr %d\n", driverName, functionName, i);
+              doCallbacksGenericPointer(pImage, NDArrayData, i);
+              this->lock();
+            }
 
-        /* Call the callbacks to update any changes */
-        callParamCallbacks();
-        /* sleep for the acquire period minus elapsed time. */
-        epicsTimeGetCurrent(&endTime);
-        elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
-        delay = acquirePeriod - elapsedTime;
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+            /* Call the callbacks to update any changes */
+            callParamCallbacks();
+            /* sleep for the acquire period minus elapsed time. */
+            epicsTimeGetCurrent(&endTime);
+            elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
+            delay = acquirePeriod - elapsedTime;
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
                     "%s:%s: delay=%f\n",
                     driverName, functionName, delay);
-        if (delay >= 0.0) {
-            /* We set the status to waiting to indicate we are in the period delay */
-            setIntegerParam(ADStatus, ADStatusWaiting);
-            callParamCallbacks();
+            if (delay >= 0.0) {
+                /* We set the status to waiting to indicate we are in the period delay */
+                setIntegerParam(i, ADStatus, ADStatusWaiting);
+                callParamCallbacks();
+                this->unlock();
+                epicsThreadSleep(delay);
+                this->lock();
+                setIntegerParam(i, ADStatus, ADStatusIdle);
+                callParamCallbacks();  
+            }
             this->unlock();
-            epicsThreadSleep(delay);
-            this->lock();
-            setIntegerParam(ADStatus, ADStatusIdle);
-            callParamCallbacks();  
         }
-        this->unlock();
-    }
+		if (all_enable == 0 || all_acquiring == 0)
+		{
+			epicsThreadSleep(1.0);
+		}	
+	}
 }
 
 /** Computes the new image data */
-int isisdaeDriver::computeImage()
+int isisdaeDriver::computeImage(int addr)
 {
     int status = asynSuccess;
     NDDataType_t dataType;
@@ -1637,20 +1657,20 @@ int isisdaeDriver::computeImage()
 
     /* NOTE: The caller of this function must have taken the mutex */
 
-    status |= getIntegerParam(ADBinX,         &binX);
-    status |= getIntegerParam(ADBinY,         &binY);
-    status |= getIntegerParam(ADMinX,         &minX);
-    status |= getIntegerParam(ADMinY,         &minY);
-    status |= getIntegerParam(ADSizeX,        &sizeX);
-    status |= getIntegerParam(ADSizeY,        &sizeY);
-    status |= getIntegerParam(ADReverseX,     &reverseX);
-    status |= getIntegerParam(ADReverseY,     &reverseY);
-    status |= getIntegerParam(ADMaxSizeX,     &maxSizeX);
-    status |= getIntegerParam(ADMaxSizeY,     &maxSizeY);
-    status |= getIntegerParam(NDColorMode,    &colorMode);
-    status |= getIntegerParam(NDDataType,     &itemp); 
-    status |= getIntegerParam(P_integralsSpecStart, &spec_start); 
-    status |= getIntegerParam(P_integralsTransformMode, &trans_mode); 
+    status |= getIntegerParam(addr, ADBinX,         &binX);
+    status |= getIntegerParam(addr, ADBinY,         &binY);
+    status |= getIntegerParam(addr, ADMinX,         &minX);
+    status |= getIntegerParam(addr, ADMinY,         &minY);
+    status |= getIntegerParam(addr, ADSizeX,        &sizeX);
+    status |= getIntegerParam(addr, ADSizeY,        &sizeY);
+    status |= getIntegerParam(addr, ADReverseX,     &reverseX);
+    status |= getIntegerParam(addr, ADReverseY,     &reverseY);
+    status |= getIntegerParam(addr, ADMaxSizeX,     &maxSizeX);
+    status |= getIntegerParam(addr, ADMaxSizeY,     &maxSizeY);
+    status |= getIntegerParam(addr, NDColorMode,    &colorMode);
+    status |= getIntegerParam(addr, NDDataType,     &itemp); 
+    status |= getIntegerParam(addr, P_integralsSpecStart, &spec_start); 
+    status |= getIntegerParam(addr, P_integralsTransformMode, &trans_mode); 
 	dataType = (NDDataType_t)itemp;
     if (status) asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
                     "%s:%s: error getting parameters\n",
@@ -1659,35 +1679,35 @@ int isisdaeDriver::computeImage()
     /* Make sure parameters are consistent, fix them if they are not */
     if (binX < 1) {
         binX = 1;
-        status |= setIntegerParam(ADBinX, binX);
+        status |= setIntegerParam(addr, ADBinX, binX);
     }
     if (binY < 1) {
         binY = 1;
-        status |= setIntegerParam(ADBinY, binY);
+        status |= setIntegerParam(addr, ADBinY, binY);
     }
     if (minX < 0) {
         minX = 0;
-        status |= setIntegerParam(ADMinX, minX);
+        status |= setIntegerParam(addr, ADMinX, minX);
     }
     if (minY < 0) {
         minY = 0;
-        status |= setIntegerParam(ADMinY, minY);
+        status |= setIntegerParam(addr, ADMinY, minY);
     }
     if (minX > maxSizeX-1) {
         minX = maxSizeX-1;
-        status |= setIntegerParam(ADMinX, minX);
+        status |= setIntegerParam(addr, ADMinX, minX);
     }
     if (minY > maxSizeY-1) {
         minY = maxSizeY-1;
-        status |= setIntegerParam(ADMinY, minY);
+        status |= setIntegerParam(addr, ADMinY, minY);
     }
     if (minX+sizeX > maxSizeX) {
         sizeX = maxSizeX-minX;
-        status |= setIntegerParam(ADSizeX, sizeX);
+        status |= setIntegerParam(addr, ADSizeX, sizeX);
     }
     if (minY+sizeY > maxSizeY) {
         sizeY = maxSizeY-minY;
-        status |= setIntegerParam(ADSizeY, sizeY);
+        status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
 
     switch (colorMode) {
@@ -1736,28 +1756,28 @@ int isisdaeDriver::computeImage()
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
             break;
     }
 
@@ -1775,9 +1795,9 @@ int isisdaeDriver::computeImage()
     dimsOut[yDim].reverse = reverseY;
     /* We save the most recent image buffer so it can be used in the read() function.
      * Now release it before getting a new version. */
-    if (this->pArrays[0]) this->pArrays[0]->release();
+    if (this->pArrays[addr]) this->pArrays[addr]->release();
     status = this->pNDArrayPool->convert(m_pRaw,
-                                         &this->pArrays[0],
+                                         &this->pArrays[addr],
                                          dataType,
                                          dimsOut);
     if (status) {
@@ -1786,12 +1806,12 @@ int isisdaeDriver::computeImage()
                     driverName, functionName);
         return(status);
     }
-    pImage = this->pArrays[0];
+    pImage = this->pArrays[addr];
     pImage->getInfo(&arrayInfo);
     status = asynSuccess;
-    status |= setIntegerParam(NDArraySize,  (int)arrayInfo.totalBytes);
-    status |= setIntegerParam(NDArraySizeX, (int)pImage->dims[xDim].size);
-    status |= setIntegerParam(NDArraySizeY, (int)pImage->dims[yDim].size);
+    status |= setIntegerParam(addr, NDArraySize,  (int)arrayInfo.totalBytes);
+    status |= setIntegerParam(addr, NDArraySizeX, (int)pImage->dims[xDim].size);
+    status |= setIntegerParam(addr, NDArraySizeY, (int)pImage->dims[yDim].size);
     if (status) asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
                     "%s:%s: error setting parameters\n",
                     driverName, functionName);
@@ -1847,7 +1867,7 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int spec_start, int trans_mode, int sizeX, int sizeY)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
@@ -1855,10 +1875,10 @@ int isisdaeDriver::computeArray(int spec_start, int trans_mode, int sizeX, int s
     double exposureTime, gain;
     int i, j, k;
 	
-    status = getDoubleParam (ADGain,        &gain);
-    status = getIntegerParam(NDColorMode,   &colorMode);
-    status = getDoubleParam (ADAcquireTime, &exposureTime);
-	status = getIntegerParam(P_NumSpectra,  &numSpec);
+    status = getDoubleParam (addr, ADGain,        &gain);
+    status = getIntegerParam(addr, NDColorMode,   &colorMode);
+    status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
+	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -1996,14 +2016,14 @@ void isisdaeDriver::getDAEXML(const std::string& xmlstr, const std::string& path
 }
 
 /** Controls the shutter */
-void isisdaeDriver::setShutter(int open)
+void isisdaeDriver::setShutter(int addr, int open)
 {
     int shutterMode;
 
-    getIntegerParam(ADShutterMode, &shutterMode);
+    getIntegerParam(addr, ADShutterMode, &shutterMode);
     if (shutterMode == ADShutterModeDetector) {
         /* Simulate a shutter by just changing the status readback */
-        setIntegerParam(ADShutterStatus, open);
+        setIntegerParam(addr, ADShutterStatus, open);
     } else {
         /* For no shutter or EPICS shutter call the base class method */
         ADDriver::setShutter(open);
@@ -2114,7 +2134,7 @@ void isisdaeShowPCAS(int level)
 /// \param[in] progid @copydoc initArg5
 /// \param[in] username @copydoc initArg6
 /// \param[in] password @copydoc initArg7
-int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password)
+int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password, int ndet, int maxSizeX, int maxSizeY)
 {
 	registerStructuredExceptionHandler();
 	try
@@ -2122,7 +2142,7 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 		isisdaeInterface* iface = new isisdaeInterface(host, options, username, password);
 		if (iface != NULL)
 		{
-			isisdaeDriver* driver = new isisdaeDriver(iface, portName);
+			isisdaeDriver* driver = new isisdaeDriver(iface, portName, ndet, maxSizeX, maxSizeY);
 			if (driver != NULL)
 			{
 				if (epicsThreadCreate("daeCAS",
@@ -2164,18 +2184,24 @@ static const iocshArg initArg1 = { "options", iocshArgInt};			    ///< options a
 static const iocshArg initArg2 = { "host", iocshArgString};				///< host name where LabVIEW is running ("" for localhost) 
 static const iocshArg initArg3 = { "username", iocshArgString};			///< (optional) remote username for host #initArg3
 static const iocshArg initArg4 = { "password", iocshArgString};			///< (optional) remote password for username #initArg6 on host #initArg3
+static const iocshArg initArg5 = { "ndet", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
+static const iocshArg initArg6 = { "maxSizeX", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
+static const iocshArg initArg7 = { "maxSizeY", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
 
 static const iocshArg * const initArgs[] = { &initArg0,
                                              &initArg1,
                                              &initArg2,
                                              &initArg3,
-											 &initArg4 };
+                                             &initArg4,
+                                             &initArg5,
+                                             &initArg6,
+											 &initArg7 };
 
 static const iocshFuncDef initFuncDef = {"isisdaeConfigure", sizeof(initArgs) / sizeof(iocshArg*), initArgs};
 
 static void initCallFunc(const iocshArgBuf *args)
 {
-    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval);
+    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval, args[5].ival, args[6].ival, args[7].ival);
 }
 
 // isisdaeShowPCAS

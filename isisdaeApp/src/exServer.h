@@ -304,7 +304,7 @@ public:
         bool preCreateFlag, bool scanOnIn, const T& value);
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
-    T m_value;
+    const T m_value;
 	bool m_first_call;
     FixedValuePV & operator = ( const FixedValuePV & );
     FixedValuePV ( const FixedValuePV & );
