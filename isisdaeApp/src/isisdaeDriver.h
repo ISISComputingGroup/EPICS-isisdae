@@ -127,6 +127,7 @@ private:
 	int P_integralsUpdateRate; // float
 	int P_integralsCountRate; // float
 	int P_integralsSpecCountRate; // float
+	int P_integralsSpecMax; // float
 	
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
@@ -166,12 +167,13 @@ private:
 	void reportErrors(const char* exc_text);
 	void reportMessages();
 	void setADAcquire(int acquire);
-	int computeImage(int addr);
+	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
     template <typename epicsType> 
 	  void computeColour(double value, double maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
-	template <typename epicsType> int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY);
+	template <typename epicsType> 
+	  int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
@@ -276,6 +278,7 @@ private:
 #define P_integralsUpdateRateString				"INTG_UPD_RATE"
 #define P_integralsCountRateString				"INTG_RATE"
 #define P_integralsSpecCountRateString			"INTG_SPEC_RATE"
+#define P_integralsSpecMaxString                "INTG_SPEC_MAX"
 
 #define P_simulationModeString					"SIM_MODE"
 

@@ -910,6 +910,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_integralsUpdateRateString, asynParamFloat64, &P_integralsUpdateRate); 
 	createParam(P_integralsCountRateString, asynParamFloat64, &P_integralsCountRate); 
 	createParam(P_integralsSpecCountRateString, asynParamFloat64, &P_integralsSpecCountRate); 
+	createParam(P_integralsSpecMaxString, asynParamFloat64, &P_integralsSpecMax); 
 	
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
@@ -1524,13 +1525,15 @@ void isisdaeDriver::pollerThread4()
     int imageMode;
     int arrayCallbacks;
     NDArray *pImage;
-    double acquireTime, acquirePeriod, delay;
+    double acquireTime, acquirePeriod, delay, updateTime;
     epicsTimeStamp startTime, endTime;
-    double elapsedTime;
-    int* old_acquiring = new int[maxAddr];
-	memset(old_acquiring, 0, maxAddr * sizeof(int));
+    double elapsedTime, maxval;
+    std::vector<int> old_acquiring(maxAddr, 0);
+	std::vector<epicsTimeStamp> last_update(maxAddr);
+	long totalCntsDiff, maxSpecCntsDiff;
 
 	registerStructuredExceptionHandler();
+	memset(&(last_update[0]), 0, maxAddr * sizeof(epicsTimeStamp));	
 	while(true)
 	{
 		all_acquiring = all_enable = 0;
@@ -1566,7 +1569,8 @@ void isisdaeDriver::pollerThread4()
             callParamCallbacks();
             
             /* Update the image */
-            status = computeImage(i);
+            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff);
+
 //            if (status) continue;
 
 		    // could sleep to make up to acquireTime
@@ -1608,12 +1612,26 @@ void isisdaeDriver::pollerThread4()
               doCallbacksGenericPointer(pImage, NDArrayData, i);
               this->lock();
             }
-
+            epicsTimeGetCurrent(&endTime);
+            elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
+			updateTime = epicsTimeDiffInSeconds(&endTime, &(last_update[i]));
+			if (updateTime > 0.0)
+			{
+                setDoubleParam(i, P_integralsUpdateRate, 1.0 / updateTime);
+                setDoubleParam(i, P_integralsCountRate, totalCntsDiff / updateTime);
+                setDoubleParam(i, P_integralsSpecCountRate, maxSpecCntsDiff / updateTime);
+			}
+			else
+			{
+                setDoubleParam(i, P_integralsUpdateRate, 0.0);
+                setDoubleParam(i, P_integralsCountRate, 0.0);
+                setDoubleParam(i, P_integralsSpecCountRate, 0.0);
+			}
+			setDoubleParam(i, P_integralsSpecMax, maxval);
+			last_update[i] = endTime;
             /* Call the callbacks to update any changes */
             callParamCallbacks();
             /* sleep for the acquire period minus elapsed time. */
-            epicsTimeGetCurrent(&endTime);
-            elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
             delay = acquirePeriod - elapsedTime;
             asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
                     "%s:%s: delay=%f\n",
@@ -1633,12 +1651,16 @@ void isisdaeDriver::pollerThread4()
 		if (all_enable == 0 || all_acquiring == 0)
 		{
 			epicsThreadSleep(1.0);
-		}	
+		}
+		else
+		{
+			epicsThreadSleep(1.0);
+		}
 	}
 }
 
 /** Computes the new image data */
-int isisdaeDriver::computeImage(int addr)
+int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
 {
     int status = asynSuccess;
     NDDataType_t dataType;
@@ -1672,9 +1694,13 @@ int isisdaeDriver::computeImage(int addr)
     status |= getIntegerParam(addr, P_integralsSpecStart, &spec_start); 
     status |= getIntegerParam(addr, P_integralsTransformMode, &trans_mode); 
 	dataType = (NDDataType_t)itemp;
-    if (status) asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-                    "%s:%s: error getting parameters\n",
-                    driverName, functionName);
+	if (status)
+	{
+		asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+			"%s:%s: error getting parameters\n",
+			driverName, functionName);
+		return (status);
+	}
 
     /* Make sure parameters are consistent, fix them if they are not */
     if (binX < 1) {
@@ -1756,28 +1782,28 @@ int isisdaeDriver::computeImage(int addr)
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY);
+            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
     }
 
@@ -1793,8 +1819,9 @@ int isisdaeDriver::computeImage(int addr)
     dimsOut[yDim].binning = binY;
     dimsOut[yDim].offset  = minY;
     dimsOut[yDim].reverse = reverseY;
+
     /* We save the most recent image buffer so it can be used in the read() function.
-     * Now release it before getting a new version. */
+     * Now release it before getting a new version. */	 
     if (this->pArrays[addr]) this->pArrays[addr]->release();
     status = this->pNDArrayPool->convert(m_pRaw,
                                          &this->pArrays[addr],
@@ -1822,13 +1849,13 @@ template <typename epicsType>
 void isisdaeDriver::computeColour(double value, double maxval, epicsType& mono)
 {
 	epicsType limit = std::numeric_limits<epicsType>::max();
-	if (maxval > 0.0)
+	if (maxval > (double)limit)
 	{
 		mono = static_cast<epicsType>(value / maxval * (double)limit);
 	}
 	else
 	{
-		mono = static_cast<epicsType>(0);
+		mono = static_cast<epicsType>(value);
 	}
 }
 
@@ -1867,17 +1894,25 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
     int status = asynSuccess;
     double exposureTime, gain;
-    int i, j, k;
+    int i, j, k, integMode;
+	long cntDiff;
+	uint64_t cntSum, oldCntSum; 
+	static std::vector<uint32_t*> old_integrals(10, NULL);
+	static std::vector<int> old_nspec(10, 0);
 	
+	maxval = 0.0;
+	totalCntsDiff =  maxSpecCntsDiff = 0;
+
     status = getDoubleParam (addr, ADGain,        &gain);
     status = getIntegerParam(addr, NDColorMode,   &colorMode);
     status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
+	status = getIntegerParam(addr, P_integralsMode,  &integMode);
 	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
 
     switch (colorMode) {
@@ -1926,47 +1961,62 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	{
 		nspec = max_spec_int_size - spec_start;
 	}
-	if (integrals == NULL)
+	if (integrals == NULL || nspec <= 0)
 	{
-		nspec = 0;
+		return status;
+	}
+	if (old_nspec[addr] != nspec)
+	{
+		if (old_integrals[addr] != NULL)
+		{
+			delete []old_integrals[addr];
+		}
+		old_integrals[addr] = new uint32_t[nspec];
+		old_nspec[addr] = nspec;
+		memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	}
 	double* dintegrals = new double[sizeX * sizeY];
-	if (trans_mode == 0)
+	for(i=0; i<nspec; ++i)
 	{
-	    for(i=0; i<nspec; ++i)
-	    {
-		    dintegrals[i] = static_cast<double>(integrals[i+spec_start]);
+		// use int64_t so can both be signed and also hold uint32_t fully
+		int64_t integ = (integMode == 0 ? integrals[i + spec_start] : integrals[i + spec_start] -  old_integrals[addr][i]);
+		if (integ < 0)
+		{
+			integ = 0;
+		}
+	    if (trans_mode == 0)
+		{
+		    dintegrals[i] = static_cast<double>(integ);
 	    }
-	}
-	else if (trans_mode == 1)
-	{
-	    for(i=0; i<nspec; ++i)
-	    {
-		    dintegrals[i] = sqrt(static_cast<double>(integrals[i+spec_start]));
+	    else if (trans_mode == 1)
+		{
+		    dintegrals[i] = sqrt(static_cast<double>(integ));
 	    }
-	}
-	else if (trans_mode == 2)
-	{
-	    for(i=0; i<nspec; ++i)
+	    else if (trans_mode == 2)
 	    {
-		    dintegrals[i] = log(static_cast<double>(1 + integrals[i+spec_start]));
+		    dintegrals[i] = log(static_cast<double>(1 + integ));
 	    }
 	}
 	for(i=nspec; i < (sizeX * sizeY); ++i)
 	{
 		dintegrals[i] = 0.0;		
 	}
-    k = 0;
-	double maxval = 0.0;
-	for (i=0; i<sizeY; i++) {
-			for (j=0; j<sizeX; j++) {
-				if (dintegrals[k] > maxval)
-				{
-					maxval = dintegrals[k];
-				}
-				++k;
-			}
+	cntSum = oldCntSum = 0; 
+	for (i=0; i<nspec; ++i) 
+	{
+		if (dintegrals[i] > maxval)
+		{
+			maxval = dintegrals[i];
+		}
+		if ( (cntDiff = integrals[i + spec_start] - old_integrals[addr][i]) > maxSpecCntsDiff )
+		{
+			maxSpecCntsDiff = cntDiff;
+		}
+		cntSum += integrals[i + spec_start];
+		oldCntSum += old_integrals[addr][i];
 	}
+	totalCntsDiff = (cntSum > oldCntSum ? cntSum - oldCntSum : 0);
+	memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	
     k = 0;
 	for (i=0; i<sizeY; i++) {
