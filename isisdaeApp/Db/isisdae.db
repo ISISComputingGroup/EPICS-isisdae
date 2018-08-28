@@ -1296,3 +1296,24 @@ record(bi, "$(P)$(Q)SIM_MODE")
 	info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
+
+record(calcout, "$(P)$(Q)_HRPDINT")
+{
+    field(INPA, "$(P)$(Q)VETO:EXT3:PC CP")
+    field(INPB, "$(P)$(Q)RUNSTATE CP")
+    field(CALC, "(B=5||B=2)?(A > 50 ? 0 : 1) : 2")
+    field(OUT, "$(P)$(Q)HRPDINT PP")
+    field(OOPT, "On Change")
+}
+
+record(mbbi, "$(P)$(Q)HRPDINT")
+{
+    field(ZRVL, 0)
+    field(ONVL, 1)
+    field(TWVL, 2)
+    field(ZRST, "CLOSED")
+    field(ONST, "OPEN")
+    field(TWST, "UNKNOWN")
+    field(ZRSV, "MINOR")
+    field(TWSV, "MINOR")
+}
