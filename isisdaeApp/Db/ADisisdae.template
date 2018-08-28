@@ -6,7 +6,7 @@ record(bi, "$(P)$(R)INTG:ENABLE")
 {
     field(DESC, "Integrals Enabled")
     field(DTYP, "asynInt32")
-    field(INP,  "@asyn(icp,0,0)INTG_ENABLE")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_ENABLE")
     field(SCAN, "I/O Intr")
 	field(ZNAM, "NO")
 	field(ONAM, "YES")
@@ -17,10 +17,36 @@ record(bo, "$(P)$(R)INTG:ENABLE:SP")
 {
     field(DESC, "Enable Integrals")
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)INTG_ENABLE")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_ENABLE")
 	field(PINI, "YES")
 	field(ZNAM, "NO")
 	field(ONAM, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)INTG:MODE")
+{
+    field(DESC, "Integrals Mode")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_MODE")
+    field(SCAN, "I/O Intr")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "Total")
+	field(ONST, "Difference")
+	info(archive, "VAL")
+}
+
+record(mbbo, "$(P)$(R)INTG:MODE:SP")
+{
+    field(DESC, "Set Integrals Mode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_MODE")
+	field(PINI, "YES")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "Total")
+	field(ONST, "Difference")
     info(autosaveFields, "VAL")
 }
 
@@ -28,7 +54,7 @@ record(longin, "$(P)$(R)INTG:SPEC:START")
 {
     field(DESC, "Integrals Spec Start")
     field(DTYP, "asynInt32")
-    field(INP,  "@asyn(icp,0,0)INTG_SPEC_START")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_START")
     field(SCAN, "I/O Intr")
 	info(archive, "VAL")
 }
@@ -37,16 +63,51 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
 {
     field(DESC, "Integrals Spec Start")
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)INTG_SPEC_START")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_START")
 	field(PINI, "YES")
     info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(R)INTG:UPD:RATE")
+{
+    field(DESC, "Integrals Update Rate")
+	field(EGU, "Hz")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_UPD_RATE")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P)$(R)INTG:RATE")
+{
+    field(DESC, "Integrals Total Count Rate")
+	field(EGU, "Hz")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_RATE")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P)$(R)INTG:SPEC:RATE")
+{
+    field(DESC, "Integrals Max Spec Count Rate")
+	field(EGU, "Hz")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_RATE")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P)$(R)INTG:SPEC:MAX")
+{
+    field(DESC, "Max Spec Value")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_MAX")
+    field(SCAN, "I/O Intr")
 }
 
 record(mbbi, "$(P)$(R)INTG:TRANS:MODE")
 {
     field(DESC, "Integrals Trans Mode")
     field(DTYP, "asynInt32")
-    field(INP,  "@asyn(icp,0,0)INTG_TRANS_MODE")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TRANS_MODE")
     field(SCAN, "I/O Intr")
 	field(ZRVL, 0)
 	field(ONVL, 1)
@@ -61,7 +122,7 @@ record(mbbo, "$(P)$(R)INTG:TRANS:MODE:SP")
 {
     field(DESC, "Integrals Trans Mode")
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)INTG_TRANS_MODE")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TRANS_MODE")
 	field(PINI, "YES")
 	field(ZRVL, 0)
 	field(ONVL, 1)
