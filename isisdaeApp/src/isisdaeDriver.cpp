@@ -970,6 +970,10 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, P_integralsTransformMode, 0);
 		status |= setIntegerParam(i, P_integralsEnable, 0);
 		status |= setIntegerParam(i, P_integralsMode, 0);
+		status |= setDoubleParam(i, P_integralsUpdateRate, 0.0);
+		status |= setDoubleParam(i, P_integralsCountRate, 0.0);
+		status |= setDoubleParam(i, P_integralsSpecCountRate, 0.0);
+		status |= setDoubleParam(i, P_integralsSpecMax, 0.0);
 	}
     if (status) {
         printf("%s: unable to set DAE parameters\n", functionName);
@@ -1566,7 +1570,7 @@ void isisdaeDriver::pollerThread4()
             getDoubleParam(i, ADAcquireTime, &acquireTime);  // not really used
 
             setShutter(i, ADShutterOpen);
-            callParamCallbacks();
+            callParamCallbacks(i, i);
             
             /* Update the image */
             status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff);
@@ -1580,7 +1584,7 @@ void isisdaeDriver::pollerThread4()
         
             setIntegerParam(i, ADStatus, ADStatusReadout);
             /* Call the callbacks to update any changes */
-            callParamCallbacks();
+            callParamCallbacks(i, i);
 
             pImage = this->pArrays[i];
 
@@ -1630,7 +1634,7 @@ void isisdaeDriver::pollerThread4()
 			setDoubleParam(i, P_integralsSpecMax, maxval);
 			last_update[i] = endTime;
             /* Call the callbacks to update any changes */
-            callParamCallbacks();
+            callParamCallbacks(i, i);
             /* sleep for the acquire period minus elapsed time. */
             delay = acquirePeriod - elapsedTime;
             asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
@@ -1639,12 +1643,12 @@ void isisdaeDriver::pollerThread4()
             if (delay >= 0.0) {
                 /* We set the status to waiting to indicate we are in the period delay */
                 setIntegerParam(i, ADStatus, ADStatusWaiting);
-                callParamCallbacks();
+                callParamCallbacks(i, i);
                 this->unlock();
                 epicsThreadSleep(delay);
                 this->lock();
                 setIntegerParam(i, ADStatus, ADStatusIdle);
-                callParamCallbacks();  
+                callParamCallbacks(i, i);  
             }
             this->unlock();
         }
