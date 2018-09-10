@@ -1587,6 +1587,11 @@ void isisdaeDriver::pollerThread4()
             callParamCallbacks(i, i);
 
             pImage = this->pArrays[i];
+			if (pImage == NULL)
+			{
+				this->unlock();
+				continue;
+			}
 
             /* Get the current parameters */
             getIntegerParam(i, NDArrayCounter, &imageCounter);
