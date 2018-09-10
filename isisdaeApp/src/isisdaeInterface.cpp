@@ -314,6 +314,10 @@ void isisdaeInterface::checkConnection()
 {
 	epicsThreadOnce(&onceId, initCOM, NULL);
 	HRESULT hr = E_FAIL;
+	if (!m_dcom) // we get called from isisDaeDriver so need to check here too
+	{
+		return;
+	}
 	epicsGuard<epicsMutex> _lock(m_lock);
 	try
 	{
