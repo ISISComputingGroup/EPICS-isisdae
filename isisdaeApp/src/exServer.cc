@@ -55,6 +55,8 @@ static std::string getPVNoValName(const std::string& pvStr)
 	return pvName;
 }
 
+static const int ISISDAE_MAX_NTC_DEFAULT = 8000;
+
 exServer::exServer ( const char * const pvPrefix, 
         unsigned aliasCount, bool scanOnIn, 
         bool asyncScan, double asyncDelayIn,
@@ -62,7 +64,7 @@ exServer::exServer ( const char * const pvPrefix,
         pTimerQueue ( 0 ), simultAsychIOCount ( 0u ), 
         _maxSimultAsyncIO ( maxSimultAsyncIOIn ),
         asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix),
-		m_ntc(8000)
+		m_ntc(ISISDAE_MAX_NTC_DEFAULT)
 {
     if ( getenv("EPICS_CA_MAX_ARRAY_BYTES") != NULL )
 	{
@@ -71,7 +73,15 @@ exServer::exServer ( const char * const pvPrefix,
 		{
 		    // m_ntc = max_array_bytes / sizeof(float);
 			// above is too big
-			m_ntc = 8000;
+			m_ntc = ISISDAE_MAX_NTC_DEFAULT;
+		}
+	}
+    if ( getenv("ISISDAE_MAX_NTC") != NULL )
+	{
+		m_ntc = atol(getenv("ISISDAE_MAX_NTC"));
+		if (m_ntc == 0)
+		{
+			m_ntc = ISISDAE_MAX_NTC_DEFAULT;			
 		}
 	}
 	std::cerr << "CAS: Spectrum array max size set to " << m_ntc << std::endl;
