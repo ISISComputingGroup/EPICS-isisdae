@@ -911,6 +911,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_integralsCountRateString, asynParamFloat64, &P_integralsCountRate); 
 	createParam(P_integralsSpecCountRateString, asynParamFloat64, &P_integralsSpecCountRate); 
 	createParam(P_integralsSpecMaxString, asynParamFloat64, &P_integralsSpecMax); 
+	createParam(P_integralsDataModeString, asynParamInt32, &P_integralsDataMode); 
 	
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
@@ -956,10 +957,10 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, ADBinY, 1);
 		status |= setIntegerParam(i, ADReverseX, 0);
 		status |= setIntegerParam(i, ADReverseY, 0);
-		status |= setIntegerParam(i, ADSizeX, maxSizeX);
-		status |= setIntegerParam(i, ADSizeY, maxSizeY);
-		status |= setIntegerParam(i, NDArraySizeX, maxSizeX);
-		status |= setIntegerParam(i, NDArraySizeY, maxSizeY);
+		status |= setIntegerParam(i, ADSizeX, 1);
+		status |= setIntegerParam(i, ADSizeY, 1);
+		status |= setIntegerParam(i, NDArraySizeX, 1);
+		status |= setIntegerParam(i, NDArraySizeY, 1);
 		status |= setIntegerParam(i, NDArraySize, 0);
 		status |= setIntegerParam(i, NDDataType, dataType);
 		status |= setIntegerParam(i, ADImageMode, ADImageContinuous);
@@ -1521,7 +1522,7 @@ void isisdaeDriver::pollerThread3()
 void isisdaeDriver::pollerThread4()
 {
     static const char* functionName = "isisdaePoller4";
-	int acquiring, enable;
+	int acquiring, enable, data_mode;
 	int all_acquiring, all_enable;
     int status = asynSuccess;
     int imageCounter;
@@ -1547,6 +1548,7 @@ void isisdaeDriver::pollerThread4()
 			acquiring = enable = 0;
 		    getIntegerParam(i, ADAcquire, &acquiring);
 		    getIntegerParam(i, P_integralsEnable, &enable);
+		    getIntegerParam(i, P_integralsDataMode, &data_mode);
             getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
 			all_acquiring |= acquiring;
 			all_enable |= enable;
@@ -1573,7 +1575,7 @@ void isisdaeDriver::pollerThread4()
             callParamCallbacks(i, i);
             
             /* Update the image */
-            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
 
 //            if (status) continue;
 
@@ -1669,7 +1671,7 @@ void isisdaeDriver::pollerThread4()
 }
 
 /** Computes the new image data */
-int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
+int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode)
 {
     int status = asynSuccess;
     NDDataType_t dataType;
@@ -1776,8 +1778,8 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
     /* Free the previous raw buffer */
         if (m_pRaw) m_pRaw->release();
         /* Allocate the raw buffer we use to compute images. */
-        dims[xDim] = maxSizeX;
-        dims[yDim] = maxSizeY;
+        dims[xDim] = sizeX;
+        dims[yDim] = sizeY;
         if (ndims > 2) dims[colorDim] = 3;
         m_pRaw = this->pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
 
@@ -1791,28 +1793,28 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
     }
 
@@ -1903,7 +1905,7 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
@@ -1955,14 +1957,23 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	const uint32_t* integrals;
 	int max_spec_int_size;
 	try {
-        integrals = m_iface->getEventSpecIntegrals();
-	    max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+		if (data_mode == 0)
+		{
+            integrals = m_iface->getEventSpecIntegrals();
+	        max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+		}
+		else if (data_mode == 1)
+		{
+            integrals = m_iface->getData();
+	        max_spec_int_size = m_iface->getDataSize();
+		}
 	}
 	catch(...) {
 		return status;
 	}
+	// in data_mode == 1 nspec here will be time channels * spectra
 	int nspec = sizeX * sizeY;
-	if ( (spec_start + nspec) > (numSpec + 1) )
+	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1)) )
 	{
 		nspec = numSpec + 1 - spec_start;
 	}
