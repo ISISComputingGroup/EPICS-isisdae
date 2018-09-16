@@ -245,6 +245,8 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
     const char *paramName = NULL;
 	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
+	int addr = 0;
+	getAddress(pasynUser, &addr);
 	try
 	{
 	    m_iface->resetMessages();
@@ -329,6 +331,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         else if (function == P_NumPeriods)
 		{
 			m_iface->setNumPeriods(static_cast<long>(value));
+		}
+		else if (function == P_integralsTMin)
+		{
+			double intgTMax(0.0);
+			getDoubleParam(addr, P_integralsTMax, &intgTMax);
+			m_iface->setSpecIntgCutoff(value, intgTMax);
+		}
+		else if (function == P_integralsTMax)
+		{
+			double intgTMin(0.0);
+			getDoubleParam(addr, P_integralsTMin, &intgTMin);
+			m_iface->setSpecIntgCutoff(intgTMin, value);
 		}
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -912,6 +926,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_integralsSpecCountRateString, asynParamFloat64, &P_integralsSpecCountRate); 
 	createParam(P_integralsSpecMaxString, asynParamFloat64, &P_integralsSpecMax); 
 	createParam(P_integralsDataModeString, asynParamInt32, &P_integralsDataMode); 
+	createParam(P_integralsTMinString, asynParamFloat64, &P_integralsTMin); 
+	createParam(P_integralsTMaxString, asynParamFloat64, &P_integralsTMax); 
 	
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
@@ -971,10 +987,13 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, P_integralsTransformMode, 0);
 		status |= setIntegerParam(i, P_integralsEnable, 0);
 		status |= setIntegerParam(i, P_integralsMode, 0);
+		status |= setIntegerParam(i, P_integralsDataMode, 0);
 		status |= setDoubleParam(i, P_integralsUpdateRate, 0.0);
 		status |= setDoubleParam(i, P_integralsCountRate, 0.0);
 		status |= setDoubleParam(i, P_integralsSpecCountRate, 0.0);
 		status |= setDoubleParam(i, P_integralsSpecMax, 0.0);
+		status |= setDoubleParam(i, P_integralsTMin, 0.0);
+		status |= setDoubleParam(i, P_integralsTMax, 0.0);
 	}
     if (status) {
         printf("%s: unable to set DAE parameters\n", functionName);
@@ -1550,6 +1569,7 @@ void isisdaeDriver::pollerThread4()
 		    getIntegerParam(i, P_integralsEnable, &enable);
 		    getIntegerParam(i, P_integralsDataMode, &data_mode);
             getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
+			
 			all_acquiring |= acquiring;
 			all_enable |= enable;
 		    if (acquiring == 0 || enable == 0)
@@ -1857,7 +1877,7 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 }
 
 template <typename epicsType> 
-void isisdaeDriver::computeColour(double value, double maxval, epicsType& mono)
+void isisdaeDriver::computeColour(double value, double maxval, double& scaled_maxval, epicsType& mono)
 {
 	epicsType limit = std::numeric_limits<epicsType>::max();
 	if (maxval > (double)limit)
@@ -1867,6 +1887,10 @@ void isisdaeDriver::computeColour(double value, double maxval, epicsType& mono)
 	else
 	{
 		mono = static_cast<epicsType>(value);
+	}
+	if (mono > scaled_maxval)
+	{
+		scaled_maxval = mono;
 	}
 }
 
@@ -1955,7 +1979,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
 	const uint32_t* integrals;
-	int max_spec_int_size;
+	int max_spec_int_size = 0;
 	try {
 		if (data_mode == 0)
 		{
@@ -2037,13 +2061,13 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	}
 	totalCntsDiff = (cntSum > oldCntSum ? cntSum - oldCntSum : 0);
 	memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
-	
+	double scaled_maxval = 0.0;
     k = 0;
 	for (i=0; i<sizeY; i++) {
 		switch (colorMode) {
 			case NDColorModeMono:
 				for (j=0; j<sizeX; j++) {
-					computeColour(dintegrals[k], maxval, *pMono);
+					computeColour(dintegrals[k], maxval, scaled_maxval, *pMono);
 					++pMono;
 					++k;
 				}
@@ -2063,6 +2087,10 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 				pBlue  += rowStep;
 				break;
 		}
+	}
+	if (scaled_maxval != 0.0)
+	{
+		maxval = scaled_maxval;
 	}
 	delete []dintegrals;
     return(status);

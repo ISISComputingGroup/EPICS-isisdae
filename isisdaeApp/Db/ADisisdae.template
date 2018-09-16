@@ -94,6 +94,42 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
     info(autosaveFields, "VAL")
 }
 
+record(ai, "$(P)$(R)INTG:TMIN")
+{
+    field(DESC, "Integrals TMIN")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMIN")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(ao, "$(P)$(R)INTG:TMIN:SP")
+{
+    field(DESC, "Set Integrals TMIN")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMIN")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(R)INTG:TMAX")
+{
+    field(DESC, "Integrals TMAX")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMAX")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(ao, "$(P)$(R)INTG:TMAX:SP")
+{
+    field(DESC, "Set Integrals TMAX")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMAX")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
 record(ai, "$(P)$(R)INTG:UPD:RATE")
 {
     field(DESC, "Integrals Update Rate")

@@ -403,7 +403,7 @@ void isisdaeInterface::checkConnection()
 		catch(const std::exception& ex)
 		{
 			m_data_map = NULL;
-			std::cerr << "Error mapping CRPT" << std::endl;
+			std::cerr << "Error mapping CRPT: " << ex.what() << std::endl;
 		}
 	}
 	else
@@ -432,7 +432,7 @@ void isisdaeInterface::checkConnection()
 		catch(const std::exception& ex)
 		{
 			m_data_map = NULL;
-			std::cerr << "Error mapping CRPT" << std::endl;
+			std::cerr << "Error mapping CRPT: " << ex.what() << std::endl;
 		}
 	}
 }
@@ -1084,5 +1084,17 @@ void isisdaeInterface::getVetoInfo(std::vector<std::string>& names, std::vector<
 	else
 	{
 //		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));
+	}
+}
+
+void isisdaeInterface::setSpecIntgCutoff(double tmin, double tmax)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::setSpecIntgCutoff, _1, static_cast<float>(tmin), static_cast<float>(tmax), _2));
+	}
+	else
+	{
+//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1));
 	}
 }
