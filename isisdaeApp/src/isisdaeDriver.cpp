@@ -1935,11 +1935,12 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
     int columnStep=0, rowStep=0, colorMode, numSpec;
     int status = asynSuccess;
     double exposureTime, gain;
-    int i, j, k, integMode;
+    int i, j, k, integMode, period, numPeriods;
 	long cntDiff;
 	uint64_t cntSum, oldCntSum; 
 	static std::vector<uint32_t*> old_integrals(10, NULL);
 	static std::vector<int> old_nspec(10, 0);
+	static int old_period[10];
 	
 	maxval = 0.0;
 	totalCntsDiff =  maxSpecCntsDiff = 0;
@@ -1949,6 +1950,12 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
     status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
 	status = getIntegerParam(addr, P_integralsMode,  &integMode);
 	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
+	status = getIntegerParam(0, P_Period, &period);
+	status = getIntegerParam(0, P_NumPeriods, &numPeriods);
+
+    // adjust start spectrum for period
+	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
+	spec_start += (period - 1) * (numSpec + 1);
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -1997,15 +2004,15 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	}
 	// in data_mode == 1 nspec here will be time channels * spectra
 	int nspec = sizeX * sizeY;
-	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1)) )
+	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1) * numPeriods) )
 	{
-		nspec = numSpec + 1 - spec_start;
+		nspec = 0;
 	}
 	if ( (spec_start + nspec) > max_spec_int_size )
 	{
-		nspec = max_spec_int_size - spec_start;
+		nspec = 0;
 	}
-	if (integrals == NULL || nspec <= 0)
+	if (integrals == NULL || nspec <= 0 || spec_start < 0)
 	{
 		return status;
 	}
@@ -2017,6 +2024,11 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 		}
 		old_integrals[addr] = new uint32_t[nspec];
 		old_nspec[addr] = nspec;
+		memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
+	}
+	if (old_period[addr] != period) // this is so we don;t get an incorrect count rate on period change as old_integrals is for wrong period
+	{
+		old_period[addr] = period;
 		memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	}
 	double* dintegrals = new double[sizeX * sizeY];
