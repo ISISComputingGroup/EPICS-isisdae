@@ -169,7 +169,7 @@ private:
 	void setADAcquire(int acquire);
 	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
     template <typename epicsType> 
-	  void computeColour(double value, double maxval, epicsType& mono);
+	  void computeColour(double value, double maxval, double& scaled_maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> 
