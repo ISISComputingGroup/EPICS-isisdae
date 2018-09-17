@@ -1952,8 +1952,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
 	status = getIntegerParam(0, P_Period, &period);
 	status = getIntegerParam(0, P_NumPeriods, &numPeriods);
-
-    // adjust start spectrum for period
+	// adjust start spectrum for period
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
 
@@ -2074,7 +2073,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	totalCntsDiff = (cntSum > oldCntSum ? cntSum - oldCntSum : 0);
 	memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	double scaled_maxval = 0.0;
-    k = 0;
+	k = 0;
 	for (i=0; i<sizeY; i++) {
 		switch (colorMode) {
 			case NDColorModeMono:
