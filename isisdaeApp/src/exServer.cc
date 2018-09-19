@@ -304,10 +304,10 @@ void exServer::show (unsigned level) const
 }
 
 
-void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis, const char* units)
+void exServer::createAxisPVs(const char* prefix, int spec, int period, const char* axis, const char* units)
 {
 	char buffer[256], pvAlias[256];
-    sprintf(buffer, "%s:%d:%d:%c", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s", prefix, period, spec, axis);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units, aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
 	SpectrumPV* pSPV = new SpectrumPV(*this, *pPVI, true, scanOn, axis, spec, period);
@@ -318,14 +318,14 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%c", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
     }
 	
-    sprintf(buffer, "%s:%d:%d:%c.NORD", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, spec, axis);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
@@ -334,36 +334,36 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, char axis
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%c.NORD", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.NORD", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%c.NELM", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.NELM", prefix, period, spec, axis);
 	pPVI = createFixedPV(buffer, m_ntc, "", aitEnumInt32);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%c.NELM", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.NELM", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%c.DESC", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.DESC", prefix, period, spec, axis);
 	std::ostringstream desc;
 	desc << axis << " (spec=" << spec << ",period=" << period << ")";
 	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%c.DESC", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.DESC", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%c.EGU", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.EGU", prefix, period, spec, axis);
 	pPVI = createFixedPV(buffer, std::string(units), "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%c.EGU", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.EGU", prefix, spec, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
@@ -427,8 +427,7 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
 bool exServer::createSpecPVs(const std::string& pvStr)
 {
     int spec, period;
-	char axis;
-	std::string field;
+	std::string axis, field;
 	char buffer[256];
     if (!parseSpecPV(pvStr, spec, period, axis, field))
 	{
@@ -440,8 +439,9 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("SPEC", spec, period, 'X', "us");
-	createAxisPVs("SPEC", spec, period, 'Y', "cnt /us"); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs("SPEC", spec, period, "X", "us");
+	createAxisPVs("SPEC", spec, period, "Y", "cnt /us"); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs("SPEC", spec, period, "YC", "cnt");
 	createCountsPV("SPEC", spec, period);
 
     return true;
@@ -450,8 +450,7 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 bool exServer::createMonitorPVs(const std::string& pvStr)
 {
     int mon, period;
-	char axis;
-	std::string field;
+	std::string axis, field;
 	char buffer[256], pvAlias[256];
     if (!parseMonitorPV(pvStr, mon, period, axis, field))
 	{
@@ -463,8 +462,9 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("MON", mon, period, 'X', "us");
-	createAxisPVs("MON", mon, period, 'Y', "cnt /us");
+	createAxisPVs("MON", mon, period, "X", "us");
+	createAxisPVs("MON", mon, period, "Y", "cnt /us");  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs("MON", mon, period, "Z", "cnt");
 	createCountsPV("MON", mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
@@ -487,11 +487,11 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	return true;
 }
 
-bool parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis, std::string& field)
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then spectrum
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):([XYC])([.].*)?");
-    pcrecpp::RE spec_re("SPEC:(\\d+):([XYC])([.].*)?");
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_re("SPEC:(\\d+):(X|YC|Y|C)([.].*)?");
     
     if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis, &field))
     {
@@ -505,11 +505,11 @@ bool parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis, s
 	return true;
 }
 
-bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis, std::string& field)
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then monitor
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):([XYCS])([.].*)?");
-    pcrecpp::RE monitor_re("MON:(\\d+):([XYCS])([.].*)?");
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_re("MON:(\\d+):(X|YC|Y|C|S)([.].*)?");
 	if (!monitor_per_re.FullMatch(pvStr, &period, &mon, &axis, &field))
 	{
         if (!monitor_re.FullMatch(pvStr, &mon, &axis, &field))

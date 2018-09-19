@@ -60,8 +60,8 @@
 #endif
 
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-bool parseSpecPV(const std::string& pvStr, int& spec, int& period, char& axis, std::string& field);
-bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, char& axis, std::string& field);
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field);
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field);
 //int parseSamplePV(const std::string& pvStr, std::string& param); 
 //int parseBeamlinePV(const std::string& pvStr, std::string& param); 
 
@@ -356,11 +356,11 @@ class exVecDestructor: public gddDestructor {
 
 class SpectrumPV : public exVectorPV {
 public:
-    SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, char axis, int spec, int period);
+    SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period);
 	virtual bool getNewValue(smartGDDPointer& pDD);
     int& getNORD() { return m_nord; }
 private:
-	char m_axis;
+	std::string m_axis;
     int m_spec;
 	int m_period;
 	int m_nord;
@@ -426,7 +426,7 @@ public:
 	
 	bool createSpecPVs(const std::string& pvStr);
 	bool createMonitorPVs(const std::string& pvStr);
-	void createAxisPVs(const char* prefix, int spec, int period, char axis, const char* units);
+	void createAxisPVs(const char* prefix, int spec, int period, const char* axis, const char* units);
 	void createCountsPV(const char* prefix, int spec, int period);
     template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
 
