@@ -464,7 +464,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 
 	createAxisPVs("MON", mon, period, "X", "us");
 	createAxisPVs("MON", mon, period, "Y", "cnt /us");  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
-	createAxisPVs("MON", mon, period, "Z", "cnt");
+	createAxisPVs("MON", mon, period, "YC", "cnt");
 	createCountsPV("MON", mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
