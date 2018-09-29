@@ -1,6 +1,7 @@
 include "ADBase.template"
 
-# number of spectra determined by areaDetctor (SizeX * SizeY)
+# number of spectra determined by (SPEC:SIZEX * SPEC:SIZEY) which is used to 
+# set area detector ADMaxSizeX etc.
 
 record(bi, "$(P)$(R)INTG:ENABLE")
 {
@@ -64,6 +65,46 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
     field(DESC, "Integrals Spec Start")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_START")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+## same as MaxSizeX_RBV
+record(longin, "$(P)$(R)INTG:SPEC:SIZEX")
+{
+    field(DESC, "Integrals Spec X Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_X")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+## The MaxSizeX parameter cannot be set from DB in normal areaDetector templates
+record(longout, "$(P)$(R)INTG:SPEC:SIZEX:SP")
+{
+    field(DESC, "Integrals Spec X Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_X")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+## same as MaxSizeY_RBV
+record(longin, "$(P)$(R)INTG:SPEC:SIZEY")
+{
+    field(DESC, "Integrals Spec Y Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_Y")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+## The MaxSizeY parameter cannot be set from DB in normal areaDetector templates
+record(longout, "$(P)$(R)INTG:SPEC:SIZEY:SP")
+{
+    field(DESC, "Integrals Spec Y Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_Y")
 	field(PINI, "YES")
     info(autosaveFields, "VAL")
 }

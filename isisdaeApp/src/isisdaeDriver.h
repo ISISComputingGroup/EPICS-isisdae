@@ -8,7 +8,7 @@ class isisdaeInterface;
 class isisdaeDriver : public ADDriver 
 {
 public:
-    isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet, int maxSizeX, int maxSizeY);
+    isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet);
  	static void pollerThreadC1(void* arg);
  	static void pollerThreadC2(void* arg);
  	static void pollerThreadC3(void* arg);
@@ -173,7 +173,7 @@ private:
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> 
-	  int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
+	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);

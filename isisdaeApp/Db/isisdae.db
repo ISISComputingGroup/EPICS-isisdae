@@ -612,6 +612,26 @@ record(bo, "$(P)$(Q)ENDSEWAIT")
     field(ONAM, "1")
 }
 
+## show number of seconds in WAITING state
+record(ai, "$(P)$(Q)WAITING:TIME")
+{
+    field(VAL, "0")
+    field(DESC, "Time in WAITING state")
+	field(EGU, "s")
+	field(PREC, "1")
+}
+
+## calculate number of seconds in WAITING state
+record(calcout, "$(P)$(Q)WAITING:TIME:_CALC")
+{
+    field(INPA, "$(P)$(Q)RUNSTATE NPP")
+    field(INPB, "$(P)$(Q)WAITING:TIME NPP")
+	field(CALC, "A = 4 ? B + 1 : 0")
+	field(OOPT, "On Change")
+    field(OUT, "$(P)$(Q)WAITING:TIME PP")
+    field(SCAN, "1 second")
+}
+
 ## 2 for RUNNING and 4 for WAITING are used in a runcontrol check, so be careful about changing numbers
 record(mbbi, "$(P)$(Q)RUNSTATE")
 {

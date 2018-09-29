@@ -759,7 +759,7 @@ std::vector<T>& operator<<(std::vector<T>& vec, const T& val)
 /// Calls constructor for the asynPortDriver base class.
 /// \param[in] dcomint DCOM interface pointer created by lvDCOMConfigure()
 /// \param[in] portName @copydoc initArg0
-isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet, int maxSizeX, int maxSizeY)
+isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int ndet)
    : ADDriver(portName, 
                     (ndet < 1 ? 1 : ndet), /* maxAddr */
                     NUM_ISISDAE_PARAMS,
@@ -948,8 +948,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	{
 		status =  setStringParam (i, ADManufacturer, "STFC ISIS");
 		status |= setStringParam (i, ADModel, "ISISDAE");
-		status |= setIntegerParam(i, ADMaxSizeX, maxSizeX);
-		status |= setIntegerParam(i, ADMaxSizeY, maxSizeY);
+		status |= setIntegerParam(i, ADMaxSizeX, 1);
+		status |= setIntegerParam(i, ADMaxSizeY, 1);
 		status |= setIntegerParam(i, ADMinX, 0);
 		status |= setIntegerParam(i, ADMinY, 0);
 		status |= setIntegerParam(i, ADBinX, 1);
@@ -960,7 +960,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, ADSizeY, 1);
 		status |= setIntegerParam(i, NDArraySizeX, 1);
 		status |= setIntegerParam(i, NDArraySizeY, 1);
-		status |= setIntegerParam(i, NDArraySize, 0);
+		status |= setIntegerParam(i, NDArraySize, 1);
 		status |= setIntegerParam(i, NDDataType, dataType);
 		status |= setIntegerParam(i, ADImageMode, ADImageContinuous);
 		status |= setDoubleParam (i, ADAcquireTime, .001);
@@ -1776,8 +1776,8 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
     /* Free the previous raw buffer */
         if (m_pRaw) m_pRaw->release();
         /* Allocate the raw buffer we use to compute images. */
-        dims[xDim] = sizeX;
-        dims[yDim] = sizeY;
+        dims[xDim] = maxSizeX;
+        dims[yDim] = maxSizeY;
         if (ndims > 2) dims[colorDim] = 3;
         m_pRaw = this->pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
 
@@ -1791,28 +1791,28 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, sizeX, sizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
             break;
     }
 
@@ -1907,12 +1907,12 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
     int status = asynSuccess;
-    double exposureTime, gain;
+    double exposureTime;
     int i, j, k, integMode, period, numPeriods;
 	long cntDiff;
 	uint64_t cntSum, oldCntSum; 
@@ -1923,7 +1923,6 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	maxval = 0.0;
 	totalCntsDiff =  maxSpecCntsDiff = 0;
 
-    status = getDoubleParam (addr, ADGain,        &gain);
     status = getIntegerParam(addr, NDColorMode,   &colorMode);
     status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
 	status = getIntegerParam(addr, P_integralsMode,  &integMode);
@@ -1948,17 +1947,17 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
             break;
         case NDColorModeRGB2:
             columnStep = 1;
-            rowStep = 2 * sizeX;
+            rowStep = 2 * maxSizeX;
             pRed   = (epicsType *)m_pRaw->pData;
-            pGreen = (epicsType *)m_pRaw->pData + sizeX;
-            pBlue  = (epicsType *)m_pRaw->pData + 2*sizeX;
+            pGreen = (epicsType *)m_pRaw->pData + maxSizeX;
+            pBlue  = (epicsType *)m_pRaw->pData + 2*maxSizeX;
             break;
         case NDColorModeRGB3:
             columnStep = 1;
             rowStep = 0;
             pRed   = (epicsType *)m_pRaw->pData;
-            pGreen = (epicsType *)m_pRaw->pData + sizeX*sizeY;
-            pBlue  = (epicsType *)m_pRaw->pData + 2*sizeX*sizeY;
+            pGreen = (epicsType *)m_pRaw->pData + maxSizeX*maxSizeY;
+            pBlue  = (epicsType *)m_pRaw->pData + 2*maxSizeX*maxSizeY;
             break;
     }
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
@@ -1972,7 +1971,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	catch(...) {
 		return status;
 	}
-	int nspec = sizeX * sizeY;
+	int nspec = maxSizeX * maxSizeY;
 	if ( (spec_start + nspec) > (numSpec + 1) * numPeriods )
 	{
 		nspec = 0;
@@ -2000,7 +1999,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 		old_period[addr] = period;
 		memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	}
-	double* dintegrals = new double[sizeX * sizeY];
+	double* dintegrals = new double[maxSizeX * maxSizeY];
 	for(i=0; i<nspec; ++i)
 	{
 		// use int64_t so can both be signed and also hold uint32_t fully
@@ -2022,7 +2021,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 		    dintegrals[i] = log(static_cast<double>(1 + integ));
 	    }
 	}
-	for(i=nspec; i < (sizeX * sizeY); ++i)
+	for(i=nspec; i < (maxSizeX * maxSizeY); ++i)
 	{
 		dintegrals[i] = 0.0;		
 	}
@@ -2045,10 +2044,10 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	double scaled_maxval = 0.0;
 	
     k = 0;
-	for (i=0; i<sizeY; i++) {
+	for (i=0; i<maxSizeY; i++) {
 		switch (colorMode) {
 			case NDColorModeMono:
-				for (j=0; j<sizeX; j++) {
+				for (j=0; j<maxSizeX; j++) {
 					computeColour(dintegrals[k], maxval, scaled_maxval, *pMono);
 					++pMono;
 					++k;
@@ -2057,7 +2056,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 			case NDColorModeRGB1:
 			case NDColorModeRGB2:
 			case NDColorModeRGB3:
-				for (j=0; j<sizeX; j++) {
+				for (j=0; j<maxSizeX; j++) {
 					computeColour(dintegrals[k], maxval, *pRed, *pGreen, *pBlue);
 					pRed   += columnStep;
 					pGreen += columnStep;
@@ -2214,7 +2213,7 @@ void isisdaeShowPCAS(int level)
 /// \param[in] progid @copydoc initArg5
 /// \param[in] username @copydoc initArg6
 /// \param[in] password @copydoc initArg7
-int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password, int ndet, int maxSizeX, int maxSizeY)
+int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password, int ndet)
 {
 	registerStructuredExceptionHandler();
 	try
@@ -2222,7 +2221,7 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 		isisdaeInterface* iface = new isisdaeInterface(host, options, username, password);
 		if (iface != NULL)
 		{
-			isisdaeDriver* driver = new isisdaeDriver(iface, portName, ndet, maxSizeX, maxSizeY);
+			isisdaeDriver* driver = new isisdaeDriver(iface, portName, ndet);
 			if (driver != NULL)
 			{
 				if (epicsThreadCreate("daeCAS",
@@ -2265,23 +2264,19 @@ static const iocshArg initArg2 = { "host", iocshArgString};				///< host name wh
 static const iocshArg initArg3 = { "username", iocshArgString};			///< (optional) remote username for host #initArg3
 static const iocshArg initArg4 = { "password", iocshArgString};			///< (optional) remote password for username #initArg6 on host #initArg3
 static const iocshArg initArg5 = { "ndet", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
-static const iocshArg initArg6 = { "maxSizeX", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
-static const iocshArg initArg7 = { "maxSizeY", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
 
 static const iocshArg * const initArgs[] = { &initArg0,
                                              &initArg1,
                                              &initArg2,
                                              &initArg3,
                                              &initArg4,
-                                             &initArg5,
-                                             &initArg6,
-											 &initArg7 };
+                                             &initArg5 };
 
 static const iocshFuncDef initFuncDef = {"isisdaeConfigure", sizeof(initArgs) / sizeof(iocshArg*), initArgs};
 
 static void initCallFunc(const iocshArgBuf *args)
 {
-    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval, args[5].ival, args[6].ival, args[7].ival);
+    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval, args[5].ival);
 }
 
 // isisdaeShowPCAS
