@@ -42,7 +42,7 @@ static epicsThreadOnceId onceId = EPICS_THREAD_ONCE_INIT;
 
 static const char *driverName="isisdaeDriver";
 
-const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING" };
+const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING", "CHANGING" };
 
 /// An STL exception describing a Win32 Structured Exception. 
 /// Code needs to be compiled with /EHa if you wish to use this via _set_se_translator().
@@ -615,6 +615,20 @@ void isisdaeDriver::translateBeamlineType(std::string& str)
 	}
 }
 
+void isisdaeDriver::settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg)
+{
+	if (m_RunStatus == RS_SETUP)
+	{
+	    beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+		(m_iface->*func)(value);
+        endStateTransition();
+	}
+	else
+	{
+		throw std::runtime_error(err_msg);
+	}
+}
+
 asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual)
 {
     int function = pasynUser->reason;
@@ -682,23 +696,32 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         }
         else if (function == P_DAESettings)
 		{
-			m_iface->setDAESettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setDAESettingsXML, value_s, "Can only change DAE settings in SETUP");
 		}
         else if (function == P_HardwarePeriodsSettings)
 		{
-			m_iface->setHardwarePeriodsSettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setHardwarePeriodsSettingsXML, value_s, "Can only change Hardware period settings in SETUP");			
 		}
         else if (function == P_UpdateSettings)
 		{
-			m_iface->setUpdateSettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setUpdateSettingsXML, value_s, "Can only change Update settings in SETUP");			
 		}
         else if (function == P_TCBSettings)
 		{
-		    std::string tcb_xml;
-		    if (uncompressString(value_s, tcb_xml) == 0)
+			if (m_RunStatus == RS_SETUP)
 			{
-                size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
-                m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
+		        beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+		        std::string tcb_xml;
+		        if (uncompressString(value_s, tcb_xml) == 0)
+			    {
+                    size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
+                    m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
+			    }
+                endStateTransition();
+			}
+			else
+			{
+				throw std::runtime_error("Can only change TCB settings in SETUP");			
 			}
 		}        
         else if (function == P_SnapshotCRPT)

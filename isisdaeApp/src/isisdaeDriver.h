@@ -13,7 +13,7 @@ public:
  	static void pollerThreadC2(void* arg);
  	static void pollerThreadC3(void* arg);
  	static void pollerThreadC4(void* arg);
-    enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
+    enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13,RS_CHANGING=14 };
 	static const char* RunStateNames[];
 
     // These are the methods that we override from asynPortDriver
@@ -180,7 +180,9 @@ private:
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
-    
+
+    void settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg);
+  
 };
 
 #define NUM_ISISDAE_PARAMS (&LAST_ISISDAE_PARAM - &FIRST_ISISDAE_PARAM + 1)
