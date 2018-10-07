@@ -1004,13 +1004,13 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
     return 0;
 }
 
-long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals)
+long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution)
 {
 	long sum = 0, n;
 	if (m_dcom)
 	{
 		variant_t time_channels_v, signal_v;
-		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, false, true, &sum, _2));
+		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, false, as_distribution, &sum, _2));
 		double *s = NULL, *t = NULL;
 		accessArrayVariant(&signal_v, &s);
 		accessArrayVariant(&time_channels_v, &t);
@@ -1026,7 +1026,7 @@ long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, f
 	else
 	{
 		std::vector<double> time_channels_v, signal_v;
-		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, true, boost::ref(sum), _1));
+		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, as_distribution, boost::ref(sum), _1));
 		n = static_cast<long>(signal_v.size());
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
