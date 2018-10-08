@@ -42,7 +42,7 @@ static epicsThreadOnceId onceId = EPICS_THREAD_ONCE_INIT;
 
 static const char *driverName="isisdaeDriver";
 
-const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING" };
+const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING", "CHANGING" };
 
 /// An STL exception describing a Win32 Structured Exception. 
 /// Code needs to be compiled with /EHa if you wish to use this via _set_se_translator().
@@ -245,6 +245,8 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
     const char *paramName = NULL;
 	registerStructuredExceptionHandler();
 	getParamName(function, &paramName);
+	int addr = 0;
+	getAddress(pasynUser, &addr);
 	try
 	{
 	    m_iface->resetMessages();
@@ -329,6 +331,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
         else if (function == P_NumPeriods)
 		{
 			m_iface->setNumPeriods(static_cast<long>(value));
+		}
+		else if (function == P_integralsTMin)
+		{
+			double intgTMax(0.0);
+			getDoubleParam(addr, P_integralsTMax, &intgTMax);
+			m_iface->setSpecIntgCutoff(value, intgTMax);
+		}
+		else if (function == P_integralsTMax)
+		{
+			double intgTMin(0.0);
+			getDoubleParam(addr, P_integralsTMin, &intgTMin);
+			m_iface->setSpecIntgCutoff(intgTMin, value);
 		}
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -615,6 +629,20 @@ void isisdaeDriver::translateBeamlineType(std::string& str)
 	}
 }
 
+void isisdaeDriver::settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg)
+{
+	if (m_RunStatus == RS_SETUP)
+	{
+	    beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+		(m_iface->*func)(value);
+        endStateTransition();
+	}
+	else
+	{
+		throw std::runtime_error(err_msg);
+	}
+}
+
 asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual)
 {
     int function = pasynUser->reason;
@@ -682,23 +710,32 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         }
         else if (function == P_DAESettings)
 		{
-			m_iface->setDAESettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setDAESettingsXML, value_s, "Can only change DAE settings in SETUP");
 		}
         else if (function == P_HardwarePeriodsSettings)
 		{
-			m_iface->setHardwarePeriodsSettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setHardwarePeriodsSettingsXML, value_s, "Can only change Hardware period settings in SETUP");			
 		}
         else if (function == P_UpdateSettings)
 		{
-			m_iface->setUpdateSettingsXML(value_s);
+			settingsOP(&isisdaeInterface::setUpdateSettingsXML, value_s, "Can only change Update settings in SETUP");			
 		}
         else if (function == P_TCBSettings)
 		{
-		    std::string tcb_xml;
-		    if (uncompressString(value_s, tcb_xml) == 0)
+			if (m_RunStatus == RS_SETUP)
 			{
-                size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
-                m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
+		        beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+		        std::string tcb_xml;
+		        if (uncompressString(value_s, tcb_xml) == 0)
+			    {
+                    size_t found = tcb_xml.find_last_of(">");  // in cased junk on end
+                    m_iface->setTCBSettingsXML(tcb_xml.substr(0,found+1));
+			    }
+                endStateTransition();
+			}
+			else
+			{
+				throw std::runtime_error("Can only change TCB settings in SETUP");			
 			}
 		}        
         else if (function == P_SnapshotCRPT)
@@ -911,6 +948,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_integralsCountRateString, asynParamFloat64, &P_integralsCountRate); 
 	createParam(P_integralsSpecCountRateString, asynParamFloat64, &P_integralsSpecCountRate); 
 	createParam(P_integralsSpecMaxString, asynParamFloat64, &P_integralsSpecMax); 
+	createParam(P_integralsDataModeString, asynParamInt32, &P_integralsDataMode); 
+	createParam(P_integralsTMinString, asynParamFloat64, &P_integralsTMin); 
+	createParam(P_integralsTMaxString, asynParamFloat64, &P_integralsTMax); 
 	
 	createParam(P_simulationModeString, asynParamInt32, &P_simulationMode); 
 	
@@ -970,10 +1010,13 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, P_integralsTransformMode, 0);
 		status |= setIntegerParam(i, P_integralsEnable, 0);
 		status |= setIntegerParam(i, P_integralsMode, 0);
+		status |= setIntegerParam(i, P_integralsDataMode, 0);
 		status |= setDoubleParam(i, P_integralsUpdateRate, 0.0);
 		status |= setDoubleParam(i, P_integralsCountRate, 0.0);
 		status |= setDoubleParam(i, P_integralsSpecCountRate, 0.0);
 		status |= setDoubleParam(i, P_integralsSpecMax, 0.0);
+		status |= setDoubleParam(i, P_integralsTMin, 0.0);
+		status |= setDoubleParam(i, P_integralsTMax, 0.0);
 	}
     if (status) {
         printf("%s: unable to set DAE parameters\n", functionName);
@@ -1521,7 +1564,7 @@ void isisdaeDriver::pollerThread3()
 void isisdaeDriver::pollerThread4()
 {
     static const char* functionName = "isisdaePoller4";
-	int acquiring, enable;
+	int acquiring, enable, data_mode;
 	int all_acquiring, all_enable;
     int status = asynSuccess;
     int imageCounter;
@@ -1547,7 +1590,9 @@ void isisdaeDriver::pollerThread4()
 			acquiring = enable = 0;
 		    getIntegerParam(i, ADAcquire, &acquiring);
 		    getIntegerParam(i, P_integralsEnable, &enable);
+		    getIntegerParam(i, P_integralsDataMode, &data_mode);
             getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
+			
 			all_acquiring |= acquiring;
 			all_enable |= enable;
 		    if (acquiring == 0 || enable == 0)
@@ -1573,7 +1618,7 @@ void isisdaeDriver::pollerThread4()
             callParamCallbacks(i, i);
             
             /* Update the image */
-            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
 
 //            if (status) continue;
 
@@ -1669,7 +1714,7 @@ void isisdaeDriver::pollerThread4()
 }
 
 /** Computes the new image data */
-int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
+int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode)
 {
     int status = asynSuccess;
     NDDataType_t dataType;
@@ -1791,28 +1836,28 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 
     switch (dataType) {
         case NDInt8:
-            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt8:
-            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt8>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDInt16:
-            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt16:
-            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt16>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDInt32:
-            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDUInt32:
-            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDFloat32:
-            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
         case NDFloat64:
-            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff);
+            status |= computeArray<epicsFloat64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
             break;
     }
 
@@ -1907,7 +1952,7 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
@@ -1929,7 +1974,6 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
 	status = getIntegerParam(0, P_Period, &period);
 	status = getIntegerParam(0, P_NumPeriods, &numPeriods);
-
 	// adjust start spectrum for period
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
@@ -1963,16 +2007,25 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
 	const uint32_t* integrals;
-	int max_spec_int_size;
+	int max_spec_int_size = 0;
 	try {
-        integrals = m_iface->getEventSpecIntegrals();
-	    max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+		if (data_mode == 0)
+		{
+            integrals = m_iface->getEventSpecIntegrals();
+	        max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+		}
+		else if (data_mode == 1)
+		{
+            integrals = m_iface->getData();
+	        max_spec_int_size = m_iface->getDataSize();
+		}
 	}
 	catch(...) {
 		return status;
 	}
+	// in data_mode == 1 nspec here will be time channels * spectra
 	int nspec = maxSizeX * maxSizeY;
-	if ( (spec_start + nspec) > (numSpec + 1) * numPeriods )
+	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1) * numPeriods) )
 	{
 		nspec = 0;
 	}
@@ -2042,7 +2095,6 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	totalCntsDiff = (cntSum > oldCntSum ? cntSum - oldCntSum : 0);
 	memcpy(old_integrals[addr], integrals + spec_start, nspec * sizeof(uint32_t));
 	double scaled_maxval = 0.0;
-	
     k = 0;
 	for (i=0; i<maxSizeY; i++) {
 		switch (colorMode) {

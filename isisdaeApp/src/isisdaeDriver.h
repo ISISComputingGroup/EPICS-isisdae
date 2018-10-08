@@ -13,7 +13,7 @@ public:
  	static void pollerThreadC2(void* arg);
  	static void pollerThreadC3(void* arg);
  	static void pollerThreadC4(void* arg);
-    enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13 };
+    enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13,RS_CHANGING=14 };
 	static const char* RunStateNames[];
 
     // These are the methods that we override from asynPortDriver
@@ -128,6 +128,9 @@ private:
 	int P_integralsCountRate; // float
 	int P_integralsSpecCountRate; // float
 	int P_integralsSpecMax; // float
+	int P_integralsDataMode; // int
+	int P_integralsTMin; // float
+	int P_integralsTMax; // float
 	
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
@@ -167,20 +170,22 @@ private:
 	void reportErrors(const char* exc_text);
 	void reportMessages();
 	void setADAcquire(int acquire);
-	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
+	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode);
     template <typename epicsType> 
 	  void computeColour(double value, double maxval, double& scaled_maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> 
-	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
+	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
     template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
-    
+
+    void settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg);
+  
 };
 
 #define NUM_ISISDAE_PARAMS (&LAST_ISISDAE_PARAM - &FIRST_ISISDAE_PARAM + 1)
@@ -279,6 +284,9 @@ private:
 #define P_integralsCountRateString				"INTG_RATE"
 #define P_integralsSpecCountRateString			"INTG_SPEC_RATE"
 #define P_integralsSpecMaxString                "INTG_SPEC_MAX"
+#define P_integralsDataModeString               "INTG_DATA_MODE"
+#define P_integralsTMinString               	"INTG_TMIN"
+#define P_integralsTMaxString               	"INTG_TMAX"
 
 #define P_simulationModeString					"SIM_MODE"
 

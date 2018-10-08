@@ -667,6 +667,8 @@ record(mbbi, "$(P)$(Q)RUNSTATE")
     field(TVST, "UPDATING")
     field(TTVL, 13)
     field(TTST, "STORING")
+    field(FTVL, 14)
+    field(FTST, "CHANGING")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }

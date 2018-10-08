@@ -51,6 +51,32 @@ record(mbbo, "$(P)$(R)INTG:MODE:SP")
     info(autosaveFields, "VAL")
 }
 
+record(mbbi, "$(P)$(R)INTG:DATAMODE")
+{
+    field(DESC, "Integrals Data Mode")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_DATA_MODE")
+    field(SCAN, "I/O Intr")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "TOFSummed")
+	field(ONST, "TOFChannel")
+	info(archive, "VAL")
+}
+
+record(mbbo, "$(P)$(R)INTG:DATAMODE:SP")
+{
+    field(DESC, "Set Integrals Data Mode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_DATA_MODE")
+	field(PINI, "YES")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "TOFSummed")
+	field(ONST, "TOFChannel")
+    info(autosaveFields, "VAL")
+}
+
 record(longin, "$(P)$(R)INTG:SPEC:START")
 {
     field(DESC, "Integrals Spec Start")
@@ -105,6 +131,42 @@ record(longout, "$(P)$(R)INTG:SPEC:SIZEY:SP")
     field(DESC, "Integrals Spec Y Size")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_Y")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(R)INTG:TMIN")
+{
+    field(DESC, "Integrals TMIN")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMIN")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(ao, "$(P)$(R)INTG:TMIN:SP")
+{
+    field(DESC, "Set Integrals TMIN")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMIN")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(R)INTG:TMAX")
+{
+    field(DESC, "Integrals TMAX")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMAX")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(ao, "$(P)$(R)INTG:TMAX:SP")
+{
+    field(DESC, "Set Integrals TMAX")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMAX")
 	field(PINI, "YES")
     info(autosaveFields, "VAL")
 }

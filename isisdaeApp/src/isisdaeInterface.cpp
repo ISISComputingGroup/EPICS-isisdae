@@ -403,7 +403,7 @@ void isisdaeInterface::checkConnection()
 		catch(const std::exception& ex)
 		{
 			m_data_map = NULL;
-			std::cerr << "Error mapping CRPT" << std::endl;
+			std::cerr << "Error mapping CRPT: " << ex.what() << std::endl;
 		}
 	}
 	else
@@ -432,7 +432,7 @@ void isisdaeInterface::checkConnection()
 		catch(const std::exception& ex)
 		{
 			m_data_map = NULL;
-			std::cerr << "Error mapping CRPT" << std::endl;
+			std::cerr << "Error mapping CRPT: " << ex.what() << std::endl;
 		}
 	}
 }
@@ -1004,13 +1004,13 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
     return 0;
 }
 
-long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals)
+long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution)
 {
 	long sum = 0, n;
 	if (m_dcom)
 	{
 		variant_t time_channels_v, signal_v;
-		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, false, true, &sum, _2));
+		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, false, as_distribution, &sum, _2));
 		double *s = NULL, *t = NULL;
 		accessArrayVariant(&signal_v, &s);
 		accessArrayVariant(&time_channels_v, &t);
@@ -1026,7 +1026,7 @@ long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, f
 	else
 	{
 		std::vector<double> time_channels_v, signal_v;
-		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, true, boost::ref(sum), _1));
+		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, as_distribution, boost::ref(sum), _1));
 		n = static_cast<long>(signal_v.size());
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
@@ -1084,5 +1084,17 @@ void isisdaeInterface::getVetoInfo(std::vector<std::string>& names, std::vector<
 	else
 	{
 //		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));
+	}
+}
+
+void isisdaeInterface::setSpecIntgCutoff(double tmin, double tmax)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::setSpecIntgCutoff, _1, static_cast<float>(tmin), static_cast<float>(tmax), _2));
+	}
+	else
+	{
+//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1));
 	}
 }
