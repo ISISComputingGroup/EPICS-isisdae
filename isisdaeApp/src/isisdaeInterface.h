@@ -129,10 +129,13 @@ public:
 	void resetMessages(); 
 	static void stripTimeStamp(const std::string& in, std::string& out);
 	const uint32_t* getEventSpecIntegrals() const { return m_spec_integrals; }
+	const uint32_t* getData() const { return m_data; }
 	int getEventSpecIntegralsSize() const;
+	int getDataSize() const { return m_data_size; }
 	void checkConnection();
 	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
 	void getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames);
+	void setSpecIntgCutoff(double tmin, double tmax);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

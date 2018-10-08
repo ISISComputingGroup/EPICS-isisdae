@@ -128,6 +128,9 @@ private:
 	int P_integralsCountRate; // float
 	int P_integralsSpecCountRate; // float
 	int P_integralsSpecMax; // float
+	int P_integralsDataMode; // int
+	int P_integralsTMin; // float
+	int P_integralsTMax; // float
 	
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
@@ -167,13 +170,13 @@ private:
 	void reportErrors(const char* exc_text);
 	void reportMessages();
 	void setADAcquire(int acquire);
-	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
+	int computeImage(int addr, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode);
     template <typename epicsType> 
 	  void computeColour(double value, double maxval, double& scaled_maxval, epicsType& mono);
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> 
-	  int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff);
+	  int computeArray(int addr, int spec_start, int trans_mode, int sizeX, int sizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
@@ -281,6 +284,9 @@ private:
 #define P_integralsCountRateString				"INTG_RATE"
 #define P_integralsSpecCountRateString			"INTG_SPEC_RATE"
 #define P_integralsSpecMaxString                "INTG_SPEC_MAX"
+#define P_integralsDataModeString               "INTG_DATA_MODE"
+#define P_integralsTMinString               	"INTG_TMIN"
+#define P_integralsTMaxString               	"INTG_TMAX"
 
 #define P_simulationModeString					"SIM_MODE"
 

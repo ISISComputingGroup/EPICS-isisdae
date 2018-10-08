@@ -51,6 +51,7 @@ int CRPTMapping::map()
 		unmap();
 		return -1;		
 	}
+	std::cerr << "CRPT file name = " << fname << std::endl;
 	std::cerr << "CRPT data size (words) = " << m_crpt_data_size << std::endl;
 	std::cerr << "Spec integrals size (words) = " << ISISCRPT_MAX_SPEC_INTEGRALS << std::endl;
 	return 0;

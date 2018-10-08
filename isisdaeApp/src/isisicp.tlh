@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24213.1 (44c622c4).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2c12404b).
 //
-// c:\instrument\apps\epics\support\isisdae\master\isisdaeapp\src\o.windows-x64-debug\isisicp.tlh
+// c:\development\instrumentcontrol\icp-clean\isisicp\x64\debug\isisicp.tlh
 //
 // C++ source equivalent of Win32 type library isisicp.tlb
-// compiler-generated file created 06/22/18 at 18:01:20 - DO NOT EDIT!
+// compiler-generated file created 09/16/18 at 12:20:32 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -360,6 +360,10 @@ Idae : IDispatch
         VARIANT * enabled,
         VARIANT * frames,
         BSTR * messages );
+    HRESULT setSpecIntgCutoff (
+        float low_cutoff,
+        float high_cutoff,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -687,6 +691,10 @@ Idae : IDispatch
         /*[out]*/ VARIANT * alias,
         /*[out]*/ VARIANT * enabled,
         /*[out]*/ VARIANT * frames,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setSpecIntgCutoff (
+        /*[in]*/ float low_cutoff,
+        /*[in]*/ float high_cutoff,
         /*[out]*/ BSTR * messages ) = 0;
 };
 
