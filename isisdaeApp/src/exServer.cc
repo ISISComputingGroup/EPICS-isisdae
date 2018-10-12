@@ -328,7 +328,7 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, const cha
     sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, spec, axis);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
+	exPV* pPV = new NORDPV(*this, *pPVI, true, pSPV->getNORD());
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -375,7 +375,7 @@ pvInfo* exServer::createFixedPV(const std::string& pvStr, const T& value, const 
 	char pvAlias[256];
     pvInfo* pPVI = new pvInfo (0.5, pvStr.c_str(), 0.0f, 0.0f, units, ait_type, 1);   /// @todo would be nice to use arithmetic value, but need to check for strings
     m_pvList[pvStr.c_str()] = pPVI;
-	exPV* pPV = new FixedValuePV<T>(*this, *pPVI, true, scanOn, value);
+	exPV* pPV = new FixedValuePV<T>(*this, *pPVI, true, value);
     pPVI->setPV(pPV);
 	epicsSnprintf(pvAlias, sizeof(pvAlias), "%s%s", m_pvPrefix.c_str(), pvStr.c_str());
     this->installAliasName(*pPVI, pvAlias);
@@ -470,7 +470,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
     sprintf(buffer, "MON:%d:%d:S", period, mon);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new MonLookupPV(*this, *pPVI, true, scanOn, mon);
+	exPV* pPV = new MonLookupPV(*this, *pPVI, true, mon);
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);

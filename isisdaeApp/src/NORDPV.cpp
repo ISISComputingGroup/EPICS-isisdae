@@ -9,7 +9,7 @@
 /// class for a PV that returns the current size of an array, this field is called NORD in an EPICS waveform record hence the name of this class.
 /// it is initialised with a reference to the array size to monitor, which is usually from something like a spectrumPV class   
 
-NORDPV::NORDPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int& nord ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, false), m_nord(nord)
+NORDPV::NORDPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, int& nord ) : exScalarPV(cas, setup, preCreateFlag, false, false), m_nord(nord)
 {
 
 }
