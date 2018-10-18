@@ -942,6 +942,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	
 	createParam(P_integralsEnableString, asynParamInt32, &P_integralsEnable); 
 	createParam(P_integralsSpecStartString, asynParamInt32, &P_integralsSpecStart); 
+	createParam(P_integralsSpecModeString, asynParamInt32, &P_integralsSpecMode);
 	createParam(P_integralsTransformModeString, asynParamInt32, &P_integralsTransformMode); 
 	createParam(P_integralsModeString, asynParamInt32, &P_integralsMode); 
 	createParam(P_integralsUpdateRateString, asynParamFloat64, &P_integralsUpdateRate); 
@@ -1007,6 +1008,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setDoubleParam (i, ADAcquirePeriod, .005);
 		status |= setIntegerParam(i, ADNumImages, 100);
 		status |= setIntegerParam(i, P_integralsSpecStart, 1);
+		status |= setIntegerParam(i, P_integralsSpecMode, 0);
 		status |= setIntegerParam(i, P_integralsTransformMode, 0);
 		status |= setIntegerParam(i, P_integralsEnable, 0);
 		status |= setIntegerParam(i, P_integralsMode, 0);
@@ -1958,12 +1960,14 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
     int columnStep=0, rowStep=0, colorMode, numSpec;
     int status = asynSuccess;
     double exposureTime, gain;
-    int i, j, k, integMode, period, numPeriods;
+    int i, j, k, integMode, integSpecMode, period, numPeriods;
 	long cntDiff;
 	uint64_t cntSum, oldCntSum; 
 	static std::vector<uint32_t*> old_integrals(10, NULL);
+	static std::vector<uint32_t*> new_integrals(10, NULL);
 	static std::vector<int> old_nspec(10, 0);
 	static int old_period[10];
+	double intgTMax(0.0), intgTMin(0.0);
 	
 	maxval = 0.0;
 	totalCntsDiff =  maxSpecCntsDiff = 0;
@@ -1972,9 +1976,13 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
     status = getIntegerParam(addr, NDColorMode,   &colorMode);
     status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
 	status = getIntegerParam(addr, P_integralsMode,  &integMode);
+	status = getIntegerParam(addr, P_integralsSpecMode, &integSpecMode);
+    status = getDoubleParam(addr, P_integralsTMax, &intgTMax);
+	status = getDoubleParam(addr, P_integralsTMin, &intgTMin);
 	status = getIntegerParam(0, P_NumSpectra,  &numSpec);
 	status = getIntegerParam(0, P_Period, &period);
 	status = getIntegerParam(0, P_NumPeriods, &numPeriods);
+
 	// adjust start spectrum for period
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
@@ -2009,26 +2017,51 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 
 	const uint32_t* integrals;
 	int max_spec_int_size = 0;
-	try {
-		if (data_mode == 0)
-		{
-            integrals = m_iface->getEventSpecIntegrals();
-	        max_spec_int_size = m_iface->getEventSpecIntegralsSize();
-		}
-		else if (data_mode == 1)
-		{
-            integrals = m_iface->getData();
-	        max_spec_int_size = m_iface->getDataSize();
-		}
-	}
-	catch(...) {
-		return status;
-	}
 	// in data_mode == 1 nspec here will be time channels * spectra
 	int nspec = sizeX * sizeY;
 	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1) * numPeriods) )
 	{
 		nspec = 0;
+	}
+	if (integSpecMode == 1)
+	{
+		try {
+			max_spec_int_size = (numPeriods + 1) * (numSpec + 1);
+			if (new_integrals[addr] == NULL)
+			{
+				new_integrals[addr] = new uint32_t[max_spec_int_size];
+			}
+			m_iface->updateCRPTSpectra(0, spec_start, nspec);
+			std::vector<long> counts;
+			m_iface->getSpectrumIntegral2(spec_start, nspec, 0, intgTMin, intgTMax, counts);
+			memset(new_integrals[addr] + spec_start, 0, nspec * sizeof(uint32_t));
+			if (sizeof(long) == sizeof(uint32_t))
+			{
+				memcpy(new_integrals[addr] + spec_start, &(counts[0]), counts.size() * sizeof(long));
+			}
+			integrals = new_integrals[addr];
+		}
+		catch(...) {
+			return status;
+		}
+	}
+	else
+	{
+		try {
+			if (data_mode == 0)
+			{
+				integrals = m_iface->getEventSpecIntegrals();
+				max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+			}
+			else if (data_mode == 1)
+			{
+				integrals = m_iface->getData();
+				max_spec_int_size = m_iface->getDataSize();
+			}
+		}
+		catch(...) {
+			return status;
+		}
 	}
 	if ( (spec_start + nspec) > max_spec_int_size )
 	{

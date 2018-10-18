@@ -1065,6 +1065,34 @@ long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, 
     return 0;
 }
 
+int isisdaeInterface::updateCRPTSpectra(long period, long spec_start, long nspectra)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::updateCRPTSpectra, _1, period, spec_start, nspectra, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::updateCRPTSpectra, period, spec_start, nspectra, _1));
+	}
+    return 0;	
+}
+
+long isisdaeInterface::getSpectrumIntegral2(long spec_start, long nspectra, long period, float time_low, float time_high, std::vector<long>& counts)
+{
+	variant_t counts_v;
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::getSpectraIntegral2, _1, spec_start, nspectra, period, time_low, time_high, &counts_v, _2));
+		makeArrayFromVariant(counts, &counts_v);
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::getSpectraIntegral2, spec_start, nspectra, period, time_low, time_high, boost::ref(counts), _1));
+	}
+    return 0;
+}
+
 int isisdaeInterface::getEventSpecIntegralsSize() const
 {
 	return ISISCRPT_MAX_SPEC_INTEGRALS;
