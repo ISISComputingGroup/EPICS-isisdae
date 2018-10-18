@@ -2026,15 +2026,19 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int si
 	if (integSpecMode == 1)
 	{
 		try {
-			max_spec_int_size = (numPeriods + 1) * (numSpec + 1);
+			max_spec_int_size = m_iface->getEventSpecIntegralsSize(); // in case numPeriods or numSpec changes just use same default as event mode
 			if (new_integrals[addr] == NULL)
 			{
 				new_integrals[addr] = new uint32_t[max_spec_int_size];
 			}
+	        if ( (spec_start + nspec) > max_spec_int_size )
+	        {
+		        nspec = 0;
+	        }
 			m_iface->updateCRPTSpectra(0, spec_start, nspec);
 			std::vector<long> counts;
-			m_iface->getSpectrumIntegral2(spec_start, nspec, 0, intgTMin, intgTMax, counts);
 			memset(new_integrals[addr] + spec_start, 0, nspec * sizeof(uint32_t));
+			m_iface->getSpectrumIntegral2(spec_start, nspec, 0, intgTMin, intgTMax, counts);
 			if (sizeof(long) == sizeof(uint32_t))
 			{
 				memcpy(new_integrals[addr] + spec_start, &(counts[0]), counts.size() * sizeof(long));
