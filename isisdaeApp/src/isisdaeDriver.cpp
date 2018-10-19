@@ -982,8 +982,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;
-//	NDDataType_t dataType = NDFloat32;
-	NDDataType_t dataType = NDUInt8;
+	NDDataType_t dataType = NDFloat32;
+//	NDDataType_t dataType = NDUInt8;
 	for(int i=0; i<ndet; ++i)
 	{
 		status =  setStringParam (i, ADManufacturer, "STFC ISIS");
