@@ -983,8 +983,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;
-//	NDDataType_t dataType = NDFloat32;
-	NDDataType_t dataType = NDUInt8;
+	NDDataType_t dataType = NDFloat32;
+//	NDDataType_t dataType = NDUInt8;
 	for(int i=0; i<ndet; ++i)
 	{
 		status =  setStringParam (i, ADManufacturer, "STFC ISIS");
@@ -2034,10 +2034,10 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	        {
 		        nspec = 0;
 	        }
-			m_iface->updateCRPTSpectra(0, spec_start, nspec);
+			m_iface->updateCRPTSpectra(1, spec_start, nspec);
 			std::vector<long> counts;
 			memset(new_integrals[addr] + spec_start, 0, nspec * sizeof(uint32_t));
-			m_iface->getSpectrumIntegral2(spec_start, nspec, 0, intgTMin, intgTMax, counts);
+			m_iface->getSpectrumIntegral2(spec_start, nspec, 1, intgTMin, intgTMax, counts);
 			if (sizeof(long) == sizeof(uint32_t))
 			{
 				memcpy(new_integrals[addr] + spec_start, &(counts[0]), counts.size() * sizeof(long));
