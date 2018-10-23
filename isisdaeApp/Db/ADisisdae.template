@@ -1,6 +1,7 @@
 include "ADBase.template"
 
-# number of spectra determined by areaDetctor (SizeX * SizeY)
+# number of spectra determined by (SPEC:SIZEX * SPEC:SIZEY) which is used to 
+# set area detector ADMaxSizeX etc.
 
 record(bi, "$(P)$(R)INTG:ENABLE")
 {
@@ -92,6 +93,83 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_START")
 	field(PINI, "YES")
     info(autosaveFields, "VAL")
+}
+
+## The MaxSizeX parameter cannot be set from DB in normal areaDetector templates
+## readback as MaxSizeX_RBV
+record(longout, "$(P)$(R)INTG:SPEC:SIZEX:SP")
+{
+    field(DESC, "Integrals Spec X Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_X")
+	field(PINI, "YES")
+	field(FLNK, "$(P)$(R)INTG:SPEC:SIZEX:SP_")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)INTG:SPEC:SIZEX:SP:RBV")
+{
+    field(DESC, "Integrals Spec X Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_X")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(longout, "$(P)$(R)INTG:SPEC:SIZEX:SP_")
+{
+    field(OMSL, "closed_loop")
+	field(DOL,"$(P)$(R)INTG:SPEC:SIZEX:SP NPP")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SIZE_X")
+}
+
+record(longin, "$(P)$(R)INTG:SPEC:SIZEX")
+{
+    field(DESC, "Integrals Spec X Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SIZE_X")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+
+## The MaxSizeY parameter cannot be set from DB in normal areaDetector templates
+## readback same as MaxSizeY_RBV
+record(longout, "$(P)$(R)INTG:SPEC:SIZEY:SP")
+{
+    field(DESC, "Integrals Spec Y Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_Y")
+	field(PINI, "YES")
+	field(FLNK, "$(P)$(R)INTG:SPEC:SIZEY:SP_")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)INTG:SPEC:SIZEY:SP:RBV")
+{
+    field(DESC, "Integrals Spec Y Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MAX_SIZE_Y")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
+}
+
+record(longout, "$(P)$(R)INTG:SPEC:SIZEY:SP_")
+{
+    field(OMSL, "closed_loop")
+	field(DOL,"$(P)$(R)INTG:SPEC:SIZEY:SP NPP")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SIZE_Y")
+}
+
+record(longin, "$(P)$(R)INTG:SPEC:SIZEY")
+{
+    field(DESC, "Integrals Spec Y Size")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SIZE_Y")
+    field(SCAN, "I/O Intr")
+	info(archive, "VAL")
 }
 
 record(ai, "$(P)$(R)INTG:TMIN")
