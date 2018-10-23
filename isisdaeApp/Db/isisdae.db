@@ -691,6 +691,17 @@ record(bi, "$(P)$(Q)STATETRANS")
     field(SCAN, "I/O Intr")
 }
 
+# in CHANGING run state, workaround
+record(bi, "$(P)$(Q)STATE:CHANGING")
+{
+    field(DESC, "In changing state")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)INCHANGINGSTATE")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    field(SCAN, "I/O Intr")
+}
+
 # number of seconds in transition state
 record(ai, "$(P)$(Q)STATETRANS:TIME")
 {

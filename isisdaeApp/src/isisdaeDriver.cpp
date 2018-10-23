@@ -103,12 +103,21 @@ void isisdaeDriver::reportMessages()
 
 void isisdaeDriver::beginStateTransition(int state)
 {
-    // signal in state transition separately and before signalling the state, might help order monitors get sent in?  
+    // signal items separately, might help order monitors get sent in?  
     m_inStateTrans = true;
-    setIntegerParam(P_StateTrans, 1);
-	callParamCallbacks();
-    m_RunStatus = state;
+	if (state == RS_CHANGING)
+	{
+        m_RunStatus = RS_SETUP;
+        setIntegerParam(P_inChangingState, 1);
+	}
+	else
+	{
+        m_RunStatus = state;		
+        setIntegerParam(P_inChangingState, 0);
+	}
 	setIntegerParam(P_RunStatus, m_RunStatus);
+	callParamCallbacks();
+    setIntegerParam(P_StateTrans, 1);
 	callParamCallbacks();
 }
 
@@ -195,6 +204,9 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 void isisdaeDriver::endStateTransition()
 {
     m_inStateTrans = false;
+    setIntegerParam(P_StateTrans, 0);
+    setIntegerParam(P_inChangingState, 0);
+	callParamCallbacks();
 	try
 	{
 		updateRunStatus();
@@ -203,7 +215,6 @@ void isisdaeDriver::endStateTransition()
 	{
 		std::cerr << "endStateTransition exception: " << ex.what() << std::endl;
 	}
-    setIntegerParam(P_StateTrans, 0);
 	callParamCallbacks();
 }
 
@@ -633,8 +644,9 @@ void isisdaeDriver::settingsOP(int (isisdaeInterface::*func)(const std::string&)
 {
 	if (m_RunStatus == RS_SETUP)
 	{
-	    beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+	    beginStateTransition(RS_CHANGING);
 		(m_iface->*func)(value);
+		setRunState(RS_SETUP);
         endStateTransition();
 	}
 	else
@@ -724,7 +736,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 		{
 			if (m_RunStatus == RS_SETUP)
 			{
-		        beginStateTransition(RS_SETUP/*RS_CHANGING*/);
+		        beginStateTransition(RS_CHANGING);
 		        std::string tcb_xml;
 		        if (uncompressString(value_s, tcb_xml) == 0)
 			    {
@@ -914,6 +926,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_EventModeDataRateString, asynParamFloat64, &P_EventModeDataRate);
 
     createParam(P_StateTransString, asynParamInt32, &P_StateTrans);
+    createParam(P_inChangingStateString, asynParamInt32, &P_inChangingState);
 	
     createParam(P_SampleParString, asynParamOctet, &P_SamplePar);
     createParam(P_BeamlineParString, asynParamOctet, &P_BeamlinePar);

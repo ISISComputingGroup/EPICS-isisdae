@@ -30,6 +30,7 @@ public:
 	void endStateTransition();
     virtual void report(FILE *fp, int details);
     virtual void setShutter(int addr, int open);
+	void setRunState(RunState state) { m_RunStatus = state; setIntegerParam(P_RunStatus, state); }
 
 private:
 
@@ -102,6 +103,7 @@ private:
 	int P_spectraTableFile; // string
 	int P_tcbFile; // string
 	int P_periodsFile; // string
+	int P_inChangingState; // int
 	
 	int P_diagTableSum; // int array
 	int P_diagTableMax; // int array
@@ -259,6 +261,7 @@ private:
 #define P_spectraTableFileString "SPECFILE"
 #define P_tcbFileString           "TCBFILE"
 #define P_periodsFileString      "PERIODSFILE"
+#define P_inChangingStateString      "INCHANGINGSTATE"
 
 #define P_diagTableSumString		"DIAG_TABLE_SUM"
 #define P_diagTableMaxString		"DIAG_TABLE_MAX"
