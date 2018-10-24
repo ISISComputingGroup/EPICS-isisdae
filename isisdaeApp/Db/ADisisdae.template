@@ -25,6 +25,16 @@ record(bo, "$(P)$(R)INTG:ENABLE:SP")
     info(autosaveFields, "VAL")
 }
 
+# used to store is we are using 0 as spectrum min counts or the real value in the GUI display
+record(bi, "$(P)$(R)INTG:_MIN0")
+{
+    field(DESC, "Integrals Min0")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
 record(mbbi, "$(P)$(R)INTG:MODE")
 {
     field(DESC, "Integrals Mode")
