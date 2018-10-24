@@ -95,6 +95,36 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
     info(autosaveFields, "VAL")
 }
 
+## spec mode is how we read the spectra. If it is Event, we use the 
+## on-the-fly integrals made available from the event mode spectra. 
+## by the DAE. If Histogram we read thej DAE directly, but hopefully we
+## will be using an integrating detector card with only one time bin  
+record(mbbi, "$(P)$(R)INTG:SPEC:MODE")
+{
+    field(DESC, "Integrals Spec Mode")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_MODE")
+    field(SCAN, "I/O Intr")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "Event")
+	field(ONST, "Histogram")
+	info(archive, "VAL")
+}
+
+record(mbbo, "$(P)$(R)INTG:SPEC:MODE:SP")
+{
+    field(DESC, "Set Integrals Spec Mode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_MODE")
+	field(PINI, "YES")
+	field(ZRVL, 0)
+	field(ONVL, 1)
+	field(ZRST, "Event")
+	field(ONST, "Histogram")
+    info(autosaveFields, "VAL")
+}
+
 ## The MaxSizeX parameter cannot be set from DB in normal areaDetector templates
 ## readback as MaxSizeX_RBV
 record(longout, "$(P)$(R)INTG:SPEC:SIZEX:SP")

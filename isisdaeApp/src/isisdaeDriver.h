@@ -121,6 +121,7 @@ private:
 	int P_simulationMode; // int
 	// create area detector views of intregrals of spectra in event mode
 	int P_integralsSpecStart; // int
+	int P_integralsSpecMode; // int
 	int P_integralsTransformMode; // int
 	int P_integralsEnable; // int
 	int P_integralsMode; // int
@@ -277,6 +278,7 @@ private:
 #define P_diagSpecIntHighString				"DIAG_SPEC_INTHIGH"
 
 #define P_integralsSpecStartString				"INTG_SPEC_START"
+#define P_integralsSpecModeString				"INTG_SPEC_MODE"
 #define	P_integralsTransformModeString 			"INTG_TRANS_MODE"
 #define P_integralsEnableString					"INTG_ENABLE"
 #define P_integralsModeString					"INTG_MODE"
