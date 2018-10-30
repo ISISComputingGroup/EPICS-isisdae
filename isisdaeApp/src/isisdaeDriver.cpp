@@ -2051,7 +2051,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 			std::vector<long> counts;
 			memset(new_integrals[addr] + spec_start, 0, nspec * sizeof(uint32_t));
 			m_iface->getSpectrumIntegral2(spec_start, nspec, 1, intgTMin, intgTMax, counts);
-			if (sizeof(long) == sizeof(uint32_t))
+			if ( (sizeof(long) == sizeof(uint32_t)) && (counts.size() > 0) )
 			{
 				memcpy(new_integrals[addr] + spec_start, &(counts[0]), counts.size() * sizeof(long));
 			}
