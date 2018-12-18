@@ -87,6 +87,28 @@ record(mbbo, "$(P)$(R)INTG:DATAMODE:SP")
     info(autosaveFields, "VAL")
 }
 
+record(waveform, "$(P)$(R)INTG:SPEC:MAP:SP")
+{
+    field(DESC, "Integrals Spec Map")
+    field(DTYP, "asynOctetWrite")
+    field(NELM, "256")
+    field(FTVL, "CHAR")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_MAP")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(waveform, "$(P)$(R)INTG:SPEC:MAP")
+{
+    field(DESC, "Integrals Spec Map")
+    field(DTYP, "asynOctetRead")
+    field(NELM, "256")
+    field(FTVL, "CHAR")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_MAP")
+    field(SCAN, "I/O Intr")
+}
+
+
 record(longin, "$(P)$(R)INTG:SPEC:START")
 {
     field(DESC, "Integrals Spec Start")
@@ -101,6 +123,25 @@ record(longout, "$(P)$(R)INTG:SPEC:START:SP")
     field(DESC, "Integrals Spec Start")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_START")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+## period 0 means use current period rather than be fixed to a particular period
+record(longin, "$(P)$(R)INTG:SPEC:PERIOD")
+{
+    field(DESC, "Integrals Period (0=current)")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_PERIOD")
+    field(SCAN, "I/O Intr")
+}
+
+## period 0 means use current period rather than be fixed to a particular period
+record(longout, "$(P)$(R)INTG:SPEC:PERIOD:SP")
+{
+    field(DESC, "Integrals Period (0=current)")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_PERIOD")
 	field(PINI, "YES")
     info(autosaveFields, "VAL")
 }

@@ -134,6 +134,8 @@ private:
 	int P_integralsDataMode; // int
 	int P_integralsTMin; // float
 	int P_integralsTMax; // float
+	int P_integralsPeriod; // int
+	int P_integralsSpecMap; // string
 	
 	int P_vetoEnable;   // string
 	int P_vetoDisable;   // string
@@ -179,7 +181,7 @@ private:
     template <typename epicsType> 
       void computeColour(double value, double maxval, epicsType& red, epicsType& green, epicsType& blue);
 	template <typename epicsType> 
-	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode);
+	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode, int period);
 	
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
@@ -292,6 +294,8 @@ private:
 #define P_integralsDataModeString               "INTG_DATA_MODE"
 #define P_integralsTMinString               	"INTG_TMIN"
 #define P_integralsTMaxString               	"INTG_TMAX"
+#define P_integralsPeriodString               	"INTG_PERIOD"
+#define P_integralsSpecMapString               	"INTG_SPEC_MAP"
 
 #define P_simulationModeString					"SIM_MODE"
 
