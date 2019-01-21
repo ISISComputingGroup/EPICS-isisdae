@@ -170,11 +170,11 @@ private:
 	double maybeWaitForISISICP();
 	// call ISISICPINT functions
 	template <typename T> T callI( boost::function<T(std::string&)> func );
-	template <typename T> T callItr1( std::tr1::function<T(std::string&)> func );
+//	template <typename T> T callItr1( std::tr1::function<T(std::string&)> func );
 
 	// call ICPDCOM functions
 	template <typename T> T callD( boost::function<T(ICPDCOM*, BSTR*)> func );
-	template <typename T> T callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func );
+//	template <typename T> T callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func );
   
 	int getXMLSettingsI(std::string& result, const std::string& template_file, int (*func)(const std::string&, std::string&, std::string&));
     int getXMLSettingsD(std::string& result, const std::string& template_file, HRESULT (ICPDCOM::*func)(_bstr_t, BSTR*, BSTR*));

@@ -34,7 +34,7 @@
 
 #include <utilities.h>
 
-#include <boost/tr1/functional.hpp>
+//#include <boost/tr1/functional.hpp>
 
 #include <macLib.h>
 #include <epicsGuard.h>
@@ -177,6 +177,7 @@ T isisdaeInterface::callD( boost::function<T(ICPDCOM*, BSTR*)> func )
 	return res;
 }
 
+#if 0
 // may move boost::bind -> tr1 when confirm all is OK
 template<typename T>
 T isisdaeInterface::callItr1( std::tr1::function<T(std::string&)> func )
@@ -207,6 +208,7 @@ T isisdaeInterface::callDtr1( std::tr1::function<T(ICPDCOM*, BSTR*)> func )
 	SysFreeString(bmessages);
 	return res;
 }
+#endif
 
 const std::string& isisdaeInterface::getAllMessages() const
 {
@@ -708,25 +710,30 @@ struct getSpectraSumWrapStruct
 	getSpectraSumWrapStruct(long period_, long first_spec_, long num_spec_) : period(period_), first_spec(first_spec_), num_spec(num_spec_) { }
 };
 
-static HRESULT getSpectraSumWrap(isisdaeInterface::ICPDCOM* icp, const getSpectraSumWrapStruct& w, long spec_type, double time_low, double time_high, VARIANT * sums, VARIANT * max_vals, VARIANT * spec_nums, BSTR * messages)
+static HRESULT getSpectraSumWrapD(isisdaeInterface::ICPDCOM* icp, const getSpectraSumWrapStruct& w, long spec_type, double time_low, double time_high, VARIANT * sums, VARIANT * max_vals, VARIANT * spec_nums, BSTR * messages)
 {
     return icp->getSpectraSum(w.period, w.first_spec, w.num_spec, spec_type, time_low, time_high, sums, max_vals, spec_nums, messages);
 }
 
+static HRESULT getSpectraSumWrapI(const getSpectraSumWrapStruct& w, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums, std::string& messages)
+{
+    return ISISICPINT::getSpectraSum(w.period, w.first_spec, w.num_spec, spec_type, time_low, time_high, sums, max_vals, spec_nums, messages);
+}
+
 int isisdaeInterface::getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums)
 {
+	getSpectraSumWrapStruct w(period, first_spec, num_spec);
 	if (m_dcom)
 	{
 		variant_t sums_v, max_vals_v, spec_nums_v;
-		getSpectraSumWrapStruct w(period, first_spec, num_spec);
-		callDtr1<int>(std::tr1::bind(&getSpectraSumWrap, std::tr1::placeholders::_1, std::tr1::cref(w), spec_type, time_low, time_high, &sums_v, &max_vals_v, &spec_nums_v, std::tr1::placeholders::_2));
+		callD<int>(boost::bind(&getSpectraSumWrapD, _1, boost::cref(w), spec_type, time_low, time_high, &sums_v, &max_vals_v, &spec_nums_v, _2));
 		makeArrayFromVariant(sums, &sums_v);
 		makeArrayFromVariant(max_vals, &max_vals_v);
 		makeArrayFromVariant(spec_nums, &spec_nums_v);
 	}
 	else
 	{
-		callItr1<int>(std::tr1::bind(&ISISICPINT::getSpectraSum, period, first_spec, num_spec, spec_type, time_low, time_high, std::tr1::ref(sums), std::tr1::ref(max_vals), std::tr1::ref(spec_nums), std::tr1::placeholders::_1));
+		callI<int>(boost::bind(&getSpectraSumWrapI, boost::cref(w), spec_type, time_low, time_high, boost::ref(sums), boost::ref(max_vals), boost::ref(spec_nums), _1));
 	}
     return 0;	
 }
