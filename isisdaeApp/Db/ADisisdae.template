@@ -305,7 +305,10 @@ record(ai, "$(P)$(R)INTG:RATE")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_RATE")
     field(SCAN, "I/O Intr")
+	field(HSV, "MINOR")
     info(INTEREST, "HIGH")
+    info(autosaveFields, "HIGH")
+	info(alarm, "ISISDAE_01")
 }
 
 record(ai, "$(P)$(R)INTG:SPEC:RATE")
@@ -315,7 +318,10 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_RATE")
     field(SCAN, "I/O Intr")
+	field(HSV, "MINOR")
     info(INTEREST, "HIGH")
+    info(autosaveFields, "HIGH")
+	info(alarm, "ISISDAE_01")
 }
 
 record(ai, "$(P)$(R)INTG:SPEC:MAX")
