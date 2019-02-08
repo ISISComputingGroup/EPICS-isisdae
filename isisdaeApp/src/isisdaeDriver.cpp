@@ -2064,6 +2064,12 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
 
+	// if data_mode == 1 spec_start needs adjusting for time channel axis
+	if (data_mode == 1)
+	{
+	    spec_start *= maxSizeX;
+	}
+
     switch (colorMode) {
         case NDColorModeMono:
             pMono = (epicsType *)m_pRaw->pData;
