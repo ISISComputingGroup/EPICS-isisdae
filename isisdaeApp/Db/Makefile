@@ -16,6 +16,9 @@ DB += dae3_parallel.db
 DB += dae3_pull.db
 DB += ADisisdae.template
 DB += veto.db
+DB += inst_alias_string_parameters.db
+DB += inst_string_parameters.db
+DB += inst_real_parameters.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
