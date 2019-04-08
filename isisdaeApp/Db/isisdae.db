@@ -946,28 +946,6 @@ record(waveform, "$(P)$(Q)PERIOD_FILE")
    field(NELM, 256)
 }
 
-# this is used by INSTETC
-record(waveform, "$(P)$(Q)SAMPLEPAR:SP")
-{
-    field(DESC, "Set sample parameter")
-    field(NELM, "512")
-    field(FTVL, "CHAR")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn(icp,0,0)SAMPLEPAR")
-	field(ASG, "NOTRAPW")
-}
-
-# this is used by INSTETC
-record(waveform, "$(P)$(Q)BEAMLINEPAR:SP")
-{
-    field(DESC, "Set beamline parameter")
-    field(NELM, "512")
-    field(FTVL, "CHAR")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn(icp,0,0)BEAMLINEPAR")
-	field(ASG, "NOTRAPW")
-}
-
 ##############################################################################################
 ## FileList for wiring tables
 ##############################################################################################
