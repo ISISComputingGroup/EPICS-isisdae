@@ -1,0 +1,60 @@
+record(ao, "$(P)$(Q)")
+{
+   field(DESC, "$(DESC)")  
+   field(DTYP, "Soft Channel")
+   field(EGU, "$(UNITS)")
+   field(OMSL, "supervisory")
+   field(PREC, 3)
+   field(FLNK, "$(P)$(Q):_SEND")
+   info(autosaveFields, "VAL")
+   info(PVCATEGORY, "$(CATEGORY)")
+}
+alias("$(P)$(Q)", "$(P)$(Q):SP")
+
+# force periodic update of values in case we get out of sync with DAE e.g. program restarts 
+# we use this rather than PINI in above as DAE may not be running when we start this ioc
+record(bo, "$(P)$(Q):_SP_UPDATE")
+{
+    field(SCAN, "10 second")
+    field(SDIS, "$(P)$(Q):_SEND_A.PACT")
+	field(FLNK, "$(P)$(Q):SP.PROC")
+}
+
+# aSub records must read from links, hence need to create a record 
+# to store data type string for above ao record
+record(stringout, "$(P)$(Q):TYPE")
+{
+   field(DESC, "$(DESC) type")  
+   field(DTYP, "Soft Channel")
+   field(VAL, "DOUBLE")
+}
+
+## Send parameter to ICP.
+## $(DESC) must match the parameter name as used within the ISISICP
+## NOVA of _SEND must match with _SEND_A size
+record(aSub, "$(P)$(Q):_SEND")
+{
+    field(DESC, "Package $(DESC)")  
+    field(SNAM, "stringConcatWithCtrlB")
+    field(FTA, "STRING")
+    field(INPA, "$(P)$(Q):SP.DESC NPP NMS")
+    field(FTB, "STRING")
+    field(INPB, "$(P)$(Q):TYPE.VAL NPP NMS")
+    field(FTC, "STRING")
+    field(INPC, "$(P)$(Q):SP.EGU NPP NMS")
+    field(FTD, "DOUBLE")
+    field(NOD, "1")
+    field(INPD, "$(P)$(Q):SP.VAL NPP NMS")
+    field(FTVA, "CHAR")
+    field(NOVA, "512")
+    field(OUTA, "$(P)$(Q):_SEND_A PP")
+}
+
+record(waveform, "$(P)$(Q):_SEND_A")
+{
+    field(DESC, "Send $(DESC)")
+    field(NELM, "512")
+    field(FTVL, "CHAR")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn(icp,0,0)$(CATEGORY)")
+}
