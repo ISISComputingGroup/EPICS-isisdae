@@ -1161,12 +1161,10 @@ void isisdaeDriver::pollerThread1()
     double delay = (m_iface->checkOption(daeSECI) ? 3.0 : 0.2);
 
 	registerStructuredExceptionHandler();
-    lock();
 	while(true)
 	{
-        unlock();
 		epicsThreadSleep(delay);
-        lock();
+ 		epicsGuard<isisdaeDriver> _lock(*this);
         try
         {
 			m_iface->checkConnection();
@@ -1305,12 +1303,10 @@ void isisdaeDriver::pollerThread2()
 	std::vector<long> veto_enabled, veto_frames;
 
 	registerStructuredExceptionHandler();
-    lock();
 	while(true)
 	{
-        unlock();
 		epicsThreadSleep(delay);
-		lock();
+ 		epicsGuard<isisdaeDriver> _lock(*this);
         if (m_inStateTrans)   // do nothing if in state transition
         {
             continue;
@@ -1519,39 +1515,37 @@ void isisdaeDriver::pollerThread3()
 	int i1, i2, n1, sum, fdiff, fdiff_min = 0, diag_enable = 0;
 
  	registerStructuredExceptionHandler();
-    lock();
+    this->lock();
 	setIntegerParam(P_diagFrames, 0);
 	setIntegerParam(P_diagSum, 0);
 	setIntegerParam(P_diagSpecMatch, 0);
     callParamCallbacks();
+    this->unlock();
 	// read sums alternately into sums[0] and sums[1] by toggling b so a count rate can be calculated
 	while(true)
 	{
-        unlock();
 		epicsThreadSleep(delay);
 		i1 = (b == true ? 0 : 1);
 		i2 = (b == true ? 1 : 0);
-        lock();
+		epicsGuard<isisdaeDriver> _lock(*this);
 		getIntegerParam(P_diagEnable, &diag_enable);
 		if (diag_enable != 1)
 			continue;
-        unlock(); // read without lock in case icp busy 
 		try
 		{
+			epicsGuardRelease<isisdaeDriver> _unlock(_lock); // read without lock in case icp busy
 			frames[i1] = m_iface->getGoodFrames(); // read prior to lock in case ICP busy
 		}
 		catch(const std::exception& ex)
 		{
 			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics): " << ex.what() << std::endl;
 			frames[i1] = 0;
-			lock();
 			continue;
 		}
 		catch(...) // catch windows Structured Exceptions
 		{
 			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) generic exception" << std::endl;
 			frames[i1] = 0;
-			lock();
 			continue;
 		}
 		fdiff = frames[i1] - frames[i2];
@@ -1570,25 +1564,22 @@ void isisdaeDriver::pollerThread3()
 		getDoubleParam(P_diagSpecIntLow, &time_low);
 		getDoubleParam(P_diagSpecIntHigh, &time_high);
 		
-        unlock(); // getSepctraSum may take a while so release asyn lock
 		try
 		{
+			epicsGuardRelease<isisdaeDriver> _unlock(_lock); // getSpectraSum may take a while so release asyn lock
 			m_iface->getSpectraSum(period, first_spec, num_spec, spec_type,
 				time_low, time_high, sums[i1], max_vals, spec_nums);
 		}
 		catch(const std::exception& ex)
 		{
 			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics): " << ex.what() << std::endl;
-			lock();
 			continue;
 		}
 		catch(...) // catch windows Structured Exceptions
 		{
 			std::cerr << "isisdaeDriver::pollerThread3(detector diagnostics) generic exception" << std::endl;
-			lock();
 			continue;
 		}
-		lock();
 		n1 = sums[i1].size();
 		sum = std::accumulate(sums[i1].begin(), sums[i1].end(), 0);
 		rate.resize(n1);
@@ -1642,121 +1633,125 @@ void isisdaeDriver::pollerThread4()
 		all_acquiring = all_enable = 0;
 		for(int i=0; i<maxAddr; ++i)
 		{
-		    this->lock();
-			acquiring = enable = 0;
-		    getIntegerParam(i, ADAcquire, &acquiring);
-		    getIntegerParam(i, P_integralsEnable, &enable);
-		    getIntegerParam(i, P_integralsDataMode, &data_mode);
-            getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
+		    epicsGuard<isisdaeDriver> _lock(*this);
+			try 
+			{
+				acquiring = enable = 0;
+				getIntegerParam(i, ADAcquire, &acquiring);
+				getIntegerParam(i, P_integralsEnable, &enable);
+				getIntegerParam(i, P_integralsDataMode, &data_mode);
+				getDoubleParam(i, ADAcquirePeriod, &acquirePeriod);
+				
+				all_acquiring |= acquiring;
+				all_enable |= enable;
+				if (acquiring == 0 || enable == 0)
+				{
+					old_acquiring[i] = acquiring;
+	//				epicsThreadSleep( acquirePeriod );
+					continue;
+				}
+				if (old_acquiring[i] == 0)
+				{
+					setIntegerParam(i, ADNumImagesCounter, 0);
+					old_acquiring[i] = acquiring;
+				}
+				setIntegerParam(i, ADStatus, ADStatusAcquire); 
+				epicsTimeGetCurrent(&startTime);
+				getIntegerParam(i, ADImageMode, &imageMode);
+
+				/* Get the exposure parameters */
+				getDoubleParam(i, ADAcquireTime, &acquireTime);  // not really used
+
+				setShutter(i, ADShutterOpen);
+				callParamCallbacks(i, i);
+				
+				/* Update the image */
+				status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
+
+	//            if (status) continue;
+
+				// could sleep to make up to acquireTime
 			
-			all_acquiring |= acquiring;
-			all_enable |= enable;
-		    if (acquiring == 0 || enable == 0)
-		    {
-			    old_acquiring[i] = acquiring;
-				this->unlock();
-//				epicsThreadSleep( acquirePeriod );
-				continue;
+				/* Close the shutter */
+				setShutter(i, ADShutterClosed);
+			
+				setIntegerParam(i, ADStatus, ADStatusReadout);
+				/* Call the callbacks to update any changes */
+				callParamCallbacks(i, i);
+
+				pImage = this->pArrays[i];
+				if (pImage == NULL)
+				{
+					continue;
+				}
+
+				/* Get the current parameters */
+				getIntegerParam(i, NDArrayCounter, &imageCounter);
+				getIntegerParam(i, ADNumImages, &numImages);
+				getIntegerParam(i, ADNumImagesCounter, &numImagesCounter);
+				getIntegerParam(i, NDArrayCallbacks, &arrayCallbacks);
+				++imageCounter;
+				++numImagesCounter;
+				setIntegerParam(i, NDArrayCounter, imageCounter);
+				setIntegerParam(i, ADNumImagesCounter, numImagesCounter);
+
+				/* Put the frame number and time stamp into the buffer */
+				pImage->uniqueId = imageCounter;
+				pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
+				updateTimeStamp(&pImage->epicsTS);
+
+				/* Get any attributes that have been defined for this driver */
+				this->getAttributes(pImage->pAttributeList);
+
+				if (arrayCallbacks) {
+				  /* Call the NDArray callback */
+				  /* Must release the lock here, or we can get into a deadlock, because we can
+				   * block on the plugin lock, and the plugin can be calling us */
+				  epicsGuardRelease<isisdaeDriver> _unlock(_lock);
+				  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+						"%s:%s: calling imageData callback addr %d\n", driverName, functionName, i);
+				  doCallbacksGenericPointer(pImage, NDArrayData, i);
+				}
+				epicsTimeGetCurrent(&endTime);
+				elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
+				updateTime = epicsTimeDiffInSeconds(&endTime, &(last_update[i]));
+				if (updateTime > 0.0)
+				{
+					setDoubleParam(i, P_integralsUpdateRate, 1.0 / updateTime);
+					setDoubleParam(i, P_integralsCountRate, totalCntsDiff / updateTime);
+					setDoubleParam(i, P_integralsSpecCountRate, maxSpecCntsDiff / updateTime);
+				}
+				else
+				{
+					setDoubleParam(i, P_integralsUpdateRate, 0.0);
+					setDoubleParam(i, P_integralsCountRate, 0.0);
+					setDoubleParam(i, P_integralsSpecCountRate, 0.0);
+				}
+				setDoubleParam(i, P_integralsSpecMax, maxval);
+				last_update[i] = endTime;
+				/* Call the callbacks to update any changes */
+				callParamCallbacks(i, i);
+				/* sleep for the acquire period minus elapsed time. */
+				delay = acquirePeriod - elapsedTime;
+				asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+						"%s:%s: delay=%f\n",
+						driverName, functionName, delay);
+				if (delay >= 0.0) {
+					/* We set the status to waiting to indicate we are in the period delay */
+					setIntegerParam(i, ADStatus, ADStatusWaiting);
+					callParamCallbacks(i, i);
+					{
+						epicsGuardRelease<isisdaeDriver> _unlock(_lock);
+						epicsThreadSleep(delay);
+					}
+					setIntegerParam(i, ADStatus, ADStatusIdle);
+					callParamCallbacks(i, i);  
+				}
 			}
-		    if (old_acquiring[i] == 0)
-		    {
-                setIntegerParam(i, ADNumImagesCounter, 0);
-			    old_acquiring[i] = acquiring;
-            }
-            setIntegerParam(i, ADStatus, ADStatusAcquire); 
-		    epicsTimeGetCurrent(&startTime);
-            getIntegerParam(i, ADImageMode, &imageMode);
-
-            /* Get the exposure parameters */
-            getDoubleParam(i, ADAcquireTime, &acquireTime);  // not really used
-
-            setShutter(i, ADShutterOpen);
-            callParamCallbacks(i, i);
-            
-            /* Update the image */
-            status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
-
-//            if (status) continue;
-
-		    // could sleep to make up to acquireTime
-		
-            /* Close the shutter */
-            setShutter(i, ADShutterClosed);
-        
-            setIntegerParam(i, ADStatus, ADStatusReadout);
-            /* Call the callbacks to update any changes */
-            callParamCallbacks(i, i);
-
-            pImage = this->pArrays[i];
-			if (pImage == NULL)
+			catch(...)
 			{
-				this->unlock();
-				continue;
+				std::cerr << "Exception in pollerThread4" << std::endl;
 			}
-
-            /* Get the current parameters */
-            getIntegerParam(i, NDArrayCounter, &imageCounter);
-            getIntegerParam(i, ADNumImages, &numImages);
-            getIntegerParam(i, ADNumImagesCounter, &numImagesCounter);
-            getIntegerParam(i, NDArrayCallbacks, &arrayCallbacks);
-            ++imageCounter;
-            ++numImagesCounter;
-            setIntegerParam(i, NDArrayCounter, imageCounter);
-            setIntegerParam(i, ADNumImagesCounter, numImagesCounter);
-
-            /* Put the frame number and time stamp into the buffer */
-            pImage->uniqueId = imageCounter;
-            pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
-            updateTimeStamp(&pImage->epicsTS);
-
-            /* Get any attributes that have been defined for this driver */
-            this->getAttributes(pImage->pAttributeList);
-
-            if (arrayCallbacks) {
-              /* Call the NDArray callback */
-              /* Must release the lock here, or we can get into a deadlock, because we can
-               * block on the plugin lock, and the plugin can be calling us */
-              this->unlock();
-              asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-                    "%s:%s: calling imageData callback addr %d\n", driverName, functionName, i);
-              doCallbacksGenericPointer(pImage, NDArrayData, i);
-              this->lock();
-            }
-            epicsTimeGetCurrent(&endTime);
-            elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
-			updateTime = epicsTimeDiffInSeconds(&endTime, &(last_update[i]));
-			if (updateTime > 0.0)
-			{
-                setDoubleParam(i, P_integralsUpdateRate, 1.0 / updateTime);
-                setDoubleParam(i, P_integralsCountRate, totalCntsDiff / updateTime);
-                setDoubleParam(i, P_integralsSpecCountRate, maxSpecCntsDiff / updateTime);
-			}
-			else
-			{
-                setDoubleParam(i, P_integralsUpdateRate, 0.0);
-                setDoubleParam(i, P_integralsCountRate, 0.0);
-                setDoubleParam(i, P_integralsSpecCountRate, 0.0);
-			}
-			setDoubleParam(i, P_integralsSpecMax, maxval);
-			last_update[i] = endTime;
-            /* Call the callbacks to update any changes */
-            callParamCallbacks(i, i);
-            /* sleep for the acquire period minus elapsed time. */
-            delay = acquirePeriod - elapsedTime;
-            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-                    "%s:%s: delay=%f\n",
-                    driverName, functionName, delay);
-            if (delay >= 0.0) {
-                /* We set the status to waiting to indicate we are in the period delay */
-                setIntegerParam(i, ADStatus, ADStatusWaiting);
-                callParamCallbacks(i, i);
-                this->unlock();
-                epicsThreadSleep(delay);
-                this->lock();
-                setIntegerParam(i, ADStatus, ADStatusIdle);
-                callParamCallbacks(i, i);  
-            }
-            this->unlock();
         }
 		if (all_enable == 0 || all_acquiring == 0)
 		{
