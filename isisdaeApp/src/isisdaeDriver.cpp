@@ -79,6 +79,8 @@ static void registerStructuredExceptionHandler()
 
 void isisdaeDriver::reportErrors(const char* exc_text)
 {
+	try
+	{
 		std::string msgs = m_iface->getAllMessages();
         setStringParam(P_AllMsgs, msgs.c_str());
         setStringParam(P_ErrMsgs, exc_text);
@@ -89,16 +91,36 @@ void isisdaeDriver::reportErrors(const char* exc_text)
 // getAsynMessages will pick these up and report to screen
 //		errlogSevPrintf(errlogInfo, "%s", msgs.c_str());
 		m_iface->resetMessages();
+	}
+	catch(const std::exception& ex)
+	{
+		errlogSevPrintf(errlogMajor, "Exception %s in reportErrors()", ex.what());
+	}
+	catch(...)
+	{
+		errlogSevPrintf(errlogMajor, "Unknown exception in reportErrors()");
+	}
 }
 
 void isisdaeDriver::reportMessages()
 {
-	std::string msgs = m_iface->getAllMessages();
-    setStringParam(P_AllMsgs, msgs.c_str());
-    setStringParam(P_ErrMsgs, "");
+	try
+	{
+	    std::string msgs = m_iface->getAllMessages();
+        setStringParam(P_AllMsgs, msgs.c_str());
+        setStringParam(P_ErrMsgs, "");
 // getAsynMessages will pick these up and report to screen
 //		errlogSevPrintf(errlogInfo, "%s", msgs.c_str());
-	m_iface->resetMessages();
+	    m_iface->resetMessages();
+	}
+	catch(const std::exception& ex)
+	{
+		errlogSevPrintf(errlogMajor, "Exception %s in reportMessages()", ex.what());
+	}
+	catch(...)
+	{
+		errlogSevPrintf(errlogMajor, "Unknown exception in reportMessages()");
+	}
 }
 
 void isisdaeDriver::beginStateTransition(int state)
@@ -214,6 +236,10 @@ void isisdaeDriver::endStateTransition()
 	catch (const std::exception& ex)
 	{
 		std::cerr << "endStateTransition exception: " << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "endStateTransition unknown exception" << std::endl;
 	}
 	callParamCallbacks();
 }
@@ -789,6 +815,17 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
                   "%s:%s: status=%d, function=%d, name=%s, value=%s, error=%s", 
                   driverName, functionName, status, function, paramName, value_s.c_str(), ex.what());
 		reportErrors(ex.what());
+		callParamCallbacks(); // this flushes P_ErrMsgs
+        endStateTransition();
+		*nActual = 0;
+		return asynError;
+	}
+	catch(...)
+	{
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s: status=%d, function=%d, name=%s, value=%s, error=unknow exception", 
+                  driverName, functionName, status, function, paramName, value_s.c_str());
+		reportErrors("unknown exception");
 		callParamCallbacks(); // this flushes P_ErrMsgs
         endStateTransition();
 		*nActual = 0;
