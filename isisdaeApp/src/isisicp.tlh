@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2c12404b).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (439b095b).
 //
-// c:\development\instrumentcontrol\icp-clean\isisicp\x64\debug\isisicp.tlh
+// c:\development\instrumentcontrol\icp-clean\isisicp\x64\release\isisicp.tlh
 //
 // C++ source equivalent of Win32 type library isisicp.tlb
-// compiler-generated file created 09/16/18 at 12:20:32 - DO NOT EDIT!
+// compiler-generated file created 08/05/19 at 13:16:52 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -364,6 +364,19 @@ Idae : IDispatch
         float low_cutoff,
         float high_cutoff,
         BSTR * messages );
+    HRESULT QXReadArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        VARIANT * values,
+        unsigned long num_values,
+        unsigned long trans_type,
+        BSTR * messages );
+    HRESULT QXWriteArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        const _variant_t & values,
+        unsigned long trans_type,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -696,6 +709,19 @@ Idae : IDispatch
         /*[in]*/ float low_cutoff,
         /*[in]*/ float high_cutoff,
         /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_QXReadArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[out]*/ VARIANT * values,
+        /*[in]*/ unsigned long num_values,
+        /*[in]*/ unsigned long trans_type,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_QXWriteArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ VARIANT values,
+        /*[in]*/ unsigned long trans_type,
+        /*[out]*/ BSTR * messages ) = 0;
 };
 
 //
@@ -715,7 +741,7 @@ extern "C" const GUID __declspec(selectany) IID_Idae =
 // Wrapper method implementations
 //
 
-#include "isisicp.tli"
+#include "c:\development\instrumentcontrol\icp-clean\isisicp\x64\release\isisicp.tli"
 
 } // namespace isisicpLib
 

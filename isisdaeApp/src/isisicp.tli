@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2c12404b).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (439b095b).
 //
-// c:\development\instrumentcontrol\icp-clean\isisicp\x64\debug\isisicp.tli
+// c:\development\instrumentcontrol\icp-clean\isisicp\x64\release\isisicp.tli
 //
 // Wrapper implementations for Win32 type library isisicp.tlb
-// compiler-generated file created 09/16/18 at 12:20:32 - DO NOT EDIT!
+// compiler-generated file created 08/05/19 at 13:16:52 - DO NOT EDIT!
 
 #pragma once
 
@@ -539,6 +539,18 @@ inline HRESULT Idae::getVetoInfo ( VARIANT * names, VARIANT * alias, VARIANT * e
 
 inline HRESULT Idae::setSpecIntgCutoff ( float low_cutoff, float high_cutoff, BSTR * messages ) {
     HRESULT _hr = raw_setSpecIntgCutoff(low_cutoff, high_cutoff, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::QXReadArray ( unsigned long card_id, unsigned long card_address, VARIANT * values, unsigned long num_values, unsigned long trans_type, BSTR * messages ) {
+    HRESULT _hr = raw_QXReadArray(card_id, card_address, values, num_values, trans_type, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT Idae::QXWriteArray ( unsigned long card_id, unsigned long card_address, const _variant_t & values, unsigned long trans_type, BSTR * messages ) {
+    HRESULT _hr = raw_QXWriteArray(card_id, card_address, values, trans_type, messages);
     if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
     return _hr;
 }
