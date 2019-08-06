@@ -287,7 +287,7 @@ private:
 #define P_VMEWriteArrayString	 	"VMEWRITEARRAY"
 #define P_QXReadArrayPropsString 	"QXREADARRAYPROPS"
 #define P_QXReadArrayDataString 	"QXREADARRAYDATA"
-#define P_QXWriteArrayString 		"QXWRITEARRAYPROPS"
+#define P_QXWriteArrayString 		"QXWRITEARRAY"
 
 #define P_diagTableSumString		"DIAG_TABLE_SUM"
 #define P_diagTableMaxString		"DIAG_TABLE_MAX"
