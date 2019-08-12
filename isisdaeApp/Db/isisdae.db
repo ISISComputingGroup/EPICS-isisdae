@@ -16,7 +16,8 @@ record(waveform, "$(P)$(Q)TITLE:SP")
     field(NELM, "256")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn(icp,0,0)RUNTITLE")
+    field(INP,  "@asyn(icp,0,0)RUNTITLESP")
+	field(PINI, "YES")
     info(autosaveFields, "VAL")
 }
 

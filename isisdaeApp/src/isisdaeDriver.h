@@ -53,6 +53,7 @@ private:
 	int P_RunStatus; // int
     int P_TotalCounts; // long
     int P_RunTitle; //char*
+    int P_RunTitleSP; //char*
     int P_RBNumber; //char*
     int P_UserName; //char*
     int P_InstName; //char*
@@ -214,6 +215,7 @@ private:
 
 #define P_TotalCountsString	"TOTALCOUNTS"
 #define P_RunTitleString	"RUNTITLE"
+#define P_RunTitleSPString	"RUNTITLESP"
 #define P_RBNumberString	"RBNUMBER"
 #define P_UserNameString	"USERNAME"
 #define P_InstNameString	"INSTNAME"

@@ -702,7 +702,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
 	try
 	{
 	    m_iface->resetMessages();
-        if (function == P_RunTitle)
+        if (function == P_RunTitleSP)
         {
 			m_iface->setRunTitle(value_s);
         }
@@ -714,7 +714,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
             {
 				translateBeamlineType(tokens[1]);
                 m_iface->setSampleParameter(tokens[0], tokens[1], tokens[2], tokens[3]);
-            }
+			}
             else
             {
                 throw std::runtime_error("SampleParameter: not enough tokens");
@@ -723,7 +723,7 @@ asynStatus isisdaeDriver::writeOctet(asynUser *pasynUser, const char *value, siz
         else if (function == P_BeamlinePar)
         {
             std::vector<std::string> tokens;
-            boost::split(tokens, value_s, boost::is_any_of("\2")); //  name, type, units, value
+			boost::split(tokens, value_s, boost::is_any_of("\2")); //  name, type, units, value
             if (tokens.size() == 4)
             {
 				translateBeamlineType(tokens[1]);
@@ -912,6 +912,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
     createParam(P_RunTitleString, asynParamOctet, &P_RunTitle);
+    createParam(P_RunTitleSPString, asynParamOctet, &P_RunTitleSP);
     createParam(P_AllMsgsString, asynParamOctet, &P_AllMsgs);
     createParam(P_ErrMsgsString, asynParamOctet, &P_ErrMsgs);
     createParam(P_RBNumberString, asynParamOctet, &P_RBNumber);
@@ -2349,6 +2350,7 @@ void isisdaeDriver::report(FILE *fp, int details)
 }
 
 static exServer *pCAS = NULL;
+static unsigned fdManagerProcCount = 0;
 
 static void daeCASThread(void* arg)
 {
@@ -2388,7 +2390,8 @@ static void daeCASThread(void* arg)
         catch(...) {
             std::cerr << "CAS: daeCASThread exception" << std::endl;
 			epicsThreadSleep(5.0);
-		}			
+		}
+		++fdManagerProcCount;
     }
     errlogSevPrintf (errlogMajor, "CAS: daeCASThread exiting\n" );
     //pCAS->show(2u);
@@ -2414,6 +2417,7 @@ void isisdaeShowPCAS(int level)
 {
 	if (pCAS != NULL)
 	{
+		std::cerr << "CAS: fdManagerProcCount = " << fdManagerProcCount << std::endl;
 	    pCAS->show(level);
 	}
 	else
