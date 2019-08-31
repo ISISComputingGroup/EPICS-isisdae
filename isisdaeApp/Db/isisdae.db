@@ -1368,6 +1368,8 @@ record(waveform, "$(P)$(Q)VMEREADARRAY:PROPS")
     field(FLNK,  "$(P)$(Q)VMEREADARRAY:DATA")
 }
 
+## vme read array does TransferBlock | TransferLittleEndian
+## vme read value is TransferIORegisterSpace
 ## check NORD for how many read
 record(waveform, "$(P)$(Q)VMEREADARRAY:DATA")
 {
@@ -1389,6 +1391,15 @@ record(waveform, "$(P)$(Q)VMEWRITEARRAY")
 }
 
 ## card_id, card_address, num_values, trans_type
+## trans_type is ored collection of ISISVME::TransferProp from isisicp
+##   TransferNoOptions = 0x0, TransferBlock = 0x1, TransferLittleEndian = 0x2, 
+##   TransferIORegisterSpace = 0x4, TransferLUTSpace = 0x8, TransferRunMemorySpace = 0x10, 
+##   TransferAbsoluteAddress = 0x20
+##   Each DAE3 card is treated as a DAE2 crate, each DAE3 module is like a DAE2 card.
+##   The three modules share a registers IO space, some registers are present in all 3 modules at shifted addresses, 
+##   some are only present once on DAU0. Specifying TransferAbsoluteAddress negates any module specific shifts. 
+##   being applied to the io register read. 
+##   TransferLittleEndian is only approariate for DAE2 detector card memory reads as is TransferBlock
 record(waveform, "$(P)$(Q)QXREADARRAY:PROPS")
 {
     field(DESC, "QXReadArray props")
