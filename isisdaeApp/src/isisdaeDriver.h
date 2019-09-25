@@ -15,6 +15,8 @@ public:
  	static void pollerThreadC4(void* arg);
     enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13,RS_CHANGING=14 };
 	static const char* RunStateNames[];
+	static volatile bool daeIOCisRunning;
+	static void waitForIOCRunning();
 
     // These are the methods that we override from asynPortDriver
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
