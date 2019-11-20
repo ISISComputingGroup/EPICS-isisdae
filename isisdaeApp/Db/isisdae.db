@@ -304,39 +304,28 @@ record(ai, "$(P)$(Q)TOTALUAMPS")
     info(archive, "-5.0 VAL")
 }
 
-record(ai, "$(P)$(Q)TOTALDAECOUNTS")
-{
-    field(DESC, "DAE Total Neutron Counts")
-    field(DTYP, "asynFloat64")
-    field(INP,  "@asyn(icp,0,0)TOTALDAECOUNTS")
-    field(PREC, "3")
-    field(SCAN, "I/O Intr")
-    info(INTEREST, "HIGH")
-    info(archive, "-5.0 VAL")
-	field(EGU, "count")
-}
-
-record(longin, "$(P)$(Q)EVENTS")
-{
-    field(DESC, "DAE events")
-    field(DTYP, "asynInt32")
-    field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
-    field(SCAN, "I/O Intr")
-    info(INTEREST, "HIGH")
-	field(EGU, "event")
-    info(archive, "-5.0 VAL")
-}
-
 record(ai, "$(P)$(Q)MEVENTS")
 {
     field(DESC, "DAE millions of events")
     field(DTYP, "asynFloat64")
-    field(INP,  "@asyn(icp,0,0)TOTALDAECOUNTS")
+    field(INP,  "@asyn(icp,0,0)MEVENTS")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
     info(archive, "-5.0 VAL")
 	field(EGU, "Mevent")
+}
+
+## historical alias
+record(ai, "$(P)$(Q)TOTALDAECOUNTS")
+{
+    field(DESC, "DAE millions of counts")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)MEVENTS")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+    info(archive, "-5.0 VAL")
+	field(EGU, "Mcount")
 }
 
 record(ai, "$(P)$(Q)MONITORTO")
@@ -794,6 +783,17 @@ record(longin, "$(P)$(Q)TOTALCOUNTS")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "count")
+    info(archive, "-5.0 VAL")
+}
+
+# historical alias
+record(longin, "$(P)$(Q)EVENTS")
+{
+    field(DESC, "Total counts")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)TOTALCOUNTS")
+    field(SCAN, "I/O Intr")
+	field(EGU, "event")
     info(archive, "-5.0 VAL")
 }
 
