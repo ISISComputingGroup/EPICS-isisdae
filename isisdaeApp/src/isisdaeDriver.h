@@ -87,7 +87,7 @@ private:
     int P_TotalUAmps; // double
     int P_MonitorFrom; // double
     int P_MonitorTo; // double
-    int P_TotalDaeCounts; // double
+    int P_MEvents; // double
     int P_CountRate; // double
     int P_CountRateFrame; // double
     int P_EventModeFraction; // double
@@ -244,7 +244,7 @@ private:
 #define P_TotalUAmpsString	"TOTALUAMPS"
 #define P_MonitorFromString	"MONITORFROM"
 #define P_MonitorToString	"MONITORTO"
-#define P_TotalDaeCountsString	"TOTALDAECOUNTS"
+#define P_MEventsString	"MEVENTS"
 #define P_CountRateString	"COUNTRATE"
 #define P_CountRateFrameString	"COUNTRATEFRAME"
 #define P_EventModeFractionString	"EVENTMODEFRACTION"

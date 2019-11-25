@@ -956,7 +956,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_TotalUAmpsString, asynParamFloat64, &P_TotalUAmps);
     createParam(P_MonitorFromString, asynParamFloat64, &P_MonitorFrom);
     createParam(P_MonitorToString, asynParamFloat64, &P_MonitorTo);
-    createParam(P_TotalDaeCountsString, asynParamFloat64, &P_TotalDaeCounts);
+    createParam(P_MEventsString, asynParamFloat64, &P_MEvents);
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
     createParam(P_CountRateFrameString, asynParamFloat64, &P_CountRateFrame);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
@@ -1232,7 +1232,7 @@ void isisdaeDriver::updateRunStatus()
 		setDoubleParam(P_GoodUAH, uah);
 //        setDoubleParam(P_GoodUAHPeriod, p_uah);
 		setIntegerParam(P_TotalCounts, tc);
-        setDoubleParam(P_TotalDaeCounts, static_cast<double>(tc) / 1.0e6);
+        setDoubleParam(P_MEvents, static_cast<double>(tc) / 1.0e6);
 		double tdiff = static_cast<double>(tc_ts - old_tc_ts);
 		if (tdiff > 0.5)
 		{
@@ -1271,7 +1271,7 @@ void isisdaeDriver::zeroRunCounters()
         setIntegerParam(P_RunDurationTotal, 0);
         setIntegerParam(P_RunDurationPeriod, 0);
         setIntegerParam(P_MonitorCounts, 0);
-        setDoubleParam(P_TotalDaeCounts, 0.0);
+        setDoubleParam(P_MEvents, 0.0);
         setDoubleParam(P_CountRate, 0.0);
         setDoubleParam(P_CountRateFrame, 0.0);
         setIntegerParam(P_vetoFramesExt0, 0);
@@ -1446,7 +1446,7 @@ void isisdaeDriver::pollerThread2()
         setDoubleParam(P_TotalUAmps, values["TotalUAmps"]);
         setDoubleParam(P_MonitorFrom, values["MonitorFrom"]);
         setDoubleParam(P_MonitorTo, values["MonitorTo"]);
-//        setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);  // now updated in separate loop
+//        setDoubleParam(P_MEvents, values["TotalDAECounts"]);  // now updated in separate loop
 //        setDoubleParam(P_CountRate, values["CountRate"]); // now updated in separate loop
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
 		setDoubleParam(P_EventModeBufferUsedFraction, values["EventModeBufferUsedFraction"]);
