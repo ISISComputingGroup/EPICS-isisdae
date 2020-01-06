@@ -44,5 +44,8 @@ pattern { P, Q, DESC, CATEGORY, UNITS }
     { "\$(P)", "PARS:SAMPLE:MEAS:TYPE", "Measurement Type", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:MEAS:SUBID", "Measurement SubID", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:MEAS:LABEL", "Measurement Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:TEMP_LABEL", "Temperature Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:FIELD_LABEL", "Magnetic Field Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:COMMENTS", "Comments", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:BL:BEAMSTOP:POS", "Beamstop Position", "BEAMLINEPAR", "" }
     { "\$(P)", "PARS:BL:JOURNAL:BLOCKS", "Journal Blocks", "BEAMLINEPAR", "" }
