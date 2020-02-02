@@ -48,5 +48,5 @@ pattern { P, Q, DESC, CATEGORY, UNITS }
     { "\$(P)", "PARS:SAMPLE:FIELD_LABEL", "Magnetic Field Label", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:COMMENTS", "Comments", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:BL:BEAMSTOP:POS", "Beamstop Position", "BEAMLINEPAR", "" }
-    { "\$(P)", "PARS:BL:GEOMETRY", "Beamstop Position", "BEAMLINEPAR", "" }
-    { "\$(P)", "PARS:BL:JOURNAL:BLOCKS", "Instrument Geometry", "BEAMLINEPAR", "" }
+    { "\$(P)", "PARS:BL:GEOMETRY", "Instrument Geometry", "BEAMLINEPAR", "" }
+    { "\$(P)", "PARS:BL:JOURNAL:BLOCKS", "Journal Blocks", "BEAMLINEPAR", "" }
