@@ -426,7 +426,7 @@ public:
 	
 	bool createSpecPVs(const std::string& pvStr);
 	bool createMonitorPVs(const std::string& pvStr);
-	void createAxisPVs(const char* prefix, int spec, int period, const char* axis, const char* units);
+	void createAxisPVs(const char* prefix, int spec, int period, const char* axis, const std::string& units);
 	void createCountsPV(const char* prefix, int spec, int period);
     template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
 
@@ -457,6 +457,7 @@ private:
 	isisdaeInterface* m_iface;
     epicsMutex m_lock;
 	std::string m_pvPrefix;
+	std::string m_tof_units;
     
 };
 

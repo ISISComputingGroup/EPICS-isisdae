@@ -585,9 +585,14 @@ int isisdaeInterface::getPeriod()
     return period;
 }
 
-long isisdaeInterface::getNumTimeChannels(int spec)
+//long isisdaeInterface::getNumTimeChannels(int spec)
+//{
+//   return atol(getValue("NTC1").c_str());
+//}
+
+long isisdaeInterface::getDAEType()
 {
-    return atol(getValue("NTC1").c_str());
+    return atol(getValue("DAETYPE").c_str());
 }
 
 std::string isisdaeInterface::getValue(const std::string& name)
@@ -595,8 +600,16 @@ std::string isisdaeInterface::getValue(const std::string& name)
     if (m_dcom)
 	{
         _bstr_t bs(CComBSTR(name.c_str()).Detach());
-		BSTR res = callD<_bstr_t>(boost::bind(&ICPDCOM::getValue, _1, bs, _2));
-		return std::string(COLE2CT(res));
+		_variant_t res = callD<_variant_t>(boost::bind(&ICPDCOM::getValue, _1, bs, _2));
+		_variant_t cres;
+		if ( VariantChangeType(&cres, &res, 0, VT_BSTR) == S_OK )
+		{
+		    return std::string(COLE2CT((_bstr_t)cres));
+		}
+		else
+		{
+		    return std::string("ERROR");
+		}
 	}
 	else
 	{
