@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 10.00.40219.01 (2c12404b).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24234.1 (2d5a9df1).
 //
-// c:\development\instrumentcontrol\icp-clean\isisicp\x64\debug\isisicp.tlh
+// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tlh
 //
-// C++ source equivalent of Win32 type library isisicp.tlb
-// compiler-generated file created 09/16/18 at 12:20:32 - DO NOT EDIT!
+// C++ source equivalent of type library isisicp.tlb
+// compiler-generated file created 02/01/20 at 22:53:53 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -364,6 +364,23 @@ Idae : IDispatch
         float low_cutoff,
         float high_cutoff,
         BSTR * messages );
+    HRESULT QXReadArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        VARIANT * values,
+        unsigned long num_values,
+        unsigned long trans_type,
+        BSTR * messages );
+    HRESULT QXWriteArray (
+        unsigned long card_id,
+        unsigned long card_address,
+        const _variant_t & values,
+        unsigned long trans_type,
+        BSTR * messages );
+    HRESULT setICPValue (
+        _bstr_t name,
+        _bstr_t value,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -695,6 +712,23 @@ Idae : IDispatch
       virtual HRESULT __stdcall raw_setSpecIntgCutoff (
         /*[in]*/ float low_cutoff,
         /*[in]*/ float high_cutoff,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_QXReadArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[out]*/ VARIANT * values,
+        /*[in]*/ unsigned long num_values,
+        /*[in]*/ unsigned long trans_type,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_QXWriteArray (
+        /*[in]*/ unsigned long card_id,
+        /*[in]*/ unsigned long card_address,
+        /*[in]*/ VARIANT values,
+        /*[in]*/ unsigned long trans_type,
+        /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_setICPValue (
+        /*[in]*/ BSTR name,
+        /*[in]*/ BSTR value,
         /*[out]*/ BSTR * messages ) = 0;
 };
 
