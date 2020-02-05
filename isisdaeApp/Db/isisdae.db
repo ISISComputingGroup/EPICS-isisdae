@@ -336,7 +336,7 @@ record(ai, "$(P)$(Q)MONITORTO")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
-    info(archive, "VAL")
+    info(archive, "VAL EGU")
 }
 
 record(ai, "$(P)$(Q)MONITORFROM")
@@ -347,7 +347,7 @@ record(ai, "$(P)$(Q)MONITORFROM")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
-    info(archive, "VAL")
+    info(archive, "VAL EGU")
 }
 
 record(ai, "$(P)$(Q)COUNTRATE")
@@ -1330,6 +1330,17 @@ record(bi, "$(P)$(Q)SIM_MODE")
 	field(SCAN, "I/O Intr")
 	info(INTEREST, "HIGH")
     info(archive, "VAL")
+}
+
+## We use NPP on OUT as the PARS:BL:CURR_CONFIG is already on a periodic
+## scan loop to send to isisicp
+record(lso, "$(P)$(Q)CURR_CONFIG")
+{
+    field(DOL, "$(P)CS:BLOCKSERVER:CURR_CONFIG_NAME")
+	field(OMSL, "closed_loop")
+	field(OUT, "$(P)PARS:BL:CURR_CONFIG NPP")
+	field(SCAN, "10 second")
+	field(SIZV, "256")
 }
 
 record(calcout, "$(P)$(Q)_HRPDINT")
