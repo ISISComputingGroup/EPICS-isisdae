@@ -76,6 +76,15 @@ exServer::exServer ( const char * const pvPrefix,
 			m_ntc = ISISDAE_MAX_NTC_DEFAULT;
 		}
 	}
+	int dae_type = iface->getDAEType();
+	if (dae_type == 2 || dae_type == 4)
+	{
+		m_tof_units = "ns";
+	}
+	else
+	{
+		m_tof_units = "us";
+	}
     if ( getenv("ISISDAE_MAX_NTC") != NULL )
 	{
 		m_ntc = atol(getenv("ISISDAE_MAX_NTC"));
@@ -304,11 +313,11 @@ void exServer::show (unsigned level) const
 }
 
 
-void exServer::createAxisPVs(const char* prefix, int spec, int period, const char* axis, const char* units)
+void exServer::createAxisPVs(const char* prefix, int spec, int period, const char* axis, const std::string& units)
 {
 	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:%s", prefix, period, spec, axis);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units, aitEnumFloat32, m_ntc);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units.c_str(), aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
 	SpectrumPV* pSPV = new SpectrumPV(*this, *pPVI, true, scanOn, axis, spec, period);
     pPVI->setPV(pSPV);
@@ -360,7 +369,7 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, const cha
 	}
 
     sprintf(buffer, "%s:%d:%d:%s.EGU", prefix, period, spec, axis);
-	pPVI = createFixedPV(buffer, std::string(units), "", aitEnumString);
+	pPVI = createFixedPV(buffer, units, "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%s.EGU", prefix, spec, axis);
@@ -439,8 +448,8 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("SPEC", spec, period, "X", "us");
-	createAxisPVs("SPEC", spec, period, "Y", "cnt /us"); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs("SPEC", spec, period, "X", m_tof_units);
+	createAxisPVs("SPEC", spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs("SPEC", spec, period, "YC", "cnt");
 	createCountsPV("SPEC", spec, period);
 
@@ -462,8 +471,8 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("MON", mon, period, "X", "us");
-	createAxisPVs("MON", mon, period, "Y", "cnt /us");  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs("MON", mon, period, "X", m_tof_units);
+	createAxisPVs("MON", mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs("MON", mon, period, "YC", "cnt");
 	createCountsPV("MON", mon, period);
 
