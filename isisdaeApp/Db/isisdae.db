@@ -512,6 +512,14 @@ record(bo, "$(P)$(Q)ABORTRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)ABORTRUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)ABORTRUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_ABORT_1)")
+    field(LNK2, "$(POST_ABORT_2)")
+    field(LNK3, "$(POST_ABORT_3)")
+    field(LNK4, "$(POST_ABORT_4)")
 }
 
 record(bo, "$(P)$(Q)PAUSERUN")
@@ -523,6 +531,14 @@ record(bo, "$(P)$(Q)PAUSERUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)PAUSERUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)PAUSERUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_PAUSE_1)")
+    field(LNK2, "$(POST_PAUSE_2)")
+    field(LNK3, "$(POST_PAUSE_3)")
+    field(LNK4, "$(POST_PAUSE_4)")
 }
 
 record(bo, "$(P)$(Q)RESUMERUN")
@@ -534,6 +550,14 @@ record(bo, "$(P)$(Q)RESUMERUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)RESUMERUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)RESUMERUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_RESUME_1)")
+    field(LNK2, "$(POST_RESUME_2)")
+    field(LNK3, "$(POST_RESUME_3)")
+    field(LNK4, "$(POST_RESUME_4)")
 }
 
 record(bo, "$(P)$(Q)ENDRUN")
