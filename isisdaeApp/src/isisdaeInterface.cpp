@@ -91,8 +91,9 @@ isisdaeInterface::isisdaeInterface(const char* host, int options, const char* us
 //		else
 //		{
 //			m_host = "localhost";
-//		}			
-		m_host = "localhost";
+//		}
+        // don't default to localhost, blank lets us try CoCreateInstance() rather than CoCreateInstanceEx()		
+		m_host = "";
 	}
 	epicsAtExit(epicsExitFunc, this);
 	if (m_dcom)
