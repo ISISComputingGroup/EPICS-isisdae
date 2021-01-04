@@ -112,5 +112,10 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         pDD->putRef(pX, new exVecDestructor);
 		return true; // value changed, calling function will send monitors
 	}
-	return false;
+    else
+    {
+        delete[] pX;
+        delete[] pY;
+	    return false;
+    }
 }
