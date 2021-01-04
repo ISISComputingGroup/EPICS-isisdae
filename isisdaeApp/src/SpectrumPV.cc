@@ -17,7 +17,6 @@ SpectrumPV::SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool
 bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 {
     aitFloat32         *pX = NULL, *pY = NULL, *old_pX = NULL, *old_pY = NULL;
-    exVecDestructor     *pDest;
  
     //
     // allocate array buffer
@@ -32,13 +31,6 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         delete[] pX;
         return false;
     }
-	pDest = new exVecDestructor;
-    if (!pDest) {
-        delete[] pX;
-		delete[] pY;
-        return false;
-    }
-
     int n = 0;
 	try {
 	    if (m_axis == "YC")
@@ -82,14 +74,13 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, nmax);
         if ( ! pDD.valid () ) {
 			delete[] pY;
-			delete pDest;
             return false; // no change to value
         }
         //
         // install the buffer into the DD
         // (do this before we increment pF)
         //
-        pDD->putRef(pY, pDest);
+        pDD->putRef(pY, new exVecDestructor);
 		return true;
     }
 	else if (m_axis == "X")
@@ -102,7 +93,6 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 			if ( old_pX != NULL && memcmp(pX, old_pX, n*sizeof(aitFloat32)) == 0 )
 			{
 				delete[] pX;
-				delete pDest;
 			    return false; // no change to value
 			}
 		}
@@ -113,16 +103,14 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         pDD = new gddAtomic (gddAppType_value, aitEnumFloat32, 1u, nmax);
         if ( ! pDD.valid () ) {
 			delete[] pX;
-			delete pDest;
             return false; // no change to value
         }
         //
         // install the buffer into the DD
         // (do this before we increment pF)
         //
-        pDD->putRef(pX, pDest);
+        pDD->putRef(pX, new exVecDestructor);
 		return true; // value changed, calling function will send monitors
 	}
 	return false;
 }
-
