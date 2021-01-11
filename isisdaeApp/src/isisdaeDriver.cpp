@@ -1812,6 +1812,24 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 		return (status);
 	}
 
+    // this is for TOFChannel mode, x axis is time of flight
+    // minX == 0 and binX == 1 anyway as we use ROI on GUI 
+    if (data_mode == 1)
+    {
+        int ntc = 0;
+        status |= getIntegerParam(0, P_NumTimeChannels, &ntc);
+        if (maxSizeX != ntc + 1)
+        {
+            maxSizeX = ntc + 1;
+            status |= setIntegerParam(addr, ADMaxSizeX, maxSizeX);
+        }
+        if (sizeX != ntc + 1)
+        {
+            sizeX = ntc + 1;
+            status |= setIntegerParam(addr, ADSizeX, sizeX);
+        }
+    }
+
     /* Make sure parameters are consistent, fix them if they are not */
     if (binX < 1) {
         binX = 1;
@@ -1845,6 +1863,14 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
         sizeY = maxSizeY-minY;
         status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
+
+	if (status)
+	{
+		asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+			"%s:%s: error setting parameters\n",
+			driverName, functionName);
+		return (status);
+	}
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -2089,7 +2115,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 		}
 	}
 	
-	// in data_mode == 1 nspec here will be time channels * spectra
+	// in data_mode == 1 nspec here will be time channels * real_spectra as X is time channels number and Y is spectrum number
 	int nspec = maxSizeX * maxSizeY;
 	if (spec_map_file.size() > 0)
 	{
@@ -2100,7 +2126,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
 
-	// if data_mode == 1 spec_start needs adjusting for time channel axis
+	// if data_mode == 1 spec_start needs adjusting for time channel X axis
 	if (data_mode == 1)
 	{
 	    spec_start *= maxSizeX;
@@ -2134,7 +2160,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
     }
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
-	const uint32_t* integrals;
+	const uint32_t* integrals = NULL;
 	int max_spec_int_size = 0;
 	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1) * numPeriods) )
 	{
