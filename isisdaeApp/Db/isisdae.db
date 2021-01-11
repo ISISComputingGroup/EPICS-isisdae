@@ -645,37 +645,11 @@ record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
     field(STAT, "NO_ALARM")
 }
 
-## route STARTSEWAIT and ENDSEWAIT to a single _SEWAIT function with CA
-## this avoids a race condition if multiple requests come in while ICP is busy
-## The use of CA means final value wins and is procedded due to RPRO
-
-record(bo, "$(P)$(Q)_STARTSEWAIT_VAL")
-{
-    field(VAL, "1")
-}
-
-record(bo, "$(P)$(Q)_ENDSEWAIT_VAL")
-{
-    field(VAL, "0")
-}
-
-record(bo, "$(P)$(Q)STARTSEWAIT")
-{
-    field(OMSL, "closed_loop")
-	field(DOL, "$(P)$(Q)_STARTSEWAIT_VAL")
-    field(OUT, "$(P)$(Q)_SEWAIT CA")
-}
-
-record(bo, "$(P)$(Q)ENDSEWAIT")
-{
-    field(OMSL, "closed_loop")
-	field(DOL, "$(P)$(Q)_ENDSEWAIT_VAL")
-    field(OUT, "$(P)$(Q)_SEWAIT CA")
-}
-
-record(bo, "$(P)$(Q)_SEWAIT")
+record(bo, "$(P)$(Q)SEWAIT")
 {
     field(DTYP, "asynInt32")
+    field(ZNAM, "0")
+    field(ONAM, "1")
     field(OUT,  "@asyn(icp,0,0)SEWAIT")
 }
 
