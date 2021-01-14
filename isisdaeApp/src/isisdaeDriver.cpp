@@ -60,7 +60,8 @@ private:
 std::string Win32StructuredException::win32_message(unsigned int code, EXCEPTION_POINTERS * pExp)
 {
 	char buffer[256];
-	_snprintf(buffer, sizeof(buffer), "Win32StructuredException code 0x%x pExpCode 0x%x pExpAddress %p", code, pExp->ExceptionRecord->ExceptionCode, pExp->ExceptionRecord->ExceptionAddress);
+	_snprintf(buffer, sizeof(buffer), "Win32StructuredException code 0x%x pExpCode 0x%x pExpAddress %p", code, 
+                  (unsigned)pExp->ExceptionRecord->ExceptionCode, pExp->ExceptionRecord->ExceptionAddress);
 	buffer[sizeof(buffer)-1] = '\0';
 	return std::string(buffer);
 }
@@ -1934,6 +1935,12 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
             break;
         case NDUInt32:
             status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
+            break;
+        case NDInt64:
+            status |= computeArray<epicsInt64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
+            break;
+        case NDUInt64:
+            status |= computeArray<epicsUInt64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
             break;
         case NDFloat32:
             status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
