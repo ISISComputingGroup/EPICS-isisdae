@@ -352,15 +352,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		    beginStateTransition(RS_STORING);
 			m_iface->storeRun();
 		}
-        else if (function == P_StartSEWait)
+        else if (function == P_SEWait)
 		{
-			m_iface->startSEWait();
-			setADAcquire(0);
-		}
-        else if (function == P_EndSEWait)
-		{
-			m_iface->endSEWait();
-			setADAcquire(1);
+            if (value != 0)
+            {
+			    m_iface->startSEWait();
+			    setADAcquire(0);
+            }
+            else
+            {
+			    m_iface->endSEWait();
+			    setADAcquire(1);
+            }
 		}
         else if (function == P_Period)
 		{
@@ -907,8 +910,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_UpdateRunString, asynParamInt32, &P_UpdateRun);
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
     createParam(P_SnapshotCRPTString, asynParamOctet, &P_SnapshotCRPT);
-    createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
-    createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
+    createParam(P_SEWaitString, asynParamInt32, &P_SEWait);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
@@ -1845,6 +1847,7 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
         sizeY = maxSizeY-minY;
         status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
+
 
     switch (colorMode) {
         case NDColorModeMono:

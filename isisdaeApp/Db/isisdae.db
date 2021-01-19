@@ -645,20 +645,12 @@ record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)$(Q)STARTSEWAIT")
+record(bo, "$(P)$(Q)SEWAIT")
 {
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)STARTSEWAIT")
     field(ZNAM, "0")
     field(ONAM, "1")
-}
-
-record(bo, "$(P)$(Q)ENDSEWAIT")
-{
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)ENDSEWAIT")
-    field(ZNAM, "0")
-    field(ONAM, "1")
+    field(OUT,  "@asyn(icp,0,0)SEWAIT")
 }
 
 ## show number of seconds in WAITING state

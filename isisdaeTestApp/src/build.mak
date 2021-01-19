@@ -89,6 +89,3 @@ include $(TOP)/configure/RULES
 #  ADD RULES AFTER THIS LINE
 #=============================
 
-
-example_win32_LIBS += simDetector
-
