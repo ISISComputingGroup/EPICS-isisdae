@@ -313,13 +313,15 @@ void exServer::show (unsigned level) const
 }
 
 
-void exServer::createAxisPVs(const char* prefix, int spec, int period, const char* axis, const std::string& units)
+void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* axis, const std::string& units)
 {
 	char buffer[256], pvAlias[256];
-    sprintf(buffer, "%s:%d:%d:%s", prefix, period, spec, axis);
+    const char* prefix = (is_monitor ? "MON" : "SPEC");
+    sprintf(buffer, "%s:%d:%d:%s", prefix, period, id, axis);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units.c_str(), aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
-	SpectrumPV* pSPV = new SpectrumPV(*this, *pPVI, true, scanOn, axis, spec, period);
+	SpectrumPV* pSPV = (is_monitor ? new MonitorSpectrumPV(*this, *pPVI, true, scanOn, axis, id, period) :
+                                     new SpectrumPV(*this, *pPVI, true, scanOn, axis, id, period));
     pPVI->setPV(pSPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -327,14 +329,14 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, const cha
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
     }
 	
-    sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, id, axis);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
@@ -343,36 +345,36 @@ void exServer::createAxisPVs(const char* prefix, int spec, int period, const cha
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s.NORD", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.NORD", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%s.NELM", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.NELM", prefix, period, id, axis);
 	pPVI = createFixedPV(buffer, m_ntc, "", aitEnumInt32);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s.NELM", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.NELM", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%s.DESC", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.DESC", prefix, period, id, axis);
 	std::ostringstream desc;
-	desc << axis << " (spec=" << spec << ",period=" << period << ")";
+	desc << axis << " (" << (is_monitor ? "mon=" : "spec=") << id << ",period=" << period << ")";
 	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s.DESC", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.DESC", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:%s.EGU", prefix, period, spec, axis);
+    sprintf(buffer, "%s:%d:%d:%s.EGU", prefix, period, id, axis);
 	pPVI = createFixedPV(buffer, units, "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s.EGU", prefix, spec, axis);
+        sprintf(buffer, "%s:%d:%s.EGU", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
@@ -391,13 +393,16 @@ pvInfo* exServer::createFixedPV(const std::string& pvStr, const T& value, const 
 	return pPVI;
 }
 
-void exServer::createCountsPV(const char* prefix, int spec, int period)
+// id is spec or mon number
+void exServer::createCountsPV(bool is_monitor, int id, int period)
 {
 	char buffer[256], pvAlias[256];
-    sprintf(buffer, "%s:%d:%d:C", prefix, period, spec);
+    const char* prefix = (is_monitor ? "MON" : "SPEC");
+    sprintf(buffer, "%s:%d:%d:C", prefix, period, id);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "cnt", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new CountsPV(*this, *pPVI, true, scanOn, spec, period);
+    exPV* pPV = (is_monitor ? new MonitorCountsPV(*this, *pPVI, true, scanOn, id, period) :
+                              new CountsPV(*this, *pPVI, true, scanOn, id, period));
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -405,29 +410,29 @@ void exServer::createCountsPV(const char* prefix, int spec, int period)
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:C", prefix, spec);
+        sprintf(buffer, "%s:%d:C", prefix, id);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:C.DESC", prefix, period, spec);
+    sprintf(buffer, "%s:%d:%d:C.DESC", prefix, period, id);
 	std::ostringstream desc;
-	desc << "Integral (Spec=" << spec << ",period=" << period << ")";
+	desc << "Integral (" << (is_monitor ? "mon=" : "spec=") << id << ",period=" << period << ")";
 	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:C.DESC", prefix, spec);
+        sprintf(buffer, "%s:%d:C.DESC", prefix, id);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
 
-    sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, spec);
+    sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, id);
 	pPVI = createFixedPV(buffer, std::string("cnt"), "", aitEnumString);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:C.EGU", prefix, spec);
+        sprintf(buffer, "%s:%d:C.EGU", prefix, id);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
@@ -448,10 +453,10 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("SPEC", spec, period, "X", m_tof_units);
-	createAxisPVs("SPEC", spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
-	createAxisPVs("SPEC", spec, period, "YC", "cnt");
-	createCountsPV("SPEC", spec, period);
+	createAxisPVs(false, spec, period, "X", m_tof_units);
+	createAxisPVs(false, spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs(false, spec, period, "YC", "cnt");
+	createCountsPV(false, spec, period);
 
     return true;
 }
@@ -471,10 +476,10 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	    return false;
 	}
 
-	createAxisPVs("MON", mon, period, "X", m_tof_units);
-	createAxisPVs("MON", mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
-	createAxisPVs("MON", mon, period, "YC", "cnt");
-	createCountsPV("MON", mon, period);
+	createAxisPVs(true, mon, period, "X", m_tof_units);
+	createAxisPVs(true, mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs(true, mon, period, "YC", "cnt");
+	createCountsPV(true, mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "", aitEnumInt32, 1);

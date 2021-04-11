@@ -290,11 +290,24 @@ public:
     CountsPV ( exServer & cas, pvInfo &setup, 
         bool preCreateFlag, bool scanOnIn, int spec, int period );
 	virtual bool getNewValue(smartGDDPointer& pDD);
+protected:
+    int m_spec;  // so can be updated by MonitorCountsPV subclass 
 private:
-    int m_spec;
 	int m_period;
     CountsPV & operator = ( const CountsPV & );
     CountsPV ( const CountsPV & );
+};
+
+class MonitorCountsPV : public CountsPV {
+public:
+    MonitorCountsPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, int mon, int period );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+	int m_monitor;
+    MonitorCountsPV & operator = ( const MonitorCountsPV & );
+    MonitorCountsPV ( const MonitorCountsPV & );
+    bool updateSpectrum();
 };
 
 template <typename T>
@@ -359,15 +372,27 @@ public:
     SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period);
 	virtual bool getNewValue(smartGDDPointer& pDD);
     int& getNORD() { return m_nord; }
+protected:
+    int m_spec; // so can be updated by MonitorSpectrumPV subclass  
 private:
 	std::string m_axis;
-    int m_spec;
 	int m_period;
 	int m_nord;
     SpectrumPV & operator = ( const SpectrumPV & );
     SpectrumPV ( const SpectrumPV & );
 };
 
+class MonitorSpectrumPV : public SpectrumPV {
+public:
+    MonitorSpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int mon, int period);
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    int m_monitor;
+    MonitorSpectrumPV & operator = ( const MonitorSpectrumPV & );
+    MonitorSpectrumPV ( const MonitorSpectrumPV & );
+    bool updateSpectrum();
+};
+    
 class myAsyncReadIO : public casAsyncReadIO
 {
 	exPV& m_pv;
@@ -426,8 +451,8 @@ public:
 	
 	bool createSpecPVs(const std::string& pvStr);
 	bool createMonitorPVs(const std::string& pvStr);
-	void createAxisPVs(const char* prefix, int spec, int period, const char* axis, const std::string& units);
-	void createCountsPV(const char* prefix, int spec, int period);
+	void createAxisPVs(bool is_monitor, int id, int period, const char* axis, const std::string& units);
+	void createCountsPV(bool is_monitor, int id, int period);
     template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
 
 private:

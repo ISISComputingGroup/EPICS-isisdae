@@ -115,6 +115,7 @@ namespace ISISICPINT
 		ISISICPINT_DllExport extern int(SEGetValues)(long run_number, const std::string& source, const std::string& block_name, std::vector<std::string>& iso_times, std::vector<T>& block_values);
 	ISISICPINT_DllExport extern int(SEClearLoggedValues)(long run_number);
 	ISISICPINT_DllExport extern std::string(SEExecSQL)(const std::string& sql); // retval
+	ISISICPINT_DllExport extern long getSpectrumNumberForMonitor(long mon_num, std::string& messages); // retval
 };
 
 #endif /* ISISICPINT_H */
