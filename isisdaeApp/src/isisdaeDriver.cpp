@@ -185,7 +185,8 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 		}
 		return;
 	}
-	double tdiff = (now.time - state.tb.time) + (now.millitm - state.tb.millitm) / 1000.0; 
+    double tdiff = difftime(now.time, state.tb.time) + ((int)now.millitm - (int)state.tb.millitm) / 1000.0;
+
 	if (tdiff < 0.1)
 	{
 		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
