@@ -138,6 +138,7 @@ public:
 	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
 	void getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames);
 	void setSpecIntgCutoff(double tmin, double tmax);
+	long getSpectrumNumberForMonitor(long mon_num);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

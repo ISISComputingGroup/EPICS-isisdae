@@ -1132,7 +1132,7 @@ void isisdaeInterface::getVetoInfo(std::vector<std::string>& names, std::vector<
 	}
 	else
 	{
-//		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));
+//		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));  // need to wait for new isisicpint.lib
 	}
 }
 
@@ -1144,6 +1144,19 @@ void isisdaeInterface::setSpecIntgCutoff(double tmin, double tmax)
 	}
 	else
 	{
-//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1));
+//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1)); // need to wait for new isisicpint.lib
+	}
+}
+
+long isisdaeInterface::getSpectrumNumberForMonitor(long mon_num)
+{
+	if (m_dcom)
+	{
+		return callD<long>(boost::bind(&ICPDCOM::getSpectrumNumberForMonitor, _1, mon_num, _2));
+	}
+	else
+	{
+        return 0;
+//		callI<long>(boost::bind(&ISISICPINT::getSpectrumNumberForMonitor, mon_num, _1)); // need to wait for new isisicpint.lib
 	}
 }
