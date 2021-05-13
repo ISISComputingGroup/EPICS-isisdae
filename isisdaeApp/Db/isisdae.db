@@ -10,6 +10,7 @@ record(waveform, "$(P)$(Q)TITLE")
     info(archive, "VAL")
 }
 
+## can set DAEPINI to not process this if e.g. it is running with SECI 
 record(waveform, "$(P)$(Q)TITLE:SP")
 {
     field(DESC, "Set Run title")
@@ -17,7 +18,7 @@ record(waveform, "$(P)$(Q)TITLE:SP")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)RUNTITLESP")
-	field(PINI, "YES")
+    field(PINI, "$(DAEPINI=YES)")
     info(autosaveFields, "VAL")
 }
 
