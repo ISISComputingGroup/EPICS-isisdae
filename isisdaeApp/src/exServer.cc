@@ -100,7 +100,7 @@ exServer::exServer ( const char * const pvPrefix,
 
     if ( asyncScan ) {
         unsigned timerPriotity;
-        epicsThreadBooleanStatus etbs = epicsThreadLowestPriorityLevelAbove (
+        epicsThreadBooleanStatus etbs = epicsThreadLowestPriorityLevelBelow (
                 epicsThreadGetPrioritySelf (), & timerPriotity );
         if ( etbs != epicsThreadBooleanStatusSuccess ) {
             timerPriotity = epicsThreadGetPrioritySelf ();
