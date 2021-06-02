@@ -100,8 +100,17 @@ exServer::exServer ( const char * const pvPrefix,
 
     if ( asyncScan ) {
         unsigned timerPriotity;
-        epicsThreadBooleanStatus etbs = epicsThreadHighestPriorityLevelBelow (
+        int timer_priority = atoi(getenv("ISISDAE_TIMER_PRIORITY") != NULL ?  getenv("ISISDAE_TIMER_PRIORITY") : "1");
+        epicsThreadBooleanStatus etbs = epicsThreadBooleanStatusSuccess;
+        if (timer_priority > 0) {
+            etbs = epicsThreadLowestPriorityLevelAbove (
                 epicsThreadGetPrioritySelf (), & timerPriotity );
+        } else if (timer_priority < 0) {
+            etbs = epicsThreadHighestPriorityLevelBelow (
+                epicsThreadGetPrioritySelf (), & timerPriotity );
+        } else {
+            timerPriotity = epicsThreadGetPrioritySelf ();
+        }
         if ( etbs != epicsThreadBooleanStatusSuccess ) {
             timerPriotity = epicsThreadGetPrioritySelf ();
         }
