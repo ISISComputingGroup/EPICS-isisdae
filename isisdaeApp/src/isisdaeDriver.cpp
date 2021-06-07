@@ -2367,7 +2367,7 @@ static void daeCASThread(void* arg)
     const char*        pvPrefix;
     unsigned    aliasCount = 1u;
     unsigned    scanOn = true;
-    unsigned    syncScan = true;
+    unsigned    syncScan = false;
     unsigned    maxSimultAsyncIO = 1000u;
 
 	isisdaeDriver::waitForIOCRunning();
