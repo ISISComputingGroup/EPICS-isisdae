@@ -326,6 +326,18 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
     info(alarm, "ISISDAE_01")
 }
 
+record(ai, "$(P)$(R)INTG:RATE:RBV")
+{
+    field(INP, "$(P)$(R)INTG:RATE")
+    field(SCAN, "Passive")
+}
+
+record(ai, "$(P)$(R)INTG:SPEC:RATE:RBV")
+{
+    field(INP, "$(P)$(R)INTG:SPEC:RATE")
+    field(SCAN, "Passive")
+}
+
 record(ai, "$(P)$(R)INTG:SPEC:MAX")
 {
     field(DESC, "Max Spec Value")
