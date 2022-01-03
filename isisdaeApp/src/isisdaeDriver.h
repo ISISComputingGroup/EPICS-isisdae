@@ -27,6 +27,7 @@ public:
 	virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual);
     virtual asynStatus readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn);
     virtual asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
+    virtual asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements);
 	
 	void beginStateTransition(int state);
 	void endStateTransition();
@@ -110,6 +111,16 @@ private:
 	int P_tcbFile; // string
 	int P_periodsFile; // string
 	int P_inChangingState; // int
+
+    int P_VMEReadValueProps; // int array
+    int P_VMEReadValueData; // int
+    int P_VMEWriteValue; // int array
+    int P_VMEReadArrayProps; // int array
+    int P_VMEReadArrayData; // int array
+    int P_VMEWriteArray; // int array
+    int P_QXReadArrayProps; // int array
+    int P_QXReadArrayData; // int array
+    int P_QXWriteArray; // int array
 	
 	int P_diagTableSum; // int array
 	int P_diagTableMax; // int array
@@ -169,6 +180,8 @@ private:
     float m_vetopc; // only made it a float as 32bit size is guaranteeded to be atomic on both 32 and 64bit windows   
     NDArray* m_pRaw;
 
+	std::map< int, std::vector<epicsInt32> > m_directRWProps;
+
 	/// mapping of run state to disallowed asyn commands when in that state
 	std::map< int, std::vector<int> > m_disallowedStateCommand;
 	
@@ -192,7 +205,7 @@ private:
 	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
-    template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
+//    template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
 
     void settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg);
@@ -273,6 +286,16 @@ private:
 #define P_tcbFileString           "TCBFILE"
 #define P_periodsFileString      "PERIODSFILE"
 #define P_inChangingStateString      "INCHANGINGSTATE"
+
+#define P_VMEReadValuePropsString 	"VMEREADVALUEPROPS"
+#define P_VMEReadValueDataString 	"VMEREADVALUEDATA"
+#define P_VMEWriteValueString 		"VMEWRITEVALUE"
+#define P_VMEReadArrayPropsString 	"VMEREADARRAYPROPS"
+#define P_VMEReadArrayDataString 	"VMEREADARRAYDATA"
+#define P_VMEWriteArrayString	 	"VMEWRITEARRAY"
+#define P_QXReadArrayPropsString 	"QXREADARRAYPROPS"
+#define P_QXReadArrayDataString 	"QXREADARRAYDATA"
+#define P_QXWriteArrayString 		"QXWRITEARRAY"
 
 #define P_diagTableSumString		"DIAG_TABLE_SUM"
 #define P_diagTableMaxString		"DIAG_TABLE_MAX"

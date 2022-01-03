@@ -60,7 +60,8 @@ private:
 std::string Win32StructuredException::win32_message(unsigned int code, EXCEPTION_POINTERS * pExp)
 {
 	char buffer[256];
-	_snprintf(buffer, sizeof(buffer), "Win32StructuredException code 0x%x pExpCode 0x%x pExpAddress %p", code, pExp->ExceptionRecord->ExceptionCode, pExp->ExceptionRecord->ExceptionAddress);
+	_snprintf(buffer, sizeof(buffer), "Win32StructuredException code 0x%x pExpCode 0x%x pExpAddress %p", code, 
+                  (unsigned)pExp->ExceptionRecord->ExceptionCode, pExp->ExceptionRecord->ExceptionAddress);
 	buffer[sizeof(buffer)-1] = '\0';
 	return std::string(buffer);
 }
@@ -405,6 +406,7 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 	return status;
 }
 
+#if 0
 // need to consider function < FIRST_ISISDAE_PARAM here or elsewhere if used. 
 template<typename T>
 asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionName, T* value)
@@ -433,6 +435,7 @@ asynStatus isisdaeDriver::readValue(asynUser *pasynUser, const char* functionNam
 		return asynError;
 	}
 }
+#endif
 
 template<typename T>
 asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn)
@@ -445,9 +448,54 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 	try
 	{
 	    m_iface->resetMessages();
+		if (function == P_VMEReadValueProps || function == P_VMEReadArrayProps || function == P_QXReadArrayProps)
+		{
+			std::vector<epicsInt32>& props = m_directRWProps[function];
+			if (nElements >= props.size())
+			{
+				std::copy(props.begin(), props.end(), value);
+				*nIn = props.size();
+			}
+			else
+			{
+				throw std::runtime_error("props not large enough");
+			}
+		}
+		else if (function == P_VMEReadArrayData)
+		{
+			std::vector<epicsInt32>& props = m_directRWProps[P_VMEReadArrayProps];
+			int n = props[2];
+			if (n <= nElements)
+			{
+				std::vector<long> value_v;
+				m_iface->VMEReadArray(props[0], props[1], value_v, n);
+				std::copy(value_v.begin(), value_v.end(), value);
+				*nIn = n;
+			}
+			else
+			{
+			    throw std::runtime_error("array not large enough");
+			}
+		}
+		else if (function == P_QXReadArrayData)
+		{
+			std::vector<epicsInt32>& props = m_directRWProps[P_QXReadArrayProps];
+			int n = props[2];
+			if (n <= nElements)
+			{
+				std::vector<long> value_v;
+				m_iface->QXReadArray(props[0], props[1], value_v, n, props[3]);
+				std::copy(value_v.begin(), value_v.end(), value);
+				*nIn = n;
+			}
+			else
+			{
+			    throw std::runtime_error("array not large enough");
+			}
+	    }
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
-              "%s:%s: function=%d, name=%s\n", 
-              driverName, functionName, function, paramName);
+              "%s:%s: function=%d, name=%s, nElements=%llu, nIn=%llu\n", 
+              driverName, functionName, function, paramName, (unsigned long long)nElements, (unsigned long long)(*nIn));
 		reportMessages();
 		return status;
 	}
@@ -455,8 +503,8 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 	{
 		*nIn = 0;
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
-                  "%s:%s: status=%d, function=%d, name=%s, error=%s", 
-                  driverName, functionName, status, function, paramName, ex.what());
+                  "%s:%s: status=%d, function=%d, name=%s, nElements=%llu, error=%s", 
+                  driverName, functionName, status, function, paramName, (unsigned long long)nElements, ex.what());
 		reportErrors(ex.what());
 		return asynError;
 	}
@@ -530,6 +578,79 @@ asynStatus isisdaeDriver::readInt32Array(asynUser *pasynUser, epicsInt32 *value,
     return stat;
 }
 
+asynStatus isisdaeDriver::writeInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements)
+{
+	int function = pasynUser->reason;
+	const char *functionName = "writeInt32Array";
+    asynStatus status = asynSuccess;
+	registerStructuredExceptionHandler();
+    const char *paramName = NULL;
+	getParamName(function, &paramName);
+	if (function < FIRST_ISISDAE_PARAM)
+	{
+		return ADDriver::writeInt32Array(pasynUser, value, nElements);
+	}
+	try
+	{
+	    m_iface->resetMessages();
+		if (function == P_VMEReadValueProps || function == P_VMEReadArrayProps ||  function == P_QXReadArrayProps)
+		{
+				std::vector<epicsInt32>& props = m_directRWProps[function];
+				if (nElements == props.size())
+				{
+					std::copy(value, value + nElements, props.begin());
+				}
+				else
+				{
+				    throw std::runtime_error("props size wrong");
+				}
+		}
+		else if (function == P_VMEWriteValue && nElements == 5)
+		{
+			m_iface->VMEWriteValue(value[0], value[1], value[2], value[4], value[3]);
+		}		
+		else if (function == P_VMEWriteArray && nElements >= 3) // card_id, address, num_values, value1, value2, ...
+		{
+		    int n = value[2];
+			if ( nElements >= (n + 3) )
+			{
+			    std::vector<long> value_v(value + 3, value + n + 3);
+			    m_iface->VMEWriteArray(value[0], value[1], value_v);
+			}
+			else
+			{
+				throw std::runtime_error("array size wrong");
+			}
+		}
+		else if (function == P_QXWriteArray && nElements >= 4) // card_id, card_address, num_values, transfer_type, value1, value2, ...
+		{
+		    int n = value[2];
+			if ( nElements >= (n + 4) )
+			{
+			    std::vector<long> value_v(value + 4, value + n + 4);
+			    m_iface->QXWriteArray(value[0], value[1], value_v, value[3]);
+			}
+			else
+			{
+				throw std::runtime_error("array size wrong");
+			}
+		}
+        asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
+              "%s:%s: function=%d, name=%s, nElements=%llu\n", 
+              driverName, functionName, function, paramName, (unsigned long long)nElements);
+		reportMessages();
+		return status;
+	}
+	catch(const std::exception& ex)
+	{
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s: status=%d, function=%d, name=%s, nElements=%llu, error=%s", 
+                  driverName, functionName, status, function, paramName, (unsigned long long)nElements, ex.what());
+		reportErrors(ex.what());
+		return asynError;
+	}
+}
+
 asynStatus isisdaeDriver::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
 {
 	int function = pasynUser->reason;
@@ -573,11 +694,23 @@ asynStatus isisdaeDriver::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	    {
 	        return ADDriver::readInt32(pasynUser, value);
 	    }
-	    else
-	    {
-	        m_iface->resetMessages();
+	    m_iface->resetMessages();
+		if (function == P_VMEReadValueData)
+		{
+			std::vector<epicsInt32>& props = m_directRWProps[P_VMEReadValueProps];
+			unsigned long valtemp;
+			m_iface->VMEReadValue(props[0], props[1], props[2], valtemp);
+			*value = valtemp;
+		}
+		else
+		{
 	        return asynPortDriver::readInt32(pasynUser, value);
-        }
+		}
+		asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
+              "%s:%s: function=%d, name=%s, value=%s\n", 
+              driverName, functionName, function, paramName, convertToString(*value).c_str());
+		reportMessages();
+		return asynSuccess;
 	}
 	catch(const std::exception& ex)
 	{
@@ -981,6 +1114,20 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_spectraTableFileString, asynParamOctet, &P_spectraTableFile);
     createParam(P_tcbFileString, asynParamOctet, &P_tcbFile);
     createParam(P_periodsFileString, asynParamOctet, &P_periodsFile);
+
+    createParam(P_VMEReadValuePropsString, asynParamInt32Array, &P_VMEReadValueProps);
+    createParam(P_VMEReadValueDataString, asynParamInt32, &P_VMEReadValueData);
+    createParam(P_VMEWriteValueString, asynParamInt32Array, &P_VMEWriteValue);
+    createParam(P_VMEReadArrayPropsString, asynParamInt32Array, &P_VMEReadArrayProps);
+    createParam(P_VMEReadArrayDataString, asynParamInt32Array, &P_VMEReadArrayData);
+    createParam(P_VMEWriteArrayString, asynParamInt32Array, &P_VMEWriteArray);
+    createParam(P_QXReadArrayPropsString, asynParamInt32Array, &P_QXReadArrayProps);
+    createParam(P_QXReadArrayDataString, asynParamInt32Array, &P_QXReadArrayData);
+    createParam(P_QXWriteArrayString, asynParamInt32Array, &P_QXWriteArray);
+	
+    m_directRWProps[P_VMEReadValueProps].resize(3, 0);  // card, address, word_size
+    m_directRWProps[P_VMEReadArrayProps].resize(3, 0); // card, address, num_values
+    m_directRWProps[P_QXReadArrayProps].resize(4, 0); // card, address, num_values, trans_type
 	
     createParam(P_diagTableSumString, asynParamInt32Array, &P_diagTableSum);
     createParam(P_diagTableSpecString, asynParamInt32Array, &P_diagTableSpec);
@@ -1834,6 +1981,24 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
 		return (status);
 	}
 
+    // this is for TOFChannel mode, x axis is time of flight
+    // minX == 0 and binX == 1 anyway as we use ROI on GUI 
+    if (data_mode == 1)
+    {
+        int ntc = 0;
+        status |= getIntegerParam(0, P_NumTimeChannels, &ntc);
+        if (maxSizeX != ntc + 1)
+        {
+            maxSizeX = ntc + 1;
+            status |= setIntegerParam(addr, ADMaxSizeX, maxSizeX);
+        }
+        if (sizeX != ntc + 1)
+        {
+            sizeX = ntc + 1;
+            status |= setIntegerParam(addr, ADSizeX, sizeX);
+        }
+    }
+
     /* Make sure parameters are consistent, fix them if they are not */
     if (binX < 1) {
         binX = 1;
@@ -1868,6 +2033,13 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
         status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
 
+	if (status)
+	{
+		asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+			"%s:%s: error setting parameters\n",
+			driverName, functionName);
+		return (status);
+	}
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -1931,6 +2103,12 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
             break;
         case NDUInt32:
             status |= computeArray<epicsUInt32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
+            break;
+        case NDInt64:
+            status |= computeArray<epicsInt64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
+            break;
+        case NDUInt64:
+            status |= computeArray<epicsUInt64>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
             break;
         case NDFloat32:
             status |= computeArray<epicsFloat32>(addr, spec_start, trans_mode, maxSizeX, maxSizeY, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode, period);
@@ -2112,7 +2290,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 		}
 	}
 	
-	// in data_mode == 1 nspec here will be time channels * spectra
+	// in data_mode == 1 nspec here will be time channels * real_spectra as X is time channels number and Y is spectrum number
 	int nspec = maxSizeX * maxSizeY;
 	if (spec_map_file.size() > 0)
 	{
@@ -2123,7 +2301,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	// periods start at 1 in user world, also numSpec+1 as we have spectra from 0 to numSpec in each period
 	spec_start += (period - 1) * (numSpec + 1);
 
-	// if data_mode == 1 spec_start needs adjusting for time channel axis
+	// if data_mode == 1 spec_start needs adjusting for time channel X axis
 	if (data_mode == 1)
 	{
 	    spec_start *= maxSizeX;
@@ -2157,7 +2335,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
     }
     m_pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
 
-	const uint32_t* integrals;
+	const uint32_t* integrals = NULL;
 	int max_spec_int_size = 0;
 	if ( (data_mode == 0) && ((spec_start + nspec) > (numSpec + 1) * numPeriods) )
 	{
@@ -2386,7 +2564,7 @@ static void daeCASThread(void* arg)
     const char*        pvPrefix;
     unsigned    aliasCount = 1u;
     unsigned    scanOn = true;
-    unsigned    syncScan = true;
+    unsigned    syncScan = false;
     unsigned    maxSimultAsyncIO = 1000u;
 
 	isisdaeDriver::waitForIOCRunning();

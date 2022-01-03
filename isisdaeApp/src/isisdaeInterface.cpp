@@ -618,6 +618,20 @@ std::string isisdaeInterface::getValue(const std::string& name)
 	}
 }
 
+int isisdaeInterface::setICPValue(const std::string& name, const std::string& value)
+{
+    if (m_dcom)
+	{
+        _bstr_t name_bs(CComBSTR(name.c_str()).Detach());
+        _bstr_t value_bs(CComBSTR(value.c_str()).Detach());
+		return callD<int>(boost::bind(&ICPDCOM::setICPValue, _1, boost::cref(name_bs), boost::cref(value_bs), _2));
+	}
+	else
+	{
+	    return callI<int>(boost::bind(&ISISICPINT::setICPValue, boost::cref(name), boost::cref(value), _1));
+	}
+}
+
 int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value)
 {
     ISISICPINT::string_table_t table;
@@ -1082,6 +1096,95 @@ long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, 
 	else
 	{
 		callI<int>(boost::bind(&ISISICPINT::getSpectraIntegral, spectrum_numbers, period, times_low, times_high, boost::ref(counts), _1));
+	}
+    return 0;
+}
+
+long isisdaeInterface::QXReadArray(unsigned long card_id, unsigned long card_address, std::vector<long>& values, unsigned long num_values, unsigned long trans_type)
+{
+	variant_t values_v;
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::QXReadArray, _1, card_id, card_address, &values_v, num_values, trans_type, _2));
+		makeArrayFromVariant(values, &values_v);
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::QXReadArray, card_id, card_address, boost::ref(values), num_values, trans_type, _1));
+	}
+    return 0;
+
+}
+
+long isisdaeInterface::QXWriteArray(unsigned long card_id, unsigned long card_address, const std::vector<long>& values, unsigned long trans_type)
+{
+	variant_t values_v;
+	if (m_dcom)
+	{
+		makeVariantFromArray(&values_v, values);
+		callD<int>(boost::bind(&ICPDCOM::QXWriteArray, _1, card_id, card_address, values_v, trans_type, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::QXWriteArray, card_id, card_address, boost::ref(values), trans_type, _1));
+	}
+    return 0;
+}
+
+long isisdaeInterface::VMEReadArray(unsigned long card_id, unsigned long card_address, std::vector<long>& values, unsigned long num_values)
+{
+	variant_t values_v;
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::VMEReadArray, _1, card_id, card_address, &values_v, num_values, _2));
+		makeArrayFromVariant(values, &values_v);
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::VMEReadArray, card_id, card_address, boost::ref(values), num_values, _1));
+	}
+    return 0;
+
+}
+
+long isisdaeInterface::VMEWriteArray(unsigned long card_id, unsigned long card_address, const std::vector<long>& values)
+{
+	variant_t values_v;
+	if (m_dcom)
+	{
+		makeVariantFromArray(&values_v, values);
+		callD<int>(boost::bind(&ICPDCOM::VMEWriteArray, _1, card_id, card_address, values_v, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::VMEWriteArray, card_id, card_address, boost::ref(values), _1));
+	}
+    return 0;
+}
+
+long isisdaeInterface::VMEReadValue(unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long& value)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::VMEReadValue, _1, card_id, card_address, word_size, &value, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::VMEReadValue, card_id, card_address, word_size, &value, _1));
+	}
+    return 0;
+
+}
+
+long isisdaeInterface::VMEWriteValue(unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long value, unsigned long mode)
+{
+	if (m_dcom)
+	{
+		callD<int>(boost::bind(&ICPDCOM::VMEWriteValue, _1, card_id, card_address, word_size, value, mode, _2));
+	}
+	else
+	{
+		callI<int>(boost::bind(&ISISICPINT::VMEWriteValue, card_id, card_address, word_size, value, mode, _1));
 	}
     return 0;
 }

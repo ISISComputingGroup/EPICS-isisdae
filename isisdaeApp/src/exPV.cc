@@ -113,6 +113,7 @@ caStatus exPV::update ( const gdd & valueIn )
 epicsTimerNotify::expireStatus
 exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
+    static const double sleep_delay = atof(getenv("ISISDAE_TIMER_SLEEP") != NULL ? getenv("ISISDAE_TIMER_SLEEP") : ".001");
 	try 
 	{
         this->scan();
@@ -128,6 +129,7 @@ exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed");
 	}
 	this->timerDone.signal();
+    epicsThreadSleep(sleep_delay); // yield thread, this is in case we have a big timer queue and start to starve DAE access
     if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
         return expireStatus ( restart, this->getScanPeriod() );
     }
