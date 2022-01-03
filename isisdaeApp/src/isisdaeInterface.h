@@ -139,6 +139,7 @@ public:
 	void getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames);
 	void setSpecIntgCutoff(double tmin, double tmax);
 	long getSpectrumNumberForMonitor(long mon_num);
+	int setICPValue(const std::string& name, const std::string& value);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

@@ -618,6 +618,20 @@ std::string isisdaeInterface::getValue(const std::string& name)
 	}
 }
 
+int isisdaeInterface::setICPValue(const std::string& name, const std::string& value)
+{
+    if (m_dcom)
+	{
+        _bstr_t name_bs(CComBSTR(name.c_str()).Detach());
+        _bstr_t value_bs(CComBSTR(value.c_str()).Detach());
+		return callD<int>(boost::bind(&ICPDCOM::setICPValue, _1, boost::cref(name_bs), boost::cref(value_bs), _2));
+	}
+	else
+	{
+	    return callI<int>(boost::bind(&ISISICPINT::setICPValue, boost::cref(name), boost::cref(value), _1));
+	}
+}
+
 int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value)
 {
     ISISICPINT::string_table_t table;
