@@ -1392,3 +1392,104 @@ record(mbbi, "$(P)$(Q)HRPDINT")
     field(ZRSV, "MINOR")
     field(TWSV, "MINOR")
 }
+
+## card_id, card_address, word_size(0=16bit, 1=32 bit)
+record(waveform, "$(P)$(Q)VMEREADVALUE:PROPS")
+{
+    field(DESC, "VMEReadValue props")
+    field(NELM, "3")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)VMEREADVALUEPROPS")
+    field(FLNK,  "$(P)$(Q)VMEREADVALUE:DATA")
+}
+
+record(longin, "$(P)$(Q)VMEREADVALUE:DATA")
+{
+    field(DESC, "VMEReadValue data")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)VMEREADVALUEDATA")
+}
+
+## card_id, card_address, word_size (0=16bit, 1=32 bit), mode (0=set,1=and,2=or,3=xor), value
+record(waveform, "$(P)$(Q)VMEWRITEVALUE")
+{
+    field(DESC, "VMEWriteValue")
+    field(NELM, "5")
+    field(FTVL, "ULONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)VMEWRITEVALUE")
+}
+
+## card_id, card_address, num_values
+record(waveform, "$(P)$(Q)VMEREADARRAY:PROPS")
+{
+    field(DESC, "VMEReadArray props")
+    field(NELM, "3")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)VMEREADARRAYPROPS")
+    field(FLNK,  "$(P)$(Q)VMEREADARRAY:DATA")
+}
+
+## vme read array does TransferBlock | TransferLittleEndian
+## vme read value is TransferIORegisterSpace
+## check NORD for how many read
+record(waveform, "$(P)$(Q)VMEREADARRAY:DATA")
+{
+    field(DESC, "VMEReadArray data")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)VMEREADARRAYDATA")
+    field(NELM, "1024")
+    field(FTVL, "ULONG")
+}
+
+## card_id, card_address, num_values, value1, value2, ...
+record(waveform, "$(P)$(Q)VMEWRITEARRAY")
+{
+    field(DESC, "VMEWriteArray")
+    field(NELM, "1027")
+    field(FTVL, "ULONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)VMEWRITEARRAY")
+}
+
+## card_id, card_address, num_values, trans_type
+## trans_type is ored collection of ISISVME::TransferProp from isisicp
+##   TransferNoOptions = 0x0, TransferBlock = 0x1, TransferLittleEndian = 0x2, 
+##   TransferIORegisterSpace = 0x4, TransferLUTSpace = 0x8, TransferRunMemorySpace = 0x10, 
+##   TransferAbsoluteAddress = 0x20
+##   Each DAE3 card is treated as a DAE2 crate, each DAE3 module is like a DAE2 card.
+##   The three modules share a registers IO space, some registers are present in all 3 modules at shifted addresses, 
+##   some are only present once on DAU0. Specifying TransferAbsoluteAddress negates any module specific shifts. 
+##   being applied to the io register read. 
+##   TransferLittleEndian is only approariate for DAE2 detector card memory reads as is TransferBlock
+record(waveform, "$(P)$(Q)QXREADARRAY:PROPS")
+{
+    field(DESC, "QXReadArray props")
+    field(NELM, "4")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)QXREADARRAYPROPS")
+    field(FLNK,  "$(P)$(Q)QXREADARRAY:DATA")
+}
+
+## check NORD for how many read
+record(waveform, "$(P)$(Q)QXREADARRAY:DATA")
+{
+    field(DESC, "QXReadArray data")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)QXREADARRAYDATA")
+    field(NELM, "1024")
+    field(FTVL, "ULONG")
+}
+
+## card_id, card_address, num_values, transfer_type, value1, value2, ...
+record(waveform, "$(P)$(Q)QXWRITEARRAY")
+{
+    field(DESC, "QXWriteArray")
+    field(NELM, "1028")
+    field(FTVL, "ULONG")
+    field(DTYP, "asynInt32ArrayOut")
+    field(INP,  "@asyn(icp,0,0)QXWRITEARRAY")
+}
