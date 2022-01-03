@@ -112,7 +112,7 @@ public:
     double getMEvents();
     unsigned long getTotalCounts();
     unsigned long getHistogramMemory();
-    int getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high,                       std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums);
+    int getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums);
     int getRunDataFromDAE(std::map<std::string, DAEValue>& values);
     int getDAESettingsXML(std::string& result);
     int setDAESettingsXML(const std::string& settings);
@@ -126,6 +126,14 @@ public:
     int setMonitoringSettingsXML(const std::string& settings);
     int getVetoStatus(std::string& result);
     int setVeto(const std::string& veto, bool enable);
+	
+	long QXReadArray(unsigned long card_id, unsigned long card_address, std::vector<long>& values, unsigned long num_values, unsigned long trans_type);
+	long QXWriteArray(unsigned long card_id, unsigned long card_address, const std::vector<long>& values, unsigned long trans_type);
+	long VMEWriteValue(unsigned long card_id, unsigned long card_address,unsigned long word_size, unsigned long value, unsigned long mode);
+	long VMEReadValue(unsigned long card_id, unsigned long card_address, unsigned long word_size, unsigned long& value);
+	long VMEReadArray(unsigned long card_id, unsigned long card_address,  std::vector<long>& values, unsigned long num_values);
+	long VMEWriteArray(unsigned long card_id, unsigned long card_address, const std::vector<long>& values);
+
 	const std::string& getAllMessages() const;
 	int getAsyncMessages(std::list<std::string>& messages);
 	void resetMessages(); 
@@ -138,6 +146,8 @@ public:
 	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
 	void getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames);
 	void setSpecIntgCutoff(double tmin, double tmax);
+	long getSpectrumNumberForMonitor(long mon_num);
+	int setICPValue(const std::string& name, const std::string& value);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

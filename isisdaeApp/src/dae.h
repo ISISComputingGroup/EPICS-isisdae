@@ -1,11 +1,14 @@
 #ifndef ISISICPINT_H
 #define ISISICPINT_H
 
-#ifdef ISISICPINT_EXPORTS
-#define ISISICPINT_DllExport __declspec(dllexport)
-#else
-#define ISISICPINT_DllExport __declspec(dllimport) 
-#endif /* ISISICPINT_EXPORTS */
+// now using dummy interface which is not in separate library
+//#ifdef ISISICPINT_EXPORTS
+//#define ISISICPINT_DllExport __declspec(dllexport)
+//#else
+//#define ISISICPINT_DllExport __declspec(dllimport) 
+//#endif /* ISISICPINT_EXPORTS */
+
+#define ISISICPINT_DllExport
 
 namespace ISISICPINT
 {
@@ -41,7 +44,9 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern int(sumAllSpectra)(long& counts, long& bin0_counts, std::string& messages);
 	ISISICPINT_DllExport extern int(sumAllHistogramMemory)(long& counts, std::string& messages);
 	ISISICPINT_DllExport extern int(VMEReadArray)(ULONG card_id, ULONG card_address, std::vector<long>& values, ULONG num_values, std::string& messages);
-	ISISICPINT_DllExport extern int(VMEWriteArray)(ULONG card_id, ULONG card_address, const std::vector<long>& values, ULONG num_values, std::string& messages);
+	ISISICPINT_DllExport extern int(VMEWriteArray)(ULONG card_id, ULONG card_address, const std::vector<long>& values, std::string& messages);
+	ISISICPINT_DllExport extern int(QXReadArray)(ULONG card_id, ULONG card_address, std::vector<long>& values, ULONG num_values,  ULONG trans_type, std::string& messages);
+	ISISICPINT_DllExport extern int(QXWriteArray)(ULONG card_id, ULONG card_address, const std::vector<long>& values, ULONG trans_type, std::string& messages);
 	ISISICPINT_DllExport extern int(VMEReadValuesToString)(ULONG card_id, ULONG card_address, ULONG word_size, ULONG num_values, std::string& values, std::string& messages);
 	ISISICPINT_DllExport extern int(refreshCachedValues)(std::string& messages);
 	ISISICPINT_DllExport extern int(setOptions)(const std::string& options_xml, std::string& messages);
@@ -91,8 +96,10 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern bool(isFinalSequenceComplete)(std::string& messages); //retval
 	ISISICPINT_DllExport extern int(getSpectrumNumbersForTR)(long time_regime, long& spec_min, long& spec_max, std::string& messages);
 	ISISICPINT_DllExport extern int(getSpectraIntegral2)(long spec_start, long nspectra, long period, float time_low, float time_high, std::vector<long>& counts, std::string& messages);
+	ISISICPINT_DllExport extern int(getEventSpectraIntegral)(long spec_start, long nspectra, long period, std::vector<long>& counts, std::string& messages);
     ISISICPINT_DllExport extern long(getNumberOfPeriods)(std::string& messages); // retval
 	ISISICPINT_DllExport extern int(updateStatusXML2)(const std::string& status_xml_in, std::string& status_xml_out, std::string& messages);
+	ISISICPINT_DllExport extern int(setICPValue)(const std::string& name, const std::string& value, std::string& messages);
 
 	ISISICPINT_DllExport extern int(SELogValue)(long run_number, const std::string& source, const std::string& iso_time, const std::string& block_name, const std::string& block_value);
 	ISISICPINT_DllExport extern int(SEClose)(void);
@@ -115,6 +122,7 @@ namespace ISISICPINT
 		ISISICPINT_DllExport extern int(SEGetValues)(long run_number, const std::string& source, const std::string& block_name, std::vector<std::string>& iso_times, std::vector<T>& block_values);
 	ISISICPINT_DllExport extern int(SEClearLoggedValues)(long run_number);
 	ISISICPINT_DllExport extern std::string(SEExecSQL)(const std::string& sql); // retval
+	ISISICPINT_DllExport extern long getSpectrumNumberForMonitor(long mon_num, std::string& messages); // retval
 };
 
 #endif /* ISISICPINT_H */
