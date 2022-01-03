@@ -1048,6 +1048,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
+	createParam(P_DAETypeString, asynParamInt32, &P_DAEType);
+	createParam(P_IsMuonDAEString, asynParamInt32, &P_IsMuonDAE);
+    
     createParam(P_RunTitleString, asynParamOctet, &P_RunTitle);
     createParam(P_RunTitleSPString, asynParamOctet, &P_RunTitleSP);
     createParam(P_AllMsgsString, asynParamOctet, &P_AllMsgs);
@@ -1184,6 +1187,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     setIntegerParam(P_StateTrans, 0);
     setIntegerParam(P_simulationMode, 0);
 	setIntegerParam(P_diagEnable, 0);
+	setIntegerParam(P_DAEType, DAEType::UnknownDAE);
+    setIntegerParam(P_IsMuonDAE, 0);
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;
@@ -1447,6 +1452,7 @@ void isisdaeDriver::pollerThread2()
 	double frames_diff;
 	long last_ext_veto[4] = { 0, 0, 0, 0 };
     bool check_settings;
+    long dae_type = DAEType::UnknownDAE;
 	static const std::string sim_mode_title("(DAE SIMULATION MODE)"); // prefix added by ICP if simulation mode enabled in icp_config.xml
     std::string daeSettings;
     std::string tcbSettings, tcbSettingComp;
@@ -1481,6 +1487,19 @@ void isisdaeDriver::pollerThread2()
             this_gf = m_iface->getGoodFrames();
 		    m_iface->getVetoInfo(veto_names, veto_aliases, veto_enabled, veto_frames);
 		    this_rf = m_iface->getRawFrames();
+            if (dae_type == DAEType::UnknownDAE)
+            {
+                dae_type = m_iface->getDAEType();
+                setIntegerParam(P_DAEType, dae_type);
+                if (dae_type == DAEType::MuonDAE2 || dae_type == DAEType::MuonDAE3)
+                {
+                    setIntegerParam(P_IsMuonDAE, 1);
+                }
+                else
+                {
+                    setIntegerParam(P_IsMuonDAE, 0);
+                }
+            }
         }
         catch(const std::exception& ex)
         {

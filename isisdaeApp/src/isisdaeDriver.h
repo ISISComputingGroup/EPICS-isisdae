@@ -34,6 +34,8 @@ public:
     virtual void report(FILE *fp, int details);
     virtual void setShutter(int addr, int open);
 	void setRunState(RunState state) { m_RunStatus = state; setIntegerParam(P_RunStatus, state); }
+    
+    enum DAEType { UnknownDAE=0, NeutronDAE2=1, MuonDAE2=2, NeutronDAE3=3, MuonDAE3=4 };
 
 private:
 
@@ -60,6 +62,8 @@ private:
     int P_UserName; //char*
     int P_InstName; //char*
     int P_RunNumber; //char*
+    int P_DAEType; // int
+    int P_IsMuonDAE; // int
     int P_IRunNumber; //int
     int P_UserTelephone; //char*
     int P_StartTime; //char*
@@ -225,6 +229,8 @@ private:
 #define P_SnapshotCRPTString "SNAPSHOTCRPT"
 #define P_SEWaitString	    "SEWAIT"
 #define P_RunStatusString	"RUNSTATUS"
+#define P_DAETypeString     "DAETYPE"
+#define P_IsMuonDAEString         "ISMUONDAE"
 
 #define P_TotalCountsString	"TOTALCOUNTS"
 #define P_RunTitleString	"RUNTITLE"
