@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24245.0 (2d5a9df1).
+// Created by Microsoft (R) C/C++ Compiler Version 14.00.24245.0 (2d5a9df1).
 //
 // c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tlh
 //
 // C++ source equivalent of type library isisicp.tlb
-// compiler-generated file created 04/09/21 at 22:20:58 - DO NOT EDIT!
+// compiler-generated file created 01/03/22 at 11:00:23 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -380,6 +380,10 @@ Idae : IDispatch
     long getSpectrumNumberForMonitor (
         long mon_num,
         BSTR * messages );
+    HRESULT setICPValue (
+        _bstr_t name,
+        _bstr_t value,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -729,6 +733,10 @@ Idae : IDispatch
         /*[in]*/ long mon_num,
         /*[out]*/ BSTR * messages,
         /*[out,retval]*/ long * spec_num ) = 0;
+      virtual HRESULT __stdcall raw_setICPValue (
+        /*[in]*/ BSTR name,
+        /*[in]*/ BSTR value,
+        /*[out]*/ BSTR * messages ) = 0;
 };
 
 //
