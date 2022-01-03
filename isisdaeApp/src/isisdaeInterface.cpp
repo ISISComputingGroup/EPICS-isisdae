@@ -91,8 +91,9 @@ isisdaeInterface::isisdaeInterface(const char* host, int options, const char* us
 //		else
 //		{
 //			m_host = "localhost";
-//		}			
-		m_host = "localhost";
+//		}
+        // don't default to localhost, blank lets us try CoCreateInstance() rather than CoCreateInstanceEx()		
+		m_host = "";
 	}
 	epicsAtExit(epicsExitFunc, this);
 	if (m_dcom)
@@ -585,9 +586,14 @@ int isisdaeInterface::getPeriod()
     return period;
 }
 
-long isisdaeInterface::getNumTimeChannels(int spec)
+//long isisdaeInterface::getNumTimeChannels(int spec)
+//{
+//   return atol(getValue("NTC1").c_str());
+//}
+
+long isisdaeInterface::getDAEType()
 {
-    return atol(getValue("NTC1").c_str());
+    return atol(getValue("DAETYPE").c_str());
 }
 
 std::string isisdaeInterface::getValue(const std::string& name)
@@ -595,12 +601,34 @@ std::string isisdaeInterface::getValue(const std::string& name)
     if (m_dcom)
 	{
         _bstr_t bs(CComBSTR(name.c_str()).Detach());
-		BSTR res = callD<_bstr_t>(boost::bind(&ICPDCOM::getValue, _1, bs, _2));
-		return std::string(COLE2CT(res));
+		_variant_t res = callD<_variant_t>(boost::bind(&ICPDCOM::getValue, _1, bs, _2));
+		_variant_t cres;
+		if ( VariantChangeType(&cres, &res, 0, VT_BSTR) == S_OK )
+		{
+		    return std::string(COLE2CT((_bstr_t)cres));
+		}
+		else
+		{
+		    return std::string("ERROR");
+		}
 	}
 	else
 	{
 	    return callI<std::string>(boost::bind(&ISISICPINT::getValue, boost::cref(name), _1));
+	}
+}
+
+int isisdaeInterface::setICPValue(const std::string& name, const std::string& value)
+{
+    if (m_dcom)
+	{
+        _bstr_t name_bs(CComBSTR(name.c_str()).Detach());
+        _bstr_t value_bs(CComBSTR(value.c_str()).Detach());
+		return callD<int>(boost::bind(&ICPDCOM::setICPValue, _1, boost::cref(name_bs), boost::cref(value_bs), _2));
+	}
+	else
+	{
+	    return callI<int>(boost::bind(&ISISICPINT::setICPValue, boost::cref(name), boost::cref(value), _1));
 	}
 }
 
@@ -1207,7 +1235,7 @@ void isisdaeInterface::getVetoInfo(std::vector<std::string>& names, std::vector<
 	}
 	else
 	{
-//		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));
+//		callI<int>(boost::bind(&ISISICPINT::getVetoInfo, boost::ref(names), boost::ref(enabled), boost::ref(frames), _1));  // need to wait for new isisicpint.lib
 	}
 }
 
@@ -1219,6 +1247,19 @@ void isisdaeInterface::setSpecIntgCutoff(double tmin, double tmax)
 	}
 	else
 	{
-//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1));
+//		callI<int>(boost::bind(&ISISICPINT::setSpecIntgCutoff, tmin, tmax, _1)); // need to wait for new isisicpint.lib
+	}
+}
+
+long isisdaeInterface::getSpectrumNumberForMonitor(long mon_num)
+{
+	if (m_dcom)
+	{
+		return callD<long>(boost::bind(&ICPDCOM::getSpectrumNumberForMonitor, _1, mon_num, _2));
+	}
+	else
+	{
+        return 0;
+//		callI<long>(boost::bind(&ISISICPINT::getSpectrumNumberForMonitor, mon_num, _1)); // need to wait for new isisicpint.lib
 	}
 }

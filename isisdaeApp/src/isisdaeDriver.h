@@ -15,6 +15,8 @@ public:
  	static void pollerThreadC4(void* arg);
     enum RunState { RS_PROCESSING=0,RS_SETUP=1,RS_RUNNING=2,RS_PAUSED=3,RS_WAITING=4,RS_VETOING=5,RS_ENDING=6,RS_SAVING=7, RS_RESUMING=8,RS_PAUSING=9,RS_BEGINNING=10,RS_ABORTING=11,RS_UPDATING=12,RS_STORING=13,RS_CHANGING=14 };
 	static const char* RunStateNames[];
+	static volatile bool daeIOCisRunning;
+	static void waitForIOCRunning();
 
     // These are the methods that we override from asynPortDriver
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
@@ -49,8 +51,7 @@ private:
     int P_UpdateRun; // int
     int P_StoreRun; // int
     int P_SnapshotCRPT; 
-    int P_StartSEWait; // int
-    int P_EndSEWait; // int
+    int P_SEWait; // int
 	int P_RunStatus; // int
     int P_TotalCounts; // long
     int P_RunTitle; //char*
@@ -86,7 +87,7 @@ private:
     int P_TotalUAmps; // double
     int P_MonitorFrom; // double
     int P_MonitorTo; // double
-    int P_TotalDaeCounts; // double
+    int P_MEvents; // double
     int P_CountRate; // double
     int P_CountRateFrame; // double
     int P_EventModeFraction; // double
@@ -222,8 +223,7 @@ private:
 #define P_UpdateRunString	"UPDATERUN"
 #define P_StoreRunString	"STORERUN"
 #define P_SnapshotCRPTString "SNAPSHOTCRPT"
-#define P_StartSEWaitString	"STARTSEWAIT"
-#define P_EndSEWaitString	"ENDSEWAIT"
+#define P_SEWaitString	    "SEWAIT"
 #define P_RunStatusString	"RUNSTATUS"
 
 #define P_TotalCountsString	"TOTALCOUNTS"
@@ -255,7 +255,7 @@ private:
 #define P_TotalUAmpsString	"TOTALUAMPS"
 #define P_MonitorFromString	"MONITORFROM"
 #define P_MonitorToString	"MONITORTO"
-#define P_TotalDaeCountsString	"TOTALDAECOUNTS"
+#define P_MEventsString	"MEVENTS"
 #define P_CountRateString	"COUNTRATE"
 #define P_CountRateFrameString	"COUNTRATEFRAME"
 #define P_EventModeFractionString	"EVENTMODEFRACTION"

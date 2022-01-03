@@ -34,6 +34,8 @@
 #10,Sample Detector Distance,Real,m,sdd
 #11,Journal Blocks,String,,jblocks
 
+## note: CURR_CONFIG is auto updated by ISISDAE from blockserver
+
 pattern { P, Q, DESC, CATEGORY, UNITS }
     { "\$(P)", "PARS:SAMPLE:NAME", "Sample Name", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:TYPE", "Sample Type", "SAMPLEPAR", "" }
@@ -44,5 +46,10 @@ pattern { P, Q, DESC, CATEGORY, UNITS }
     { "\$(P)", "PARS:SAMPLE:MEAS:TYPE", "Measurement Type", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:MEAS:SUBID", "Measurement SubID", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:SAMPLE:MEAS:LABEL", "Measurement Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:TEMP_LABEL", "Temperature Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:FIELD_LABEL", "Magnetic Field Label", "SAMPLEPAR", "" }
+    { "\$(P)", "PARS:SAMPLE:COMMENTS", "Comments", "SAMPLEPAR", "" }
     { "\$(P)", "PARS:BL:BEAMSTOP:POS", "Beamstop Position", "BEAMLINEPAR", "" }
+    { "\$(P)", "PARS:BL:GEOMETRY", "Instrument Geometry", "BEAMLINEPAR", "" }
     { "\$(P)", "PARS:BL:JOURNAL:BLOCKS", "Journal Blocks", "BEAMLINEPAR", "" }
+    { "\$(P)", "PARS:BL:CURR_CONFIG", "Current Configuration", "BEAMLINEPAR", "" }

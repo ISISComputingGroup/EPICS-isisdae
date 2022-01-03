@@ -19,6 +19,7 @@
 #include <epicsTimer.h>
 #include <epicsMutex.h>
 #include <epicsEvent.h>
+#include <initHooks.h>
 #include <iocsh.h>
 
 #include <macLib.h>
@@ -184,7 +185,8 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 		}
 		return;
 	}
-	double tdiff = (now.time - state.tb.time) + (now.millitm - state.tb.millitm) / 1000.0; 
+    double tdiff = difftime(now.time, state.tb.time) + ((int)now.millitm - (int)state.tb.millitm) / 1000.0;
+
 	if (tdiff < 0.1)
 	{
 		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
@@ -351,15 +353,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		    beginStateTransition(RS_STORING);
 			m_iface->storeRun();
 		}
-        else if (function == P_StartSEWait)
+        else if (function == P_SEWait)
 		{
-			m_iface->startSEWait();
-			setADAcquire(0);
-		}
-        else if (function == P_EndSEWait)
-		{
-			m_iface->endSEWait();
-			setADAcquire(1);
+            if (value != 0)
+            {
+			    m_iface->startSEWait();
+			    setADAcquire(0);
+            }
+            else
+            {
+			    m_iface->endSEWait();
+			    setADAcquire(1);
+            }
 		}
         else if (function == P_Period)
 		{
@@ -992,7 +997,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false), m_pRaw(NULL)
 {					
 	int i;
-	int status;
+	int status = 0;
     const char *functionName = "isisdaeDriver";
 //	epicsThreadOnce(&onceId, initCOM, NULL);
 
@@ -1038,8 +1043,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_UpdateRunString, asynParamInt32, &P_UpdateRun);
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
     createParam(P_SnapshotCRPTString, asynParamOctet, &P_SnapshotCRPT);
-    createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
-    createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
+    createParam(P_SEWaitString, asynParamInt32, &P_SEWait);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
@@ -1087,7 +1091,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_TotalUAmpsString, asynParamFloat64, &P_TotalUAmps);
     createParam(P_MonitorFromString, asynParamFloat64, &P_MonitorFrom);
     createParam(P_MonitorToString, asynParamFloat64, &P_MonitorTo);
-    createParam(P_TotalDaeCountsString, asynParamFloat64, &P_TotalDaeCounts);
+    createParam(P_MEventsString, asynParamFloat64, &P_MEvents);
     createParam(P_CountRateString, asynParamFloat64, &P_CountRate);
     createParam(P_CountRateFrameString, asynParamFloat64, &P_CountRateFrame);
     createParam(P_EventModeFractionString, asynParamFloat64, &P_EventModeFraction);
@@ -1203,6 +1207,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 		status |= setIntegerParam(i, NDArraySize, 1);
 		status |= setIntegerParam(i, NDDataType, dataType);
 		status |= setIntegerParam(i, ADImageMode, ADImageContinuous);
+		status |= setIntegerParam(i, ADStatus, ADStatusIdle);
+		status |= setIntegerParam(i, ADAcquire, 0);
 		status |= setDoubleParam (i, ADAcquireTime, .001);
 		status |= setDoubleParam (i, ADAcquirePeriod, .005);
 		status |= setIntegerParam(i, ADNumImages, 100);
@@ -1263,7 +1269,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 
 void isisdaeDriver::pollerThreadC1(void* arg)
 {
-	epicsThreadSleep(1.0);	// let constructor complete
+	waitForIOCRunning();
     isisdaeDriver* driver = (isisdaeDriver*)arg;
 	if (driver != NULL)
 	{
@@ -1273,7 +1279,7 @@ void isisdaeDriver::pollerThreadC1(void* arg)
 
 void isisdaeDriver::pollerThreadC2(void* arg)
 { 
-	epicsThreadSleep(1.0);	// let constructor complete
+	waitForIOCRunning();
     isisdaeDriver* driver = (isisdaeDriver*)arg; 
 	if (driver != NULL)
 	{
@@ -1283,7 +1289,7 @@ void isisdaeDriver::pollerThreadC2(void* arg)
 
 void isisdaeDriver::pollerThreadC3(void* arg)
 { 
-	epicsThreadSleep(1.0);	// let constructor complete
+	waitForIOCRunning();
     isisdaeDriver* driver = (isisdaeDriver*)arg; 
 	if (driver != NULL)
 	{
@@ -1293,7 +1299,7 @@ void isisdaeDriver::pollerThreadC3(void* arg)
 
 void isisdaeDriver::pollerThreadC4(void* arg)
 { 
-	epicsThreadSleep(1.0);	// let constructor complete
+	waitForIOCRunning();
     isisdaeDriver* driver = (isisdaeDriver*)arg; 
 	if (driver != NULL)
 	{
@@ -1375,7 +1381,7 @@ void isisdaeDriver::updateRunStatus()
 		setDoubleParam(P_GoodUAH, uah);
 //        setDoubleParam(P_GoodUAHPeriod, p_uah);
 		setIntegerParam(P_TotalCounts, tc);
-        setDoubleParam(P_TotalDaeCounts, static_cast<double>(tc) / 1.0e6);
+        setDoubleParam(P_MEvents, static_cast<double>(tc) / 1.0e6);
 		double tdiff = static_cast<double>(tc_ts - old_tc_ts);
 		if (tdiff > 0.5)
 		{
@@ -1414,7 +1420,7 @@ void isisdaeDriver::zeroRunCounters()
         setIntegerParam(P_RunDurationTotal, 0);
         setIntegerParam(P_RunDurationPeriod, 0);
         setIntegerParam(P_MonitorCounts, 0);
-        setDoubleParam(P_TotalDaeCounts, 0.0);
+        setDoubleParam(P_MEvents, 0.0);
         setDoubleParam(P_CountRate, 0.0);
         setDoubleParam(P_CountRateFrame, 0.0);
         setIntegerParam(P_vetoFramesExt0, 0);
@@ -1589,7 +1595,7 @@ void isisdaeDriver::pollerThread2()
         setDoubleParam(P_TotalUAmps, values["TotalUAmps"]);
         setDoubleParam(P_MonitorFrom, values["MonitorFrom"]);
         setDoubleParam(P_MonitorTo, values["MonitorTo"]);
-//        setDoubleParam(P_TotalDaeCounts, values["TotalDAECounts"]);  // now updated in separate loop
+//        setDoubleParam(P_MEvents, values["TotalDAECounts"]);  // now updated in separate loop
 //        setDoubleParam(P_CountRate, values["CountRate"]); // now updated in separate loop
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
 		setDoubleParam(P_EventModeBufferUsedFraction, values["EventModeBufferUsedFraction"]);
@@ -1988,6 +1994,7 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
         sizeY = maxSizeY-minY;
         status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
+
 
     switch (colorMode) {
         case NDColorModeMono:
@@ -2506,8 +2513,11 @@ static void daeCASThread(void* arg)
     const char*        pvPrefix;
     unsigned    aliasCount = 1u;
     unsigned    scanOn = true;
-    unsigned    syncScan = true;
+    unsigned    syncScan = false;
     unsigned    maxSimultAsyncIO = 1000u;
+
+	isisdaeDriver::waitForIOCRunning();
+
 	isisdaeInterface* iface = static_cast<isisdaeInterface*>(arg);
     printf("CAS: starting cas server\n");
 	registerStructuredExceptionHandler();
@@ -2622,6 +2632,69 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 	}
 }
 
+volatile bool isisdaeDriver::daeIOCisRunning = false;
+
+void isisdaeDriver::waitForIOCRunning()
+{
+	while (!daeIOCisRunning)
+	{
+		epicsThreadSleep(1.0);
+	}
+}
+
+/*
+ * INITHOOKS
+ *
+ * called by iocInit at various points during initialization
+ *
+ */
+
+ /* If this function (initHooks) is loaded, iocInit calls this function
+  * at certain defined points during IOC initialization */
+static void daeInitHooks(initHookState state)
+{
+	switch (state) {
+	case initHookAtIocBuild:
+		break;
+	case initHookAtBeginning:
+		break;
+	case initHookAfterCallbackInit:
+		break;
+	case initHookAfterCaLinkInit:
+		break;
+	case initHookAfterInitDrvSup:
+		break;
+	case initHookAfterInitRecSup:
+		break;
+	case initHookAfterInitDevSup: // Autosave pass 0 uses this
+		break;
+	case initHookAfterInitDatabase: // Autosave pass 1 uses this
+		break;
+	case initHookAfterFinishDevSup:
+		break;
+	case initHookAfterScanInit:
+		break;
+	case initHookAfterInitialProcess: // PINI processing happens just before this
+		break;
+	case initHookAfterCaServerInit:
+		break;
+	case initHookAfterIocBuilt:
+		break;
+	case initHookAtIocRun:
+		break;
+	case initHookAfterDatabaseRunning:
+		break;
+	case initHookAfterCaServerRunning:
+		break;
+	case initHookAfterIocRunning:
+		isisdaeDriver::daeIOCisRunning = true;
+		break;
+	default:
+		break;
+	}
+	return;
+}
+
 // EPICS iocsh shell commands 
 
 // isisdaeConfigure
@@ -2662,6 +2735,7 @@ static void initCallFuncPC(const iocshArgBuf *args)
 
 static void isisdaeRegister(void)
 {
+	initHookRegister(daeInitHooks);
 	iocshRegister(&initFuncDef, initCallFunc);
 	iocshRegister(&initFuncDefPC, initCallFuncPC);
 }
@@ -2669,4 +2743,3 @@ static void isisdaeRegister(void)
 epicsExportRegistrar(isisdaeRegister);
 
 }
-
