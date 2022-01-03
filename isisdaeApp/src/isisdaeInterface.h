@@ -95,6 +95,7 @@ public:
     int endSEWait();
 	int getRunState();
     long getRunNumber();
+	long getDAEType();
     int setPeriod(long period);
     int setNumPeriods(long nperiods);
     int setRunTitle(const std::string& title);
@@ -103,7 +104,6 @@ public:
     int setBeamlineParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value);
     int getPeriod();
     long getNumPeriods();
-	long getNumTimeChannels(int spec);
 	long getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution);
     long getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
     long getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts);
@@ -138,6 +138,7 @@ public:
 	bool checkOption(isisdaeOptions option) { return ( m_options & static_cast<int>(option) ) != 0; }
 	void getVetoInfo(std::vector<std::string>& names, std::vector<std::string>& alias, std::vector<long>& enabled, std::vector<long>& frames);
 	void setSpecIntgCutoff(double tmin, double tmax);
+	long getSpectrumNumberForMonitor(long mon_num);
 	int setICPValue(const std::string& name, const std::string& value);
 	typedef isisicpLib::Idae ICPDCOM;
 	

@@ -13,15 +13,23 @@ MonLookupPV::MonLookupPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bo
 
 }
 
-/// @todo this needs to actually look up monitor 
 bool MonLookupPV::getNewValue(smartGDDPointer& pDD)
 {
-    int spec = m_monitor;
-	if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == spec) )
-	{
-		return false;
-	}
-    *pDD = spec;
-    return true;
+    try {
+        int spec = cas.iface()->getSpectrumNumberForMonitor(m_monitor);
+        if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == spec) )
+        {
+            return false;
+        }
+        *pDD = spec;
+        return true;
+    }
+    catch(const std::exception& ex) {
+        std::cerr << "CAS: Exception in MonLookupPV::getNewValue(): " << ex.what() << std::endl;
+        return false;
+    }
+    catch(...) {
+        std::cerr << "CAS: Exception in MonLookupPV::getNewValue()" << std::endl;
+        return false;
+    }
 }
-

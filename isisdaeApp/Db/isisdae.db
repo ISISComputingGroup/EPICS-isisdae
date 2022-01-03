@@ -10,6 +10,7 @@ record(waveform, "$(P)$(Q)TITLE")
     info(archive, "VAL")
 }
 
+## can set DAEPINI to not process this if e.g. it is running with SECI 
 record(waveform, "$(P)$(Q)TITLE:SP")
 {
     field(DESC, "Set Run title")
@@ -17,7 +18,7 @@ record(waveform, "$(P)$(Q)TITLE:SP")
     field(FTVL, "CHAR")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn(icp,0,0)RUNTITLESP")
-	field(PINI, "YES")
+    field(PINI, "$(DAEPINI=YES)")
     info(autosaveFields, "VAL")
 }
 
@@ -336,7 +337,7 @@ record(ai, "$(P)$(Q)MONITORTO")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
-    info(archive, "VAL")
+    info(archive, "VAL EGU")
 }
 
 record(ai, "$(P)$(Q)MONITORFROM")
@@ -347,7 +348,7 @@ record(ai, "$(P)$(Q)MONITORFROM")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
-    info(archive, "VAL")
+    info(archive, "VAL EGU")
 }
 
 record(ai, "$(P)$(Q)COUNTRATE")
@@ -466,7 +467,15 @@ record(bo, "$(P)$(Q)_BEGINRUN2")
     field(ZNAM, "0")
     field(ONAM, "1")
 	field(VAL, 1)
-    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(FLNK, "$(P)$(Q)_BEGINRUN3")
+}
+
+record(fanout, "$(P)$(Q)_BEGINRUN3") {
+    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(LNK2, "$(POST_BEGIN_1=)")
+    field(LNK3, "$(POST_BEGIN_2=)")
+    field(LNK4, "$(POST_BEGIN_3=)")
+    field(LNK5, "$(POST_BEGIN_4=)")
 }
 
 ## value sent controls begin options (such as DELAYED or PAUSED)
@@ -492,7 +501,7 @@ record(longout, "$(P)$(Q)_BEGINRUNEX2")
 	field(OMSL, "closed_loop")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
-    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(FLNK, "$(P)$(Q)_BEGINRUN3")
 }
 
 record(bo, "$(P)$(Q)ABORTRUN")
@@ -504,6 +513,14 @@ record(bo, "$(P)$(Q)ABORTRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)ABORTRUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)ABORTRUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_ABORT_1)")
+    field(LNK2, "$(POST_ABORT_2)")
+    field(LNK3, "$(POST_ABORT_3)")
+    field(LNK4, "$(POST_ABORT_4)")
 }
 
 record(bo, "$(P)$(Q)PAUSERUN")
@@ -515,6 +532,14 @@ record(bo, "$(P)$(Q)PAUSERUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)PAUSERUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)PAUSERUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_PAUSE_1)")
+    field(LNK2, "$(POST_PAUSE_2)")
+    field(LNK3, "$(POST_PAUSE_3)")
+    field(LNK4, "$(POST_PAUSE_4)")
 }
 
 record(bo, "$(P)$(Q)RESUMERUN")
@@ -526,6 +551,14 @@ record(bo, "$(P)$(Q)RESUMERUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)RESUMERUN:_POSTACTIONS")
+}
+
+record(fanout, "$(P)$(Q)RESUMERUN:_POSTACTIONS") {
+    field(LNK1, "$(POST_RESUME_1)")
+    field(LNK2, "$(POST_RESUME_2)")
+    field(LNK3, "$(POST_RESUME_3)")
+    field(LNK4, "$(POST_RESUME_4)")
 }
 
 record(bo, "$(P)$(Q)ENDRUN")
@@ -547,6 +580,10 @@ record(seq, "$(P)$(Q)_ENDRUN1")
 	field(DLY2, "1")
     field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
     field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
+    field(LNK3, "$(POST_END_1=)")
+    field(LNK4, "$(POST_END_2=)")
+    field(LNK5, "$(POST_END_3=)")
+    field(LNK6, "$(POST_END_4=)")
 }
 
 record(bo, "$(P)$(Q)_ENDRUN2")
@@ -609,20 +646,12 @@ record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
     field(STAT, "NO_ALARM")
 }
 
-record(bo, "$(P)$(Q)STARTSEWAIT")
+record(bo, "$(P)$(Q)SEWAIT")
 {
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)STARTSEWAIT")
     field(ZNAM, "0")
     field(ONAM, "1")
-}
-
-record(bo, "$(P)$(Q)ENDSEWAIT")
-{
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)ENDSEWAIT")
-    field(ZNAM, "0")
-    field(ONAM, "1")
+    field(OUT,  "@asyn(icp,0,0)SEWAIT")
 }
 
 ## show number of seconds in WAITING state
@@ -1330,6 +1359,17 @@ record(bi, "$(P)$(Q)SIM_MODE")
 	field(SCAN, "I/O Intr")
 	info(INTEREST, "HIGH")
     info(archive, "VAL")
+}
+
+## We use NPP on OUT as the PARS:BL:CURR_CONFIG is already on a periodic
+## scan loop to send to isisicp
+record(lso, "$(P)$(Q)CURR_CONFIG")
+{
+    field(DOL, "$(P)CS:BLOCKSERVER:CURR_CONFIG_NAME")
+	field(OMSL, "closed_loop")
+	field(OUT, "$(P)PARS:BL:CURR_CONFIG NPP")
+	field(SCAN, "10 second")
+	field(SIZV, "256")
 }
 
 record(calcout, "$(P)$(Q)_HRPDINT")

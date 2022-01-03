@@ -185,7 +185,8 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 		}
 		return;
 	}
-	double tdiff = (now.time - state.tb.time) + (now.millitm - state.tb.millitm) / 1000.0; 
+    double tdiff = difftime(now.time, state.tb.time) + ((int)now.millitm - (int)state.tb.millitm) / 1000.0;
+
 	if (tdiff < 0.1)
 	{
 		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
@@ -352,15 +353,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		    beginStateTransition(RS_STORING);
 			m_iface->storeRun();
 		}
-        else if (function == P_StartSEWait)
+        else if (function == P_SEWait)
 		{
-			m_iface->startSEWait();
-			setADAcquire(0);
-		}
-        else if (function == P_EndSEWait)
-		{
-			m_iface->endSEWait();
-			setADAcquire(1);
+            if (value != 0)
+            {
+			    m_iface->startSEWait();
+			    setADAcquire(0);
+            }
+            else
+            {
+			    m_iface->endSEWait();
+			    setADAcquire(1);
+            }
 		}
         else if (function == P_Period)
 		{
@@ -861,7 +865,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false), m_pRaw(NULL)
 {					
 	int i;
-	int status;
+	int status = 0;
     const char *functionName = "isisdaeDriver";
 //	epicsThreadOnce(&onceId, initCOM, NULL);
 
@@ -907,8 +911,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_UpdateRunString, asynParamInt32, &P_UpdateRun);
     createParam(P_StoreRunString, asynParamInt32, &P_StoreRun);
     createParam(P_SnapshotCRPTString, asynParamOctet, &P_SnapshotCRPT);
-    createParam(P_StartSEWaitString, asynParamInt32, &P_StartSEWait);
-    createParam(P_EndSEWaitString, asynParamInt32, &P_EndSEWait);
+    createParam(P_SEWaitString, asynParamInt32, &P_SEWait);
 	createParam(P_RunStatusString, asynParamInt32, &P_RunStatus);
     createParam(P_TotalCountsString, asynParamInt32, &P_TotalCounts);
     
@@ -1846,6 +1849,7 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
         status |= setIntegerParam(addr, ADSizeY, sizeY);
     }
 
+
     switch (colorMode) {
         case NDColorModeMono:
             ndims = 2;
@@ -2363,7 +2367,7 @@ static void daeCASThread(void* arg)
     const char*        pvPrefix;
     unsigned    aliasCount = 1u;
     unsigned    scanOn = true;
-    unsigned    syncScan = true;
+    unsigned    syncScan = false;
     unsigned    maxSimultAsyncIO = 1000u;
 
 	isisdaeDriver::waitForIOCRunning();

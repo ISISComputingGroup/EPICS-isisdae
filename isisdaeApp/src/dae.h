@@ -1,11 +1,14 @@
 #ifndef ISISICPINT_H
 #define ISISICPINT_H
 
-#ifdef ISISICPINT_EXPORTS
-#define ISISICPINT_DllExport __declspec(dllexport)
-#else
-#define ISISICPINT_DllExport __declspec(dllimport) 
-#endif /* ISISICPINT_EXPORTS */
+// now using dummy interface which is not in separate library
+//#ifdef ISISICPINT_EXPORTS
+//#define ISISICPINT_DllExport __declspec(dllexport)
+//#else
+//#define ISISICPINT_DllExport __declspec(dllimport) 
+//#endif /* ISISICPINT_EXPORTS */
+
+#define ISISICPINT_DllExport
 
 namespace ISISICPINT
 {
@@ -119,6 +122,7 @@ namespace ISISICPINT
 		ISISICPINT_DllExport extern int(SEGetValues)(long run_number, const std::string& source, const std::string& block_name, std::vector<std::string>& iso_times, std::vector<T>& block_values);
 	ISISICPINT_DllExport extern int(SEClearLoggedValues)(long run_number);
 	ISISICPINT_DllExport extern std::string(SEExecSQL)(const std::string& sql); // retval
+	ISISICPINT_DllExport extern long getSpectrumNumberForMonitor(long mon_num, std::string& messages); // retval
 };
 
 #endif /* ISISICPINT_H */

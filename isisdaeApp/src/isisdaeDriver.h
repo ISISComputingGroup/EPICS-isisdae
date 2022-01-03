@@ -50,8 +50,7 @@ private:
     int P_UpdateRun; // int
     int P_StoreRun; // int
     int P_SnapshotCRPT; 
-    int P_StartSEWait; // int
-    int P_EndSEWait; // int
+    int P_SEWait; // int
 	int P_RunStatus; // int
     int P_TotalCounts; // long
     int P_RunTitle; //char*
@@ -211,8 +210,7 @@ private:
 #define P_UpdateRunString	"UPDATERUN"
 #define P_StoreRunString	"STORERUN"
 #define P_SnapshotCRPTString "SNAPSHOTCRPT"
-#define P_StartSEWaitString	"STARTSEWAIT"
-#define P_EndSEWaitString	"ENDSEWAIT"
+#define P_SEWaitString	    "SEWAIT"
 #define P_RunStatusString	"RUNSTATUS"
 
 #define P_TotalCountsString	"TOTALCOUNTS"

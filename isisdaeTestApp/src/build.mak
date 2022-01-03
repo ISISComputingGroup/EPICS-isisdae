@@ -60,12 +60,12 @@ $(APPNAME)_LIBS += ADnEDTransform
 $(APPNAME)_LIBS_WIN32 += libcurl
 $(APPNAME)_SYS_LIBS_Linux += curl
 
-ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
-isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64-debug
-else
-isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64
-endif
-$(APPNAME)_LIBS_WIN32 += isisicpint
+#ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
+#isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64-debug
+#else
+#isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64
+#endif
+#$(APPNAME)_LIBS_WIN32 += isisicpint
 $(APPNAME)_SYS_LIBS_WIN32 += psapi
 
 # isisdaeTest_registerRecordDeviceDriver.cpp derives from isisdaeTest.dbd
@@ -88,7 +88,4 @@ include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
 #=============================
-
-
-example_win32_LIBS += simDetector
 
