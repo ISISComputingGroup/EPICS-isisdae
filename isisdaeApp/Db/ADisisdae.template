@@ -305,6 +305,8 @@ record(ai, "$(P)$(R)INTG:RATE")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_RATE")
     field(SCAN, "I/O Intr")
+    field(SSCN, "Passive")
+    field(SIOL, "$(P)$(R)SIM:INTG:RATE CP")
     field(HSV, "MINOR")
     field(HIGH, "1e100")
     info(INTEREST, "HIGH")
@@ -319,6 +321,8 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_SPEC_RATE")
     field(SCAN, "I/O Intr")
+    field(SSCN, "Passive")
+    field(SIOL, "$(P)$(R)SIM:INTG:SPEC:RATE CP")
     field(HSV, "MINOR")
     field(HIGH, "1e100")
     info(INTEREST, "HIGH")
@@ -326,18 +330,16 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
     info(alarm, "ISISDAE_01")
 }
 
-record(ai, "$(P)$(R)INTG:RATE:RBV")
+## rate used by INTG:RATE when it is in record simulation mode
+record(ai, "$(P)$(R)SIM:INTG:RATE")
 {
-    field(INP, "$(P)$(R)INTG:RATE")
-    field(PINI, "YES")
-    field(SCAN, "Passive")
+
 }
 
-record(ai, "$(P)$(R)INTG:SPEC:RATE:RBV")
+## rate used by INTG:SPEC:RATE when it is in record simulation mode
+record(ai, "$(P)$(R)SIM:INTG:SPEC:RATE")
 {
-    field(INP, "$(P)$(R)INTG:SPEC:RATE")
-    field(PINI, "YES")
-    field(SCAN, "Passive")
+
 }
 
 record(ai, "$(P)$(R)INTG:SPEC:MAX")
