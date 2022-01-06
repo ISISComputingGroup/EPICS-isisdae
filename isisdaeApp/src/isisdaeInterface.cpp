@@ -76,7 +76,7 @@ isisdaeInterface::isisdaeInterface(const char* host, int options, const char* us
 	    m_dcom = true;
 	}
 	epicsThreadOnce(&onceId, initCOM, NULL);
-    if (host != NULL && host[0] != '\0') 
+    if ( host != NULL && host[0] != '\0' && strcmp(host, "localhost") && strcmp(host, "127.0.0.1") )
 	{
 	    m_host = host;
 	}
