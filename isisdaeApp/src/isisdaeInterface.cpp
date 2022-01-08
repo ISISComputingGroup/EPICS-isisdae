@@ -107,6 +107,7 @@ isisdaeInterface::isisdaeInterface(const char* host, int options, const char* us
 		}
 		else
 		{
+			std::cerr << "ProgIDFromCLSID() failed" << std::endl;
 			m_progid = "isisicp.dae";
 		}
 		wchar_t* clsid_str = NULL;
@@ -420,6 +421,11 @@ void isisdaeInterface::checkConnection()
 		std::cerr << "(Re)Making local connection to ISISICP" << std::endl;
 		m_allMsgs.append("(Re)Making local connection to ISISICP\n");
 		hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_LOCAL_SERVER);
+		if( FAILED( hr ) )
+        {
+		    std::cerr << "CoCreateInstance() failed with error " << hr << ", retrying with CLSCTX_ALL" << std::endl;
+		    hr = m_icp.CoCreateInstance(m_clsid, NULL, CLSCTX_ALL);
+        }
 		if( FAILED( hr ) ) 
 		{
  			throw COMexception("CoCreateInstance (ISISICP) ", hr);
