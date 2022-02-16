@@ -1,0 +1,35 @@
+## \$(CMDNAME)  is $(CMDNAME)
+
+record(bo, "$(P)$(Q)$(CMDNAME)RUN")
+{
+    field(DESC, "$(CMDNAME) a Run")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_$(CMDNAME)RUN:FAN")
+}
+
+record(fanout, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
+    field(LNK1, "$(PRE1)")
+    field(LNK2, "$(PRE2)")
+    field(LNK3, "$(PRE3)")
+    field(LNK4, "$(PRE4)")
+    field(LNK5, "$(P)$(Q)_$(CMDNAME)RUN.PROC")
+    field(LNK6, "$(POST1")
+    field(LNK7, "$(POST2")
+    field(LNK8, "$(POST3")
+    field(LNK9, "$(POST4")
+}
+
+record(bo, "$(P)$(Q)_$(CMDNAME)RUN")
+{
+    field(DESC, "$(CMDNAME) a Run")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)$(CMDNAME)RUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+    #Set the initial alarm state
+    field(STAT, "NO_ALARM")
+}
+

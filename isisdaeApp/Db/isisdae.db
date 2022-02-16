@@ -449,17 +449,24 @@ record(bo, "$(P)$(Q)BEGINRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-	field(FLNK, "$(BEGINRUNA=$(P)$(Q)_BEGINRUN1).PROC")
+	field(FLNK, "$(BEGINRUNA=$(P)$(Q)_BEGINRUN:FAN).PROC")
 }
 
-record(longout, "$(P)$(Q)_BEGINRUN1")
+record(fanout, "$(P)$(Q)_BEGINRUN:FAN")
 {
-    field(OUT, "$(P)CS:RC:SYNC:SP PP")
-	field(VAL, 1)
-    field(FLNK, "$(P)$(Q)_BEGINRUN2.PROC")
+    field(LNK1, "$(P)CS:RC:SYNC:SP.PROC")
+    field(LNK2, "$(PRE_BEGIN_1=)")
+    field(LNK3, "$(PRE_BEGIN_2=)")
+    field(LNK4, "$(PRE_BEGIN_3=)")
+    field(LNK5, "$(PRE_BEGIN_4=)")
+    field(LNK6, "$(P)$(Q)_BEGINRUN.PROC")
+    field(LNK7, "$(POST_BEGIN_1=)")
+    field(LNK8, "$(POST_BEGIN_2=)")
+    field(LNK9, "$(POST_BEGIN_3=)")
+    field(LNKA, "$(POST_BEGIN_4=)")
 }
 
-record(bo, "$(P)$(Q)_BEGINRUN2")
+record(bo, "$(P)$(Q)_BEGINRUN")
 {
     field(DESC, "Begin a Run")
     field(DTYP, "asynInt32")
@@ -467,15 +474,7 @@ record(bo, "$(P)$(Q)_BEGINRUN2")
     field(ZNAM, "0")
     field(ONAM, "1")
 	field(VAL, 1)
-    field(FLNK, "$(P)$(Q)_BEGINRUN3")
-}
-
-record(fanout, "$(P)$(Q)_BEGINRUN3") {
-    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
-    field(LNK2, "$(POST_BEGIN_1=)")
-    field(LNK3, "$(POST_BEGIN_2=)")
-    field(LNK4, "$(POST_BEGIN_3=)")
-    field(LNK5, "$(POST_BEGIN_4=)")
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
 }
 
 ## value sent controls begin options (such as DELAYED or PAUSED)
@@ -484,81 +483,37 @@ record(longout, "$(P)$(Q)BEGINRUNEX")
     field(DESC, "Begin a Run (with options)")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_BEGINRUNEX1.PROC")
+    field(FLNK, "$(P)$(Q)_BEGINRUNEX:FAN.PROC")
+}
+
+record(fanout, "$(P)$(Q)_BEGINRUNEX:FAN")
+{
+    field(LNK1, "$(P)CS:RC:SYNC:SP.PROC")
+    field(LNK2, "$(PRE_BEGIN_1=)")
+    field(LNK3, "$(PRE_BEGIN_2=)")
+    field(LNK4, "$(PRE_BEGIN_3=)")
+    field(LNK5, "$(PRE_BEGIN_4=)")
+    field(LNK6, "$(P)$(Q)_BEGINRUNEX1.PROC")
+    field(LNK7, "$(POST_BEGIN_1=)")
+    field(LNK8, "$(POST_BEGIN_2=)")
+    field(LNK9, "$(POST_BEGIN_3=)")
+    field(LNKA, "$(POST_BEGIN_4=)")
 }
 
 record(longout, "$(P)$(Q)_BEGINRUNEX1")
 {
-    field(OUT, "$(P)CS:RC:SYNC:SP PP")
-	field(VAL, 1)
-    field(FLNK, "$(P)$(Q)_BEGINRUNEX2.PROC")
-}
-
-record(longout, "$(P)$(Q)_BEGINRUNEX2")
-{
-    field(DESC, "Begin a Run (with options)")
 	field(DOL, "$(P)$(Q)BEGINRUNEX")
 	field(OMSL, "closed_loop")
     field(DTYP, "asynInt32")
+    field(OUT,  "$(P)$(Q)_BEGINRUNEX PP")
+}
+
+record(longout, "$(P)$(Q)_BEGINRUNEX")
+{
+    field(DESC, "Begin a Run (with options)")
+    field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
-    field(FLNK, "$(P)$(Q)_BEGINRUN3")
-}
-
-record(bo, "$(P)$(Q)ABORTRUN")
-{
-    field(DESC, "Abort a Run")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)ABORTRUN")
-    field(ZNAM, "0")
-    field(ONAM, "1")
-    #Set the initial alarm state
-    field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)ABORTRUN:_POSTACTIONS")
-}
-
-record(fanout, "$(P)$(Q)ABORTRUN:_POSTACTIONS") {
-    field(LNK1, "$(POST_ABORT_1)")
-    field(LNK2, "$(POST_ABORT_2)")
-    field(LNK3, "$(POST_ABORT_3)")
-    field(LNK4, "$(POST_ABORT_4)")
-}
-
-record(bo, "$(P)$(Q)PAUSERUN")
-{
-    field(DESC, "Pause a Run")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)PAUSERUN")
-    field(ZNAM, "0")
-    field(ONAM, "1")
-    #Set the initial alarm state
-    field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)PAUSERUN:_POSTACTIONS")
-}
-
-record(fanout, "$(P)$(Q)PAUSERUN:_POSTACTIONS") {
-    field(LNK1, "$(POST_PAUSE_1)")
-    field(LNK2, "$(POST_PAUSE_2)")
-    field(LNK3, "$(POST_PAUSE_3)")
-    field(LNK4, "$(POST_PAUSE_4)")
-}
-
-record(bo, "$(P)$(Q)RESUMERUN")
-{
-    field(DESC, "Resume a Run")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn(icp,0,0)RESUMERUN")
-    field(ZNAM, "0")
-    field(ONAM, "1")
-    #Set the initial alarm state
-    field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)RESUMERUN:_POSTACTIONS")
-}
-
-record(fanout, "$(P)$(Q)RESUMERUN:_POSTACTIONS") {
-    field(LNK1, "$(POST_RESUME_1)")
-    field(LNK2, "$(POST_RESUME_2)")
-    field(LNK3, "$(POST_RESUME_3)")
-    field(LNK4, "$(POST_RESUME_4)")
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
 }
 
 record(bo, "$(P)$(Q)ENDRUN")
@@ -568,10 +523,23 @@ record(bo, "$(P)$(Q)ENDRUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(ENDRUNA=$(P)$(Q)_ENDRUN1).PROC")
+    field(FLNK, "$(ENDRUNA=$(P)$(Q)_ENDRUN:FAN).PROC")
 }
 
-record(seq, "$(P)$(Q)_ENDRUN1")
+record(fanout, "$(P)$(Q)_ENDRUN:FAN")
+{
+    field(LNK1, "$(PRE_END_1=)")
+    field(LNK2, "$(PRE_END_2=)")
+    field(LNK3, "$(PRE_END_3=)")
+    field(LNK4, "$(PRE_END_4=)")
+    field(LNK5, "$(P)$(Q)_ENDRUN.PROC")
+    field(LNK6, "$(POST_END_1=)")
+    field(LNK7, "$(POST_END_2=)")
+    field(LNK8, "$(POST_END_3=)")
+    field(LNK9, "$(POST_END_4=)")
+}
+
+record(seq, "$(P)$(Q)_ENDRUN")
 {
 	field(SELM, "All")
 	field(DOL1, "1")
@@ -580,10 +548,6 @@ record(seq, "$(P)$(Q)_ENDRUN1")
 	field(DLY2, "1")
     field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
     field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
-    field(LNK3, "$(POST_END_1=)")
-    field(LNK4, "$(POST_END_2=)")
-    field(LNK5, "$(POST_END_3=)")
-    field(LNK6, "$(POST_END_4=)")
 }
 
 record(bo, "$(P)$(Q)_ENDRUN2")
