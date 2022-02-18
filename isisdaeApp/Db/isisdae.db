@@ -452,18 +452,28 @@ record(bo, "$(P)$(Q)BEGINRUN")
 	field(FLNK, "$(BEGINRUNA=$(P)$(Q)_BEGINRUN:FAN).PROC")
 }
 
-record(fanout, "$(P)$(Q)_BEGINRUN:FAN")
+## etc PRE_BEGIN_1 must include CA attribute is a wait is needed
+record(sseq, "$(P)$(Q)_BEGINRUN:FAN")
 {
     field(LNK1, "$(P)CS:RC:SYNC:SP.PROC")
     field(LNK2, "$(PRE_BEGIN_1=)")
+	field(WAIT2, "Wait")
     field(LNK3, "$(PRE_BEGIN_2=)")
+	field(WAIT3, "Wait")
     field(LNK4, "$(PRE_BEGIN_3=)")
+	field(WAIT4, "Wait")
     field(LNK5, "$(PRE_BEGIN_4=)")
-    field(LNK6, "$(P)$(Q)_BEGINRUN.PROC")
+	field(WAIT5, "Wait")
+    field(LNK6, "$(P)$(Q)_BEGINRUN.PROC CA")
+	field(WAIT6, "Wait")
     field(LNK7, "$(POST_BEGIN_1=)")
+	field(WAIT7, "Wait")
     field(LNK8, "$(POST_BEGIN_2=)")
+	field(WAIT8, "Wait")
     field(LNK9, "$(POST_BEGIN_3=)")
+	field(WAIT9, "Wait")
     field(LNKA, "$(POST_BEGIN_4=)")
+	field(WAITA, "Wait")
 }
 
 record(bo, "$(P)$(Q)_BEGINRUN")
@@ -486,18 +496,28 @@ record(longout, "$(P)$(Q)BEGINRUNEX")
     field(FLNK, "$(P)$(Q)_BEGINRUNEX:FAN.PROC")
 }
 
-record(fanout, "$(P)$(Q)_BEGINRUNEX:FAN")
+## PRE_BEGIN_1 etc must include CA attribute is a wait is needed
+record(sseq, "$(P)$(Q)_BEGINRUNEX:FAN")
 {
     field(LNK1, "$(P)CS:RC:SYNC:SP.PROC")
     field(LNK2, "$(PRE_BEGIN_1=)")
+	field(WAIT2, "Wait")
     field(LNK3, "$(PRE_BEGIN_2=)")
+	field(WAIT3, "Wait")
     field(LNK4, "$(PRE_BEGIN_3=)")
+	field(WAIT4, "Wait")
     field(LNK5, "$(PRE_BEGIN_4=)")
-    field(LNK6, "$(P)$(Q)_BEGINRUNEX1.PROC")
+	field(WAIT5, "Wait")
+    field(LNK6, "$(P)$(Q)_BEGINRUNEX1.PROC CA")
+	field(WAIT6, "Wait")
     field(LNK7, "$(POST_BEGIN_1=)")
+	field(WAIT7, "Wait")
     field(LNK8, "$(POST_BEGIN_2=)")
+	field(WAIT8, "Wait")
     field(LNK9, "$(POST_BEGIN_3=)")
+	field(WAIT9, "Wait")
     field(LNKA, "$(POST_BEGIN_4=)")
+	field(WAITA, "Wait")
 }
 
 record(longout, "$(P)$(Q)_BEGINRUNEX1")
@@ -526,27 +546,37 @@ record(bo, "$(P)$(Q)ENDRUN")
     field(FLNK, "$(ENDRUNA=$(P)$(Q)_ENDRUN:FAN).PROC")
 }
 
-record(fanout, "$(P)$(Q)_ENDRUN:FAN")
+## PRE_END_1 etc must include CA attribute is a wait is needed
+record(sseq, "$(P)$(Q)_ENDRUN:FAN")
 {
     field(LNK1, "$(PRE_END_1=)")
+    field(WAIT1, "Wait")
     field(LNK2, "$(PRE_END_2=)")
+    field(WAIT2, "Wait")
     field(LNK3, "$(PRE_END_3=)")
+    field(WAIT3, "Wait")
     field(LNK4, "$(PRE_END_4=)")
-    field(LNK5, "$(P)$(Q)_ENDRUN.PROC")
+    field(WAIT4, "Wait")
+    field(LNK5, "$(P)$(Q)_ENDRUN.PROC CA")
+    field(WAIT5, "Wait")
     field(LNK6, "$(POST_END_1=)")
+    field(WAIT6, "Wait")
     field(LNK7, "$(POST_END_2=)")
+    field(WAIT7, "Wait")
     field(LNK8, "$(POST_END_3=)")
+    field(WAIT8, "Wait")
     field(LNK9, "$(POST_END_4=)")
+    field(WAIT9, "Wait")
 }
 
 record(seq, "$(P)$(Q)_ENDRUN")
 {
 	field(SELM, "All")
 	field(DOL1, "1")
-	field(DOL2, "1")
-	# give archive time to restart
-	field(DLY2, "1")
     field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+	# give archive time to restart
+	field(DOL2, "1")
+	field(DLY2, "1")
     field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
 }
 

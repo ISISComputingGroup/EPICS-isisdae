@@ -7,19 +7,29 @@ record(bo, "$(P)$(Q)$(CMDNAME)RUN")
     field(ONAM, "1")
     #Set the initial alarm state
     field(STAT, "NO_ALARM")
-    field(FLNK, "$(P)$(Q)_$(CMDNAME)RUN:FAN")
+    field(FLNK, "$(P)$(Q)_$(CMDNAME)RUN:FAN.PROC")
 }
 
-record(fanout, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
+## PRE1 etc. must include CA attribute if wait is needed
+record(sseq, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
     field(LNK1, "$(PRE1)")
+	field(WAIT1, "Wait")
     field(LNK2, "$(PRE2)")
+	field(WAIT2, "Wait")
     field(LNK3, "$(PRE3)")
+	field(WAIT3, "Wait")
     field(LNK4, "$(PRE4)")
-    field(LNK5, "$(P)$(Q)_$(CMDNAME)RUN.PROC")
+	field(WAIT4, "Wait")
+    field(LNK5, "$(P)$(Q)_$(CMDNAME)RUN.PROC CA")
+	field(WAIT5, "Wait")
     field(LNK6, "$(POST1)")
+	field(WAIT6, "Wait")
     field(LNK7, "$(POST2)")
+	field(WAIT7, "Wait")
     field(LNK8, "$(POST3)")
+	field(WAIT8, "Wait")
     field(LNK9, "$(POST4)")
+	field(WAIT9, "Wait")
 }
 
 record(bo, "$(P)$(Q)_$(CMDNAME)RUN")
