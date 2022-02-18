@@ -532,7 +532,6 @@ record(longout, "$(P)$(Q)_BEGINRUNEX1")
 {
     field(DOL, "$(P)$(Q)BEGINRUNEX")
     field(OMSL, "closed_loop")
-    field(DTYP, "asynInt32")
     field(OUT,  "$(P)$(Q)_BEGINRUNEX PP")
 }
 
