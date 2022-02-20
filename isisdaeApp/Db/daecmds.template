@@ -6,7 +6,7 @@ record(bo, "$(P)$(Q)$(CMDNAME)RUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
     field(FLNK, "$(P)$(Q)_$(CMDNAME)RUN:FAN.PROC")
 }
 
@@ -20,7 +20,7 @@ record(sseq, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
     field(WAIT3, "Wait")
     field(LNK4, "$(PRE4)")
     field(WAIT4, "Wait")
-    field(LNK5, "$(P)$(Q)_$(CMDNAME)RUN.PROC CA")
+    field(LNK5, "$(P)$(Q)$(CMDNAME)RUN_.PROC CA")
     field(WAIT5, "Wait")
     field(DO6, "1")
     field(LNK6, "$(POST1)")
@@ -36,7 +36,7 @@ record(sseq, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
     field(WAIT9, "Wait")
 }
 
-record(bo, "$(P)$(Q)_$(CMDNAME)RUN")
+record(bo, "$(P)$(Q)$(CMDNAME)RUN_")
 {
     field(DESC, "$(CMDNAME) a Run")
     field(DTYP, "asynInt32")
@@ -44,6 +44,6 @@ record(bo, "$(P)$(Q)_$(CMDNAME)RUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 

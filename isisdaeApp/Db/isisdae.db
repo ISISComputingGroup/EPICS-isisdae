@@ -448,7 +448,7 @@ record(bo, "$(P)$(Q)BEGINRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
     field(FLNK, "$(BEGINRUNA=$(P)$(Q)_BEGINRUN:FAN).PROC")
 }
 
@@ -464,7 +464,7 @@ record(sseq, "$(P)$(Q)_BEGINRUN:FAN")
     field(WAIT4, "Wait")
     field(LNK5, "$(PRE_BEGIN_4=)")
     field(WAIT5, "Wait")
-    field(LNK6, "$(P)$(Q)_BEGINRUN.PROC CA")
+    field(LNK6, "$(P)$(Q)BEGINRUN_.PROC CA")
     field(WAIT6, "Wait")
     field(DO7, "1")
     field(LNK7, "$(POST_BEGIN_1=)")
@@ -480,11 +480,13 @@ record(sseq, "$(P)$(Q)_BEGINRUN:FAN")
     field(WAITA, "Wait")
 }
 
-record(bo, "$(P)$(Q)_BEGINRUN")
+record(bo, "$(P)$(Q)BEGINRUN_")
 {
     field(DESC, "Begin a Run")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)BEGINRUN")
+    #Set the initial alarm state
+    field(UDFS, "NO_ALARM")
     field(ZNAM, "0")
     field(ONAM, "1")
     field(VAL, 1)
@@ -496,7 +498,7 @@ record(longout, "$(P)$(Q)BEGINRUNEX")
 {
     field(DESC, "Begin a Run (with options)")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
     field(FLNK, "$(P)$(Q)_BEGINRUNEX:FAN.PROC")
 }
 
@@ -532,13 +534,15 @@ record(longout, "$(P)$(Q)_BEGINRUNEX1")
 {
     field(DOL, "$(P)$(Q)BEGINRUNEX")
     field(OMSL, "closed_loop")
-    field(OUT,  "$(P)$(Q)_BEGINRUNEX PP")
+    field(OUT,  "$(P)$(Q)BEGINRUNEX_ PP")
 }
 
-record(longout, "$(P)$(Q)_BEGINRUNEX")
+record(longout, "$(P)$(Q)BEGINRUNEX_")
 {
     field(DESC, "Begin a Run (with options)")
     field(DTYP, "asynInt32")
+    #Set the initial alarm state
+    field(UDFS, "NO_ALARM")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
     field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
 }
@@ -549,7 +553,7 @@ record(bo, "$(P)$(Q)ENDRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
     field(FLNK, "$(ENDRUNA=$(P)$(Q)_ENDRUN:FAN).PROC")
 }
 
@@ -564,7 +568,7 @@ record(sseq, "$(P)$(Q)_ENDRUN:FAN")
     field(WAIT3, "Wait")
     field(LNK4, "$(PRE_END_4=)")
     field(WAIT4, "Wait")
-    field(LNK5, "$(P)$(Q)_ENDRUN.PROC CA")
+    field(LNK5, "$(P)$(Q)ENDRUN_.PROC CA")
     field(WAIT5, "Wait")
     field(DO6, "1")
     field(LNK6, "$(POST_END_1=)")
@@ -580,7 +584,7 @@ record(sseq, "$(P)$(Q)_ENDRUN:FAN")
     field(WAIT9, "Wait")
 }
 
-record(seq, "$(P)$(Q)_ENDRUN")
+record(seq, "$(P)$(Q)ENDRUN_")
 {
     field(SELM, "All")
     field(DOL1, "1")
@@ -589,6 +593,8 @@ record(seq, "$(P)$(Q)_ENDRUN")
     field(DOL2, "1")
     field(DLY2, "1")
     field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
+    #Set the initial alarm state
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)_ENDRUN2")
@@ -598,7 +604,7 @@ record(bo, "$(P)$(Q)_ENDRUN2")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)RECOVERRUN")
@@ -608,7 +614,7 @@ record(bo, "$(P)$(Q)RECOVERRUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)SAVERUN")
@@ -618,7 +624,7 @@ record(bo, "$(P)$(Q)SAVERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)UPDATERUN")
@@ -628,7 +634,7 @@ record(bo, "$(P)$(Q)UPDATERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)STORERUN")
@@ -638,7 +644,7 @@ record(bo, "$(P)$(Q)STORERUN")
     field(ZNAM, "0")
     field(ONAM, "1")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
@@ -648,7 +654,7 @@ record(waveform, "$(P)$(Q)SNAPSHOTCRPT")
     field(DTYP, "asynOctetWrite")
     field(INP, "@asyn(icp,0,0)SNAPSHOTCRPT")
     #Set the initial alarm state
-    field(STAT, "NO_ALARM")
+    field(UDFS, "NO_ALARM")
 }
 
 record(bo, "$(P)$(Q)SEWAIT")
