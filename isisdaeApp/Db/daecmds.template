@@ -1,0 +1,49 @@
+## \$(CMDNAME)  is $(CMDNAME)
+
+record(bo, "$(P)$(Q)$(CMDNAME)RUN")
+{
+    field(DESC, "$(CMDNAME) a Run")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+    #Set the initial alarm state
+    field(UDFS, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_$(CMDNAME)RUN:FAN.PROC")
+}
+
+## PRE1 etc. must include CA attribute if wait is needed
+record(sseq, "$(P)$(Q)_$(CMDNAME)RUN:FAN") {
+    field(LNK1, "$(PRE1)")
+    field(WAIT1, "Wait")
+    field(LNK2, "$(PRE2)")
+    field(WAIT2, "Wait")
+    field(LNK3, "$(PRE3)")
+    field(WAIT3, "Wait")
+    field(LNK4, "$(PRE4)")
+    field(WAIT4, "Wait")
+    field(LNK5, "$(P)$(Q)$(CMDNAME)RUN_.PROC CA")
+    field(WAIT5, "Wait")
+    field(DO6, "1")
+    field(LNK6, "$(POST1)")
+    field(WAIT6, "Wait")
+    field(DO7, "1")
+    field(LNK7, "$(POST2)")
+    field(WAIT7, "Wait")
+    field(DO8, "1")
+    field(LNK8, "$(POST3)")
+    field(WAIT8, "Wait")
+    field(DO9, "1")
+    field(LNK9, "$(POST4)")
+    field(WAIT9, "Wait")
+}
+
+record(bo, "$(P)$(Q)$(CMDNAME)RUN_")
+{
+    field(DESC, "$(CMDNAME) a Run")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)$(CMDNAME)RUN")
+    field(ZNAM, "0")
+    field(ONAM, "1")
+    #Set the initial alarm state
+    field(UDFS, "NO_ALARM")
+}
+

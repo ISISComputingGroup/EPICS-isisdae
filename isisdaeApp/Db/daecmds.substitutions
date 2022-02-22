@@ -1,0 +1,9 @@
+
+global { "P=\$(P)", "Q=\$(Q)" }
+
+file "daecmds.template" {
+    pattern { CMDNAME, PRE1, PRE2, PRE3, PRE4, POST1, POST2, POST3, POST4 }
+    { "PAUSE", "\$(PRE_PAUSE_1=)", "\$(PRE_PAUSE_2=)", "\$(PRE_PAUSE_3=)", "\$(PRE_PAUSE_4=)", "\$(POST_PAUSE_1=)", "\$(POST_PAUSE_2=)", "\$(POST_PAUSE_3=)", "\$(POST_PAUSE_4=)" }
+    { "RESUME", "\$(PRE_RESUME_1=)", "\$(PRE_RESUME_2=)", "\$(PRE_RESUME_3=)", "\$(PRE_RESUME_4=)", "\$(POST_RESUME_1=)", "\$(POST_RESUME_2=)", "\$(POST_RESUME_3=)", "\$(POST_RESUME_4=)" }
+    { "ABORT", "\$(PRE_ABORT_1=)", "\$(PRE_ABORT_2=)", "\$(PRE_ABORT_3=)", "\$(PRE_ABORT_4=)", "\$(POST_ABORT_1=)", "\$(POST_ABORT_2=)", "\$(POST_ABORT_3=)", "\$(POST_ABORT_4=)" }
+}
