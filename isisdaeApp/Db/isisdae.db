@@ -502,7 +502,7 @@ record(longout, "$(P)$(Q)BEGINRUNEX")
     field(FLNK, "$(P)$(Q)_BEGINRUNEX:FAN.PROC")
 }
 
-## PRE_BEGIN_1 etc must include CA attribute is a wait is needed
+## PRE_BEGIN_1 etc must include CA attribute if a wait is needed
 record(sseq, "$(P)$(Q)_BEGINRUNEX:FAN")
 {
     field(LNK1, "$(P)CS:RC:SYNC:SP.PROC")
