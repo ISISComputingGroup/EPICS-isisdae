@@ -352,8 +352,9 @@ void isisdaeInterface::checkConnection()
 	    {
 		    ;
 		}
-		epicsThreadSleep(5.0);
+		epicsThreadSleep(3.0);
 	}
+	epicsThreadSleep(1.0); // always sleep here to cut down on reconnection loop errors
 	if (m_host.size() > 0)
 	{
 		delete m_data_map;
