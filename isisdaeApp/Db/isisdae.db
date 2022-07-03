@@ -278,6 +278,7 @@ record(longin, "$(P)$(Q)PERIODSEQ")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+	field(UDFS, "NO_ALARM")
     info(archive, "VAL")
 }
 
@@ -331,23 +332,25 @@ record(ai, "$(P)$(Q)TOTALDAECOUNTS")
 
 record(ai, "$(P)$(Q)MONITORTO")
 {
-    field(DESC, "Display Monitor High Integral time")
+    field(DESC, "Display Mon High Integral time")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)MONITORTO")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
+	field(UDFS, "NO_ALARM")
     info(archive, "VAL EGU")
 }
 
 record(ai, "$(P)$(Q)MONITORFROM")
 {
-    field(DESC, "Display Monitor Low Integral time")
+    field(DESC, "Display Mon Low Integral time")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn(icp,0,0)MONITORFROM")
     field(PREC, "3")
     field(SCAN, "I/O Intr")
 	field(EGU, "us")
+	field(UDFS, "NO_ALARM")
     info(archive, "VAL EGU")
 }
 
@@ -1369,6 +1372,7 @@ record(bi, "$(P)$(Q)SIM_MODE")
     field(INP, "@asyn(icp,0,0)SIM_MODE")
 	field(SCAN, "I/O Intr")
 	info(INTEREST, "HIGH")
+	field(UDFS, "NO_ALARM")
     info(archive, "VAL")
 }
 

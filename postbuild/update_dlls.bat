@@ -1,8 +1,6 @@
 @echo off
 setlocal
 set "MYDIR=%~dp0"
-REM set "ICPDIR=c:\development\instrumentcontrol\icp\labview modules\dae\service\x64"
-REM set "ICPDIR=\\isis\inst$\Kits$\CompGroup\ICP\isisdae\x64"
 set "ICPDIR=%KIT_ROOT%ICP_Binaries\isisdae\x64"
 
 REM no longer copy DLLs for standalone isisicpint, just use DCOM
