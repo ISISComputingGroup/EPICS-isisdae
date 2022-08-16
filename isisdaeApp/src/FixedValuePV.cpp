@@ -43,5 +43,6 @@ template class FixedValuePV<char>;
 template class FixedValuePV<aitEnum16>;
 template class FixedValuePV<int>;
 template class FixedValuePV<float>;
+template class FixedValuePV<double>;
 template class FixedValuePV<std::string>;
 

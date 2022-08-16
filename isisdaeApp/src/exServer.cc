@@ -415,6 +415,22 @@ void exServer::createStandardPVs(const char* prefix, int period, int id, const c
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
+    sprintf(buffer, "%s:%d:%d:%s.HOPR", prefix, period, id, axis);
+	pPVI = createFixedPV(buffer, 0.0, "", aitEnumFloat64);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.HOPR", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.LOPR", prefix, period, id, axis);
+	pPVI = createFixedPV(buffer, 0.0, "", aitEnumFloat64);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.LOPR", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
 }
 
 template <typename T>
