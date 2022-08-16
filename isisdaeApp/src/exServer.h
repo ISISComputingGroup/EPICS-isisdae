@@ -137,6 +137,13 @@ private:
     pvEntry ( const pvEntry & );
 };
 
+//
+// special gddDestructor guarantees same form of new and delete
+//
+class exFixedStringDestructor: public gddDestructor {
+    virtual void run (void *);
+};
+
 
 //
 // exPV
@@ -225,6 +232,7 @@ protected:
     static epicsTime currentTime;
 
     virtual caStatus updateValue ( const gdd & ) = 0;
+    virtual gddAppFuncTableStatus getEnumsImpl(gdd &value);
 
 private:
 
@@ -232,9 +240,10 @@ private:
     // scan timer expire
     //
     expireStatus expire ( const epicsTime & currentTime );
+    void doScan();
 
 	epicsEvent timerDone; // a timer has fired and completed a scan
-	epicsTimeStamp lastTimer; // last time we ran timer task
+	epicsTimeStamp lastScan; // last time we ran ran a scan
 	
     //
     // Std PV Attribute fetch support
@@ -323,6 +332,16 @@ private:
     FixedValuePV ( const FixedValuePV & );
 };
 
+class NoAlarmPV : public FixedValuePV<aitEnum16> {
+public:
+    NoAlarmPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn);
+    virtual caStatus getEnumsImpl ( gdd & enumsIn );
+private:
+    NoAlarmPV & operator = ( const NoAlarmPV & );
+    NoAlarmPV ( const NoAlarmPV & );
+};
+    
 class MonLookupPV : public exScalarPV {
 public:
     MonLookupPV ( exServer & cas, pvInfo &setup, 
@@ -454,7 +473,7 @@ public:
 	void createAxisPVs(bool is_monitor, int id, int period, const char* axis, const std::string& units);
 	void createCountsPV(bool is_monitor, int id, int period);
     template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
-
+    pvInfo* createNoAlarmPV(const std::string& pvStr);
 private:
     resTable < pvEntry, stringId > stringResTbl;
     epicsTimerQueueActive * pTimerQueue;
@@ -471,6 +490,9 @@ private:
         const char * pPVName );
     pvAttachReturn pvAttach ( const casCtx &, 
         const char * pPVName );
+        
+    void createStandardPVs(const char* prefix, int period, int id, const char* axis, const std::string& units, bool is_monitor);
+
 
     exServer & operator = ( const exServer & );
     exServer ( const exServer & );

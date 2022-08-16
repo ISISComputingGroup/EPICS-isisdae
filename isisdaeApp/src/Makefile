@@ -36,6 +36,7 @@ isisdae_SRCS += SpectrumPV.cc NORDPV.cc MonLookupPV.cc CountsPV.cc FixedValuePV.
 isisdae_SRCS += exChannel.cc exPV.cc exScalarPV.cc exVectorPV.cc exServer.cc
 isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp CRPTMapping.cpp
 isisdae_SRCS += MonitorSpectrumPV.cpp MonitorCountsPV.cpp dae_isisicpint_dummy.cpp
+isisdae_SRCS += NoAlarmPV.cpp
 
 isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += ADnEDSupport

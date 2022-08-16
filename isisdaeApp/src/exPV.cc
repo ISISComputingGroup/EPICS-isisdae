@@ -21,12 +21,6 @@ char exPV::hasBeenInitialized = 0;
 gddAppFuncTable<exPV> exPV::ft;
 epicsTime exPV::currentTime;
 
-//
-// special gddDestructor guarantees same form of new and delete
-//
-class exFixedStringDestructor: public gddDestructor {
-    virtual void run (void *);
-};
 
 //
 // exPV::exPV()
@@ -46,16 +40,9 @@ exPV::exPV ( exServer & casIn, pvInfo & setup,
     //
     assert (this->info.getElementCount()>=1u);
 
-	memset(&(this->lastTimer), 0, sizeof(this->lastTimer));
+	memset(&(this->lastScan), 0, sizeof(this->lastScan));
 
-    //
-    // start a very slow background scan 
-    // (we will speed this up to the normal rate when
-    // someone is watching the PV)
-    //
-    if ( this->scanOn && this->info.getScanPeriod () > 0.0 ) {
-        this->timer.start ( *this, this->getScanPeriod() );
-    }
+    // we no longer start a very slow background scan here
 }
 
 //
@@ -114,21 +101,11 @@ epicsTimerNotify::expireStatus
 exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
     static const double sleep_delay = atof(getenv("ISISDAE_TIMER_SLEEP") != NULL ? getenv("ISISDAE_TIMER_SLEEP") : ".001");
-	try 
-	{
-        this->scan();
-	    epicsGuard<epicsMutex> _lock(timerLock);
-	    epicsTimeGetCurrent(&(this->lastTimer));	
-	}
-	catch(const std::exception& ex)
-	{
-		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed: %s", ex.what());
-	}
-	catch(...)
-	{
-		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed");
-	}
-	this->timerDone.signal();
+    // only periodic scan if somebody is interested in us
+    if (this->interest) {
+        doScan();
+    }
+    this->timerDone.signal();
     epicsThreadSleep(sleep_delay); // yield thread, this is in case we have a big timer queue and start to starve DAE access
     if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
         return expireStatus ( restart, this->getScanPeriod() );
@@ -138,7 +115,25 @@ exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
     }
 }
 
-//
+void exPV::doScan()
+{
+	try 
+	{
+        this->scan();
+	    epicsGuard<epicsMutex> _lock(timerLock);
+	    epicsTimeGetCurrent(&(this->lastScan));	
+	}
+	catch(const std::exception& ex)
+	{
+		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed: %s", ex.what());
+	}
+	catch(...)
+	{
+		errlogSevPrintf(errlogMajor, "CAS: exPV::expire: Scan failed");
+	}
+}
+
+
 // exPV::bestExternalType()
 //
 aitEnum exPV::bestExternalType () const
@@ -158,8 +153,10 @@ caStatus exPV::interestRegister ()
     this->interest = true;
 //	std::cerr << "CAS: Interest registered in PV \"" << getName() << "\"" << std::endl;
     if ( this->scanOn && this->getScanPeriod() > 0.0 && 
-            this->getScanPeriod() < this->timer.getExpireDelay() ) {
+            (!this->timer.getExpireInfo().active || this->getScanPeriod() < this->timer.getExpireDelay())
+        ) {
         this->timer.start ( *this, this->getScanPeriod() );
+        
     }
 
     return S_casApp_success;
@@ -172,6 +169,7 @@ void exPV::interestDelete()
 {
 //	std::cerr << "CAS: Interest unregistered in PV \"" << getName() << "\"" << std::endl;
 	this->interest = false;
+    this->timer.cancel();
 }
 
 //
@@ -258,7 +256,7 @@ caStatus exPV::getUnits( gdd & units )
 }
 
 //
-// exPV::getEnums()
+// exPV::getEnumsImpl()
 //
 // returns the eneumerated state strings
 // for a discrete channel
@@ -267,7 +265,7 @@ caStatus exPV::getUnits( gdd & units )
 // and therefore this isnt appropriate in an
 // analog context ...
 //
-caStatus exPV::getEnums ( gdd & enumsIn )
+caStatus exPV::getEnumsImpl ( gdd & enumsIn )
 {
     if ( this->info.getType () == aitEnumEnum16 ) {
         static const unsigned nStr = 2;
@@ -298,6 +296,11 @@ caStatus exPV::getEnums ( gdd & enumsIn )
     }
 
     return S_cas_success;
+}
+
+caStatus exPV::getEnums ( gdd & enumsIn )
+{
+    return getEnumsImpl(enumsIn);
 }
 
 //
@@ -348,7 +351,7 @@ caStatus exPV::read ( const casCtx & ctx, gdd & protoIn )
 	double tdiff;
     {
 		epicsGuard<epicsMutex> _lock(timerLock);
-		tdiff = epicsTimeDiffInSeconds(&now, &(this->lastTimer));
+		tdiff = epicsTimeDiffInSeconds(&now, &(this->lastScan));
     }
 	if ( (this->interest && this->scanOn && this->getScanPeriod() > 0.0) || (tdiff < cache_time) )
 	{
@@ -367,7 +370,7 @@ caStatus exPV::read ( const casCtx & ctx, gdd & protoIn )
 
 caStatus exPV::doRead ( const casCtx & ctx, gdd & protoIn )
 {
-	this->expire(epicsTime()); // does a scan
+	this->doScan();
     return this->ft.read(*this, protoIn);	
 }
 
