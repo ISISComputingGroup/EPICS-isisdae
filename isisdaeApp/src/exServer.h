@@ -423,6 +423,8 @@ class myAsyncReadIO : public casAsyncReadIO
     myAsyncReadIO(const casCtx & ctx, gdd & protoIn, exPV& pv) : casAsyncReadIO(ctx), m_pv(pv), m_ctx(ctx)
 	{
 		m_value = &protoIn;
+        // keep variable alive for use in readThread()
+        // will unreference in destructor
 		m_value->reference();
 	}
 		
@@ -437,6 +439,8 @@ class myAsyncReadIO : public casAsyncReadIO
         caStatus status, status1;
         status = m_pv.doRead(m_ctx, *m_value);
 		status1 = postIOCompletion(status, *m_value);
+        // at this point we will have had our destructor called for us
+        // so do not reference any variables in "this"
         if (status1 != S_casApp_success)
            std::cerr << "CAS: Error returned by postIOCompletion" << std::endl;
 	}
