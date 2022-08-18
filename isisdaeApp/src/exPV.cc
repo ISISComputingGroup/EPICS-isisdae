@@ -370,6 +370,7 @@ caStatus exPV::read ( const casCtx & ctx, gdd & protoIn )
 	if (m_asyncIO)
 	{
 		myAsyncReadIO *pIO = new myAsyncReadIO(ctx, protoIn, *this);  // will delete itself on IO completion
+        epicsThreadCreate("myAsyncReadIO", epicsThreadPriorityMedium, epicsThreadStackMedium, myAsyncReadIO::readThreadC, pIO);
 		return S_casApp_asyncCompletion;
 	}
 	else

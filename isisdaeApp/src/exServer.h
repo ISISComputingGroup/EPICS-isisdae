@@ -424,10 +424,9 @@ class myAsyncReadIO : public casAsyncReadIO
 	{
 		m_value = &protoIn;
 		m_value->reference();
-	    epicsThreadCreate("myAsyncReadIO", epicsThreadPriorityMedium, epicsThreadStackMedium, readThread, this); 
 	}
 		
-    static void readThread(void* arg)
+    static void readThreadC(void* arg)
     {
 		myAsyncReadIO* aio = (myAsyncReadIO*)arg;
 		aio->readThread();
@@ -441,6 +440,13 @@ class myAsyncReadIO : public casAsyncReadIO
         if (status1 != S_casApp_success)
            std::cerr << "CAS: Error returned by postIOCompletion" << std::endl;
 	}
+    ~myAsyncReadIO()
+    {
+        m_value->unreference();
+        m_value = NULL;
+    }
+
+
 };
 
 //
