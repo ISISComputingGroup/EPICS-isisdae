@@ -102,6 +102,9 @@ exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 {
     static const double sleep_delay = atof(getenv("ISISDAE_TIMER_SLEEP") != NULL ? getenv("ISISDAE_TIMER_SLEEP") : ".001");
     // only periodic scan if somebody is interested in us
+    if (isisdaePCASDebug > 0) {
+        std::cerr << "CAS: exPV::expire() timer expired \"" << getName() << "\"" << std::endl;
+    }
     if (this->interest) {
         doScan();
     }
@@ -117,6 +120,9 @@ exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
 
 void exPV::doScan()
 {
+    if (isisdaePCASDebug > 0) {
+        std::cerr << "CAS: exPV::doScan() updating data for \"" << getName() << "\"" << std::endl;
+    }
 	try 
 	{
         this->scan();
@@ -151,7 +157,9 @@ caStatus exPV::interestRegister ()
     }
 
     this->interest = true;
-//	std::cerr << "CAS: Interest registered in PV \"" << getName() << "\"" << std::endl;
+    if (isisdaePCASDebug > 0) {
+        std::cerr << "CAS: exPV::interestRegister() in PV \"" << getName() << "\"" << std::endl;
+    }
     if ( this->scanOn && this->getScanPeriod() > 0.0 && 
             (!this->timer.getExpireInfo().active || this->getScanPeriod() < this->timer.getExpireDelay())
         ) {
@@ -167,7 +175,9 @@ caStatus exPV::interestRegister ()
 //
 void exPV::interestDelete()
 {
-//	std::cerr << "CAS: Interest unregistered in PV \"" << getName() << "\"" << std::endl;
+    if (isisdaePCASDebug > 0) {
+        std::cerr << "CAS: exPV::interestDelete() in PV \"" << getName() << "\"" << std::endl;
+    }
 	this->interest = false;
     this->timer.cancel();
 }

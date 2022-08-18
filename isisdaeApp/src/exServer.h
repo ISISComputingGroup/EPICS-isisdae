@@ -664,3 +664,4 @@ inline exChannel::exChannel ( const casCtx & ctxIn ) :
 {
 }
 
+extern "C" int isisdaePCASDebug;
