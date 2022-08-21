@@ -8,7 +8,7 @@
 
 /// class for a PV that converts a monitor number into a spectrum number
 
-MonLookupPV::MonLookupPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int monitor ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, false), m_monitor(monitor)
+MonLookupPV::MonLookupPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int monitor ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, true), m_monitor(monitor)
 {
 
 }
