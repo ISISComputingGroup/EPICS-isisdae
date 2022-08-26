@@ -51,6 +51,7 @@ record(stringout, "$(P)$(Q)_RBNUMBER:SP")
     field(DESC, "Set Experiment (RB) Number")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn(icp,0,0)RBNUMBER")
+    field(VAL, "0")
     info(autosaveFields, "VAL")
 }
 
