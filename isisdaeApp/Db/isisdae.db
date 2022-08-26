@@ -41,6 +41,8 @@ record(stringin, "$(P)$(Q)_RBNUMBER")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RBNUMBER")
     field(SCAN, "I/O Intr")
+    field(VAL, "0")
+    info(autosaveFields, "VAL")
     info(archive, "VAL")
 }
 
@@ -59,8 +61,10 @@ record(stringin, "$(P)$(Q)RUNNUMBER")
     field(DESC, "Run Number")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)RUNNUMBER")
+    field(VAL, "0")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(autosaveFields_pass0, "VAL")
     info(archive, "VAL")
 }
 
@@ -71,6 +75,7 @@ record(longin, "$(P)$(Q)IRUNNUMBER")
     field(INP,  "@asyn(icp,0,0)IRUNNUMBER")
     field(SCAN, "I/O Intr")
     info(INTEREST, "MEDIUM")
+    info(autosaveFields_pass0, "VAL")
 	info(archive, "VAL")
 	field(EGU, "")
 }
@@ -83,6 +88,7 @@ record(waveform, "$(P)$(Q)_USERNAME")
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn(icp,0,0)USERNAME")
     field(SCAN, "I/O Intr")
+    info(autosaveFields, "VAL")
     info(archive, "VAL")
 }
 
@@ -105,6 +111,7 @@ record(stringin, "$(P)$(Q)INSTNAME")
     field(INP,  "@asyn(icp,0,0)INSTNAME")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(autosaveFields, "VAL")
 }
 
 record(stringin, "$(P)$(Q)STARTTIME")
@@ -153,6 +160,7 @@ record(stringin, "$(P)$(Q)ISISCYCLE")
     field(INP,  "@asyn(icp,0,0)ISISCYCLE")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
+    info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(Q)RAWFRAMES")
