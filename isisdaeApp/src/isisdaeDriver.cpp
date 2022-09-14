@@ -2685,6 +2685,8 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 
 volatile bool isisdaeDriver::daeIOCisRunning = false;
 
+int isisdaePCASDebug = 0;
+
 void isisdaeDriver::waitForIOCRunning()
 {
 	while (!daeIOCisRunning)
@@ -2792,5 +2794,6 @@ static void isisdaeRegister(void)
 }
 
 epicsExportRegistrar(isisdaeRegister);
+epicsExportAddress(int, isisdaePCASDebug);
 
 }

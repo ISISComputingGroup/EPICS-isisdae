@@ -327,7 +327,7 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
 	char buffer[256], pvAlias[256];
     const char* prefix = (is_monitor ? "MON" : "SPEC");
     sprintf(buffer, "%s:%d:%d:%s", prefix, period, id, axis);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, units.c_str(), aitEnumFloat32, m_ntc);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, units.c_str(), aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
 	SpectrumPV* pSPV = (is_monitor ? new MonitorSpectrumPV(*this, *pPVI, true, scanOn, axis, id, period) :
                                      new SpectrumPV(*this, *pPVI, true, scanOn, axis, id, period));
@@ -367,23 +367,67 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
+    createStandardPVs(prefix, period, id, axis, units, is_monitor);
+}
 
+void exServer::createStandardPVs(const char* prefix, int period, int id, const char* axis, const std::string& units, bool is_monitor)
+{
+	char buffer[256], pvAlias[256];
     sprintf(buffer, "%s:%d:%d:%s.DESC", prefix, period, id, axis);
 	std::ostringstream desc;
 	desc << axis << " (" << (is_monitor ? "mon=" : "spec=") << id << ",period=" << period << ")";
-	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
+	pvInfo* pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%s.DESC", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
-
     sprintf(buffer, "%s:%d:%d:%s.EGU", prefix, period, id, axis);
 	pPVI = createFixedPV(buffer, units, "", aitEnumString);
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%s.EGU", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.UDF", prefix, period, id, axis);
+	pPVI = createFixedPV(buffer, 0, "", aitEnumInt8);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.UDF", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.STAT", prefix, period, id, axis);
+	pPVI = createNoAlarmPV(buffer);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.STAT", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.SEVR", prefix, period, id, axis);
+	pPVI = createNoAlarmPV(buffer);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.SEVR", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.HOPR", prefix, period, id, axis);
+	pPVI = createFixedPV(buffer, 0.0, "", aitEnumFloat64);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.HOPR", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+    sprintf(buffer, "%s:%d:%d:%s.LOPR", prefix, period, id, axis);
+	pPVI = createFixedPV(buffer, 0.0, "", aitEnumFloat64);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.LOPR", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
@@ -393,9 +437,21 @@ template <typename T>
 pvInfo* exServer::createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type)
 {
 	char pvAlias[256];
-    pvInfo* pPVI = new pvInfo (0.5, pvStr.c_str(), 0.0f, 0.0f, units, ait_type, 1);   /// @todo would be nice to use arithmetic value, but need to check for strings
+    pvInfo* pPVI = new pvInfo (5.0, pvStr.c_str(), 0.0f, 0.0f, units, ait_type, 1);   /// @todo would be nice to use arithmetic value, but need to check for strings
     m_pvList[pvStr.c_str()] = pPVI;
 	exPV* pPV = new FixedValuePV<T>(*this, *pPVI, true, scanOn, value);
+    pPVI->setPV(pPV);
+	epicsSnprintf(pvAlias, sizeof(pvAlias), "%s%s", m_pvPrefix.c_str(), pvStr.c_str());
+    this->installAliasName(*pPVI, pvAlias);
+	return pPVI;
+}
+
+pvInfo* exServer::createNoAlarmPV(const std::string& pvStr)
+{
+	char pvAlias[256];
+    pvInfo* pPVI = new pvInfo (5.0, pvStr.c_str(), 0.0f, 0.0f, "", aitEnumEnum16, 1);   /// @todo would be nice to use arithmetic value, but need to check for strings
+    m_pvList[pvStr.c_str()] = pPVI;
+	exPV* pPV = new NoAlarmPV(*this, *pPVI, true, scanOn);
     pPVI->setPV(pPV);
 	epicsSnprintf(pvAlias, sizeof(pvAlias), "%s%s", m_pvPrefix.c_str(), pvStr.c_str());
     this->installAliasName(*pPVI, pvAlias);
@@ -408,7 +464,7 @@ void exServer::createCountsPV(bool is_monitor, int id, int period)
 	char buffer[256], pvAlias[256];
     const char* prefix = (is_monitor ? "MON" : "SPEC");
     sprintf(buffer, "%s:%d:%d:C", prefix, period, id);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "cnt", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, "cnt", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
     exPV* pPV = (is_monitor ? new MonitorCountsPV(*this, *pPVI, true, scanOn, id, period) :
                               new CountsPV(*this, *pPVI, true, scanOn, id, period));
@@ -425,27 +481,9 @@ void exServer::createCountsPV(bool is_monitor, int id, int period)
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
-
-    sprintf(buffer, "%s:%d:%d:C.DESC", prefix, period, id);
-	std::ostringstream desc;
-	desc << "Integral (" << (is_monitor ? "mon=" : "spec=") << id << ",period=" << period << ")";
-	pPVI = createFixedPV(buffer, desc.str(), "", aitEnumString);
-	if (period == 1)
-	{
-        sprintf(buffer, "%s:%d:C.DESC", prefix, id);
-	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
-        this->installAliasName(*pPVI, pvAlias);
-	}
-
-    sprintf(buffer, "%s:%d:%d:C.EGU", prefix, period, id);
-	pPVI = createFixedPV(buffer, std::string("cnt"), "", aitEnumString);
-	if (period == 1)
-	{
-        sprintf(buffer, "%s:%d:C.EGU", prefix, id);
-	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
-        this->installAliasName(*pPVI, pvAlias);
-	}
+    createStandardPVs(prefix, period, id, "C", "cnt", is_monitor);
 }
+
 
 bool exServer::createSpecPVs(const std::string& pvStr)
 {
@@ -491,7 +529,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	createCountsPV(true, mon, period);
 
     sprintf(buffer, "MON:%d:%d:S", period, mon);
-    pvInfo* pPVI = new pvInfo (0.5, buffer, 1.0e9f, 0.0f, "", aitEnumInt32, 1);
+    pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new MonLookupPV(*this, *pPVI, true, scanOn, mon);
     pPVI->setPV(pPV);

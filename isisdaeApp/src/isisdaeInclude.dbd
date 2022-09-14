@@ -1,1 +1,2 @@
 registrar("isisdaeRegister")
+variable(isisdaePCASDebug, int)
