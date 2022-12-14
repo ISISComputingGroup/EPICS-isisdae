@@ -1545,3 +1545,22 @@ record(waveform, "$(P)$(Q)QXWRITEARRAY")
     field(DTYP, "asynInt32ArrayOut")
     field(INP,  "@asyn(icp,0,0)QXWRITEARRAY")
 }
+
+record(bo, "$(P)$(Q)BLOCKSPECZERO:SP")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)BLOCKSPECZERO")
+	field(ZNAM, "No")
+	field(ONAM, "Yes")
+	field(PINI, "YES")
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)$(Q)BLOCKSPECZERO")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)BLOCKSPECZERO")
+    field(SCAN, "I/O Intr")
+	field(ZNAM, "No")
+	field(ONAM, "Yes")
+}

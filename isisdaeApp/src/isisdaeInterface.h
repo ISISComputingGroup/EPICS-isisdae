@@ -148,6 +148,7 @@ public:
 	void setSpecIntgCutoff(double tmin, double tmax);
 	long getSpectrumNumberForMonitor(long mon_num);
 	int setICPValue(const std::string& name, const std::string& value);
+	int setICPValueLong(const std::string& name, long value);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:

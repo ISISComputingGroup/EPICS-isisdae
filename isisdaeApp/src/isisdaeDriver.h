@@ -169,6 +169,8 @@ private:
 	int P_vetoPCExt1;   // double
 	int P_vetoPCExt2;   // double
 	int P_vetoPCExt3;   // double
+    
+    int P_blockSpecZero; // long
 
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
@@ -345,6 +347,8 @@ private:
 #define P_vetoPCExt1String					"VETO_PC_EXT1"
 #define P_vetoPCExt2String					"VETO_PC_EXT2"
 #define P_vetoPCExt3String					"VETO_PC_EXT3"
+
+#define P_blockSpecZeroString                "BLOCKSPECZERO"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

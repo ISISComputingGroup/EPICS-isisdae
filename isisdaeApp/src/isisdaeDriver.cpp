@@ -299,15 +299,21 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		}			
 		if (function == P_BeginRun)
 		{
+            int blockSpecZero = 0;
+            getIntegerParam(P_blockSpecZero, &blockSpecZero);
 		    beginStateTransition(RS_BEGINNING);
             zeroRunCounters();
+			m_iface->setICPValueLong("BLOCK_SPEC_ZERO", blockSpecZero);
 			m_iface->beginRun();
 			setADAcquire(1);
 		}
         else if (function == P_BeginRunEx)
 		{
+            int blockSpecZero = 0;
+            getIntegerParam(P_blockSpecZero, &blockSpecZero);
 		    beginStateTransition(RS_BEGINNING);
             zeroRunCounters();
+			m_iface->setICPValueLong("BLOCK_SPEC_ZERO", blockSpecZero);
 			m_iface->beginRunEx(static_cast<long>(value), -1);
 			setADAcquire(1);
 		}
@@ -1176,6 +1182,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_vetoPCExt1String, asynParamFloat64, &P_vetoPCExt1); 
 	createParam(P_vetoPCExt2String, asynParamFloat64, &P_vetoPCExt2); 
 	createParam(P_vetoPCExt3String, asynParamFloat64, &P_vetoPCExt3); 
+    
+    createParam(P_blockSpecZeroString, asynParamInt32, &P_blockSpecZero);
 
     // list commands that are not allowed when you are in the given run state
 	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
@@ -1189,6 +1197,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	setIntegerParam(P_diagEnable, 0);
 	setIntegerParam(P_DAEType, DAEType::UnknownDAE);
     setIntegerParam(P_IsMuonDAE, 0);
+    setIntegerParam(P_blockSpecZero, 0);
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;

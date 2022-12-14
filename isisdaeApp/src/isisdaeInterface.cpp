@@ -639,6 +639,19 @@ int isisdaeInterface::setICPValue(const std::string& name, const std::string& va
 	}
 }
 
+int isisdaeInterface::setICPValueLong(const std::string& name, long value)
+{
+    if (m_dcom)
+	{
+        _bstr_t name_bs(CComBSTR(name.c_str()).Detach());
+		return callD<int>(boost::bind(&ICPDCOM::setICPValueLong, _1, boost::cref(name_bs), value, _2));
+	}
+	else
+	{
+	    return callI<int>(boost::bind(&ISISICPINT::setICPValueLong, boost::cref(name), value, _1));
+	}
+}
+
 int isisdaeInterface::setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value)
 {
     ISISICPINT::string_table_t table;
