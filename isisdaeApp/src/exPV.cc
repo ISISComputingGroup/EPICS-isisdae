@@ -110,7 +110,7 @@ exPV::expire ( const epicsTime & /*currentTime*/ ) // X aCC 361
     }
     this->timerDone.signal();
     epicsThreadSleep(sleep_delay); // yield thread, this is in case we have a big timer queue and start to starve DAE access
-    if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
+    if ( this->interest && this->scanOn && this->getScanPeriod() > 0.0 ) {
         return expireStatus ( restart, this->getScanPeriod() );
     }
     else {
@@ -179,7 +179,8 @@ void exPV::interestDelete()
         std::cerr << "CAS: exPV::interestDelete() in PV \"" << getName() << "\"" << std::endl;
     }
 	this->interest = false;
-    this->timer.cancel();
+    // do not try and call this->timer.cancel() as this can deadlock. We have the pv lock via  casPVI::removeMonitor
+    // but if the timer is running it may try and call casPVI::getExtServer (via getCAS()) causing a deadlock
 }
 
 //
