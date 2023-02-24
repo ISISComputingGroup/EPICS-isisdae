@@ -156,15 +156,14 @@ caStatus exPV::interestRegister ()
         return S_casApp_success;
     }
 
-    this->interest = true;
     if (isisdaePCASDebug > 0) {
         std::cerr << "CAS: exPV::interestRegister() in PV \"" << getName() << "\"" << std::endl;
     }
-    if ( this->scanOn && this->getScanPeriod() > 0.0 && 
-            (!this->timer.getExpireInfo().active || this->getScanPeriod() < this->timer.getExpireDelay())
-        ) {
-        this->timer.start ( *this, this->getScanPeriod() );
-        
+    if (this->interest == false) {
+        this->interest = true;
+        if ( this->scanOn && this->getScanPeriod() > 0.0 ) {
+            this->timer.start ( *this, this->getScanPeriod() );
+        }
     }
 
     return S_casApp_success;

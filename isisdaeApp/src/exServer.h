@@ -39,6 +39,7 @@
 #include <list>
 #include <map>
 #include <iostream>
+#include <atomic>
 
 //
 // EPICS
@@ -225,7 +226,7 @@ protected:
     exServer & cas;
     epicsTimer & timer;
     pvInfo & info; 
-    bool interest;
+    std::atomic<bool> interest;
     bool preCreate;
     bool scanOn;
 	bool m_asyncIO;
