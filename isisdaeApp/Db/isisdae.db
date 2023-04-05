@@ -1359,7 +1359,8 @@ record(calcout, "$(P)$(Q)_CHECK_ARCHIVER_CALC")
 {
     field(INPA, "$(P)$(Q)_CHECK_ARCHIVER NPP")
     field(INPB, 1)
-	field(CALC, "A=B")
+    field(INPC, "$(P)$(Q)_CHECK_ARCHIVER.SEVR")
+	field(CALC, "A=B&&C=0")
 	field(OOPT, "When Zero")
 	field(OUT, "$(P)$(Q)_RESTART_ARCHIVER_PS.PROC PP")
 }
