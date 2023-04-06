@@ -1802,14 +1802,14 @@ void isisdaeDriver::pollerThread4()
     int arrayCallbacks;
     NDArray *pImage;
     double acquireTime, acquirePeriod, delay, updateTime;
-    epicsTimeStamp startTime, endTime;
-    double elapsedTime, maxval;
+    epicsTime startTime, endUpdateTime, endTime; // these hold monotonic time
+    epicsTimeStamp startTimeTS;
+    double elapsedTime, maxval, loop_delay(1.0);
     std::vector<int> old_acquiring(maxAddr, 0);
-	std::vector<epicsTimeStamp> last_update(maxAddr);
+	std::vector<epicsTime> last_update(maxAddr);
 	long totalCntsDiff, maxSpecCntsDiff;
 
 	registerStructuredExceptionHandler();
-	memset(&(last_update[0]), 0, maxAddr * sizeof(epicsTimeStamp));	
 	while(true)
 	{
 		all_acquiring = all_enable = 0;
@@ -1838,17 +1838,19 @@ void isisdaeDriver::pollerThread4()
 					old_acquiring[i] = acquiring;
 				}
 				setIntegerParam(i, ADStatus, ADStatusAcquire); 
-				epicsTimeGetCurrent(&startTime);
 				getIntegerParam(i, ADImageMode, &imageMode);
 
 				/* Get the exposure parameters */
 				getDoubleParam(i, ADAcquireTime, &acquireTime);  // not really used
 
+				startTime = epicsTime::getMonotonic();
 				setShutter(i, ADShutterOpen);
 				callParamCallbacks(i, i);
 				
 				/* Update the image */
+                epicsTimeGetCurrent(&startTimeTS);
 				status = computeImage(i, maxval, totalCntsDiff, maxSpecCntsDiff, data_mode);
+				endUpdateTime = epicsTime::getMonotonic();
 
 	//            if (status) continue;
 
@@ -1879,7 +1881,7 @@ void isisdaeDriver::pollerThread4()
 
 				/* Put the frame number and time stamp into the buffer */
 				pImage->uniqueId = imageCounter;
-				pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
+				pImage->timeStamp = startTimeTS.secPastEpoch + startTimeTS.nsec / 1.e9;
 				updateTimeStamp(&pImage->epicsTS);
 
 				/* Get any attributes that have been defined for this driver */
@@ -1894,9 +1896,10 @@ void isisdaeDriver::pollerThread4()
 						"%s:%s: calling imageData callback addr %d\n", driverName, functionName, i);
 				  doCallbacksGenericPointer(pImage, NDArrayData, i);
 				}
-				epicsTimeGetCurrent(&endTime);
-				elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
-				updateTime = epicsTimeDiffInSeconds(&endTime, &(last_update[i]));
+				endTime = epicsTime::getMonotonic();
+				elapsedTime = endTime - startTime;
+				updateTime = endUpdateTime - last_update[i];
+				last_update[i] = endUpdateTime;
 				if (updateTime > 0.0)
 				{
 					setDoubleParam(i, P_integralsUpdateRate, 1.0 / updateTime);
@@ -1910,7 +1913,6 @@ void isisdaeDriver::pollerThread4()
 					setDoubleParam(i, P_integralsSpecCountRate, 0.0);
 				}
 				setDoubleParam(i, P_integralsSpecMax, maxval);
-				last_update[i] = endTime;
 				/* Call the callbacks to update any changes */
 				callParamCallbacks(i, i);
 				/* sleep for the acquire period minus elapsed time. */
@@ -1937,11 +1939,11 @@ void isisdaeDriver::pollerThread4()
         }
 		if (all_enable == 0 || all_acquiring == 0)
 		{
-			epicsThreadSleep(1.0);
+			epicsThreadSleep(loop_delay);
 		}
 		else
 		{
-			epicsThreadSleep(1.0);
+			epicsThreadSleep(loop_delay);
 		}
 	}
 }
