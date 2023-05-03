@@ -1344,6 +1344,8 @@ record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_XPATH")
 }
 
 ## check block archiver status - contains 1 if RUNNING, 0 if not
+## set VAL to 1 on init so that on startup it does not trigger
+## a nagios check warning that it is STOPPED
 record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
 {
     field(DTYP, "asynInt32")
@@ -1351,6 +1353,8 @@ record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
 	field(ONAM, "RUNNING")
     field(INP, "@asyn(arch2,0,0)IDATA0")
 	field(SCAN, "Passive")
+	field(VAL, "1")
+	field(UDFS, "NO_ALARM")
 	field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_CALC.PROC")
 }
 
