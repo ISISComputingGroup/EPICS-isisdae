@@ -150,8 +150,9 @@ struct frame_uamp_state
     struct timeb tb;
 	long frames;
 	double uah;
-	bool error; // error reported
-	frame_uamp_state() : frames(0), uah(0.0), error(false) { memset(&tb, 0, sizeof(struct timeb)); }
+	bool frames_error; // error reported
+	bool uamps_error; // error reported
+	frame_uamp_state() : frames(0), uah(0.0), frames_error(false), uamps_error(false) { memset(&tb, 0, sizeof(struct timeb)); }
 };
 
 
@@ -167,7 +168,7 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
     if (state.tb.time == 0) // first call
 	{
 	    memcpy(&(state.tb), &now, sizeof(struct timeb));
-		state.error = false;
+		state.frames_error = state.uamps_error = false;
 		if (uah >= 0.0 && uah < MAXUAH)
 		{
 		    state.uah = uah;
@@ -190,25 +191,25 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 
 	if (tdiff < 0.1)
 	{
-		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
+		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that leads to errors
 	}
 	// isis is 50Hz max, use 55 to just allow a bit of leeway 
     if ( (frames < 0) || (frames > MAXFRAMES) || ((frames - state.frames) >  frames_per_sec * tdiff) )
 	{
-		if (!state.error)
+		if (!state.frames_error)
 		{
-			errlogSevPrintf(errlogInfo, "Ignoring invalid %s frames %ld", type, frames);
-			state.error = true;
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s frames %ld (old = %ld, tdiff = %f)", type, frames, state.frames, tdiff);
+			state.frames_error = true;
 		}
 	    frames = state.frames;
 		update_state = false;
 	}
 	if ( (uah < 0.0) ||  (uah > MAXUAH) || ((uah - state.uah) >  uah_per_sec * tdiff) )
 	{
-		if (!state.error)
+		if (!state.uamps_error)
 		{
-			errlogSevPrintf(errlogInfo, "Ignoring invalid %s uah %f", type, uah);
-			state.error = true;
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s uah %f (old = %f, tdiff = %f)", type, uah, state.uah, tdiff);
+			state.uamps_error = true;
 		}
 	    uah = state.uah;
 		update_state = false;
@@ -218,10 +219,15 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 	    memcpy(&(state.tb), &now, sizeof(struct timeb));
 		state.uah = uah;
 		state.frames = frames;
-		if (state.error)
+		if (state.frames_error)
 		{
-			errlogSevPrintf(errlogInfo, "%s frames OK %ld uah OK %f", type, frames, uah);
-		    state.error = false;
+			errlogSevPrintf(errlogInfo, "%s frames OK %ld", type, frames);
+		    state.frames_error = false;
+		}
+		if (state.uamps_error)
+		{
+			errlogSevPrintf(errlogInfo, "%s uah OK %f", type, uah);
+		    state.uamps_error = false;
 		}
 	}
 }
