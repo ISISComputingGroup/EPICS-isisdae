@@ -396,6 +396,7 @@ record(ai, "$(P)$(Q)EVENTMODEFRACTION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "VAL")
 }
 
 record(ai, "$(P)$(Q)EVENTMODEBUFUSED")
@@ -407,6 +408,7 @@ record(ai, "$(P)$(Q)EVENTMODEBUFUSED")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)$(Q)EVENTMODEFILEMB")
@@ -418,6 +420,7 @@ record(ai, "$(P)$(Q)EVENTMODEFILEMB")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "MB")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)$(Q)EVENTMODEDATARATE")
@@ -429,6 +432,7 @@ record(ai, "$(P)$(Q)EVENTMODEDATARATE")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
 	field(EGU, "MB /s")
+    info(archive, "-5.0 VAL")
 }
 
 record(ai, "$(P)$(Q)GOODUAH")
@@ -754,6 +758,7 @@ record(bi, "$(P)$(Q)STATETRANS")
     field(ZNAM, "No")
     field(ONAM, "Yes")
     field(SCAN, "I/O Intr")
+	info(archive, "VAL")
 }
 
 # in CHANGING run state, workaround
@@ -765,6 +770,7 @@ record(bi, "$(P)$(Q)STATE:CHANGING")
     field(ZNAM, "No")
     field(ONAM, "Yes")
     field(SCAN, "I/O Intr")
+	info(archive, "VAL")
 }
 
 # number of seconds in transition state
