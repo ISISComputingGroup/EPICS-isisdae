@@ -2826,10 +2826,10 @@ static long parseSettingsXML(aSubRecord *prec)
     char* value_out_wf = (char*)(prec->vala);
     epicsOldString* value_out_str = (epicsOldString*)(prec->valb);
     
-    if (prec->fta != menuFtypeCHAR || prec->ftb != menuFtypeSTRING || prec->ftc != menuFtypeSTRING || 
-        prec->ftva != menuFtypeCHAR || prec->ftvb != menuFtypeSTRING)
+    if (!((prec->fta == menuFtypeCHAR || prec->fta == menuFtypeUCHAR) && prec->ftb == menuFtypeSTRING && prec->ftc == menuFtypeSTRING && 
+        prec->ftva == menuFtypeCHAR && prec->ftvb == menuFtypeSTRING))
 	{
-         errlogPrintf("%s incorrect input data type.", prec->name);
+         errlogPrintf("%s incorrect input data type.\n", prec->name);
 		 return -1;
 	}
     // calculate number of elements, but do not assume NULL termination
@@ -2837,15 +2837,24 @@ static long parseSettingsXML(aSubRecord *prec)
     for(nelements=0; nelements<prec->noa && xml_in[nelements] != '\0'; ++nelements)
         ;
     if (nelements == 0) {
-         errlogPrintf("%s no input XML - OK if this only happens once on startup.\n", prec->name);
+         errlogPrintf("%s no input XML - OK if this only happens once on IOC startup.\n", prec->name);
 		 return -1;
     }
 	std::string val, xml_in_str(xml_in, nelements);
     char xpath[256];
     prec->nevb = 1;
     try {
-        epicsSnprintf(xpath, sizeof(xpath), "/Cluster/%s[Name='%s']/Val", *type_in, *tag_in); 
-	    isisdaeDriver::getDAEXML(xml_in_str, xpath, val);
+        epicsSnprintf(xpath, sizeof(xpath), "/Cluster/%s[Name='%s']/Val", *type_in, *tag_in);
+        if (xml_in_str.find("<Cluster>") != std::string::npos) {
+	        isisdaeDriver::getDAEXML(xml_in_str, xpath, val);
+        } else {
+            std::string uncomp_xml;
+		    if (uncompressString(xml_in_str, uncomp_xml) == 0)
+			{
+                size_t found = uncomp_xml.find_last_of(">");  // in cased junk on end
+                isisdaeDriver::getDAEXML(uncomp_xml.substr(0,found+1), xpath, val);
+			}
+        }
         strncpy(value_out_wf, val.c_str(), prec->nova);
         prec->neva = (val.size() > prec->nova ? prec->nova : val.size());
         strncpy(*value_out_str, val.c_str(), sizeof(epicsOldString));
@@ -2855,7 +2864,7 @@ static long parseSettingsXML(aSubRecord *prec)
         memset(value_out_wf, 0, prec->nova);
         memset(*value_out_str, 0, sizeof(epicsOldString));
         prec->neva = 0;
-        errlogPrintf("%s exception in XML for tag %s type %s: %s.", prec->name, *tag_in, *type_in, ex.what());
+        errlogPrintf("%s exception in XML for tag %s type %s: %s.\n", prec->name, *tag_in, *type_in, ex.what());
         return -1;
     }
     return 0; /* process output links */
@@ -2864,21 +2873,3 @@ static long parseSettingsXML(aSubRecord *prec)
 epicsRegisterFunction(parseSettingsXML);
 
 }
-
-
-
-
-#include <string.h>
-#include <stdlib.h>
-#include <errlog.h>
-#include <epicsString.h>
-
-#include <epicsExport.h>
-
-
-extern "C" {
-}
-
-			
-
-
