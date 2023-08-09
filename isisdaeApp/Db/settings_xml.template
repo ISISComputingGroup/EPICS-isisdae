@@ -1,0 +1,15 @@
+
+record(aSub, "$(P)$(Q)$(SETTING)")
+{
+    field(INPA, "$(P)$(Q)$(XML) CP")
+    field(INPB, {const: "$(TAG)"})
+    field(INPC, {const: "$(TYPE)"})
+    field(FTA, "CHAR")
+    field(FTB, "STRING")
+    field(FTC, "STRING")
+    field(FTVA, "CHAR")
+    field(FTVB, "STRING")
+    field(NOA, "10000")
+    field(NOVA, "1024")
+    field(SNAM, "parseSettingsXML")
+}

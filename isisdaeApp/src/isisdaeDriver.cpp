@@ -1204,6 +1204,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	setIntegerParam(P_DAEType, DAEType::UnknownDAE);
     setIntegerParam(P_IsMuonDAE, 0);
     setIntegerParam(P_blockSpecZero, 0);
+    zeroRunCounters(false); // may avoid some PVS coming up in undefined alarm?
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;
@@ -1428,15 +1429,15 @@ void isisdaeDriver::updateRunStatus()
 }
 
 // zero counters st start of run, done early before actual readbacks
-void isisdaeDriver::zeroRunCounters()
+void isisdaeDriver::zeroRunCounters(bool do_callbacks)
 {
-		setDoubleParam(P_GoodUAH, 0.0);
+        setDoubleParam(P_GoodUAH, 0.0);
         setDoubleParam(P_GoodUAHPeriod, 0.0);
         setDoubleParam(P_TotalUAmps, 0.0);
         setIntegerParam(P_TotalCounts, 0);
         setIntegerParam(P_GoodFramesTotal, 0);
         setIntegerParam(P_GoodFramesPeriod, 0);
-		setIntegerParam(P_RawFramesTotal, 0);
+        setIntegerParam(P_RawFramesTotal, 0);
         setIntegerParam(P_RawFramesPeriod, 0);  
         setIntegerParam(P_RunDurationTotal, 0);
         setIntegerParam(P_RunDurationPeriod, 0);
@@ -1452,7 +1453,9 @@ void isisdaeDriver::zeroRunCounters()
         setDoubleParam(P_vetoPCExt1, 0.0);
         setDoubleParam(P_vetoPCExt2, 0.0);
         setDoubleParam(P_vetoPCExt3, 0.0);
-	    callParamCallbacks();
+        if (do_callbacks) {
+            callParamCallbacks();
+        }
 }
 
 void isisdaeDriver::pollerThread2()
@@ -2811,4 +2814,71 @@ static void isisdaeRegister(void)
 epicsExportRegistrar(isisdaeRegister);
 epicsExportAddress(int, isisdaePCASDebug);
 
+#include <registryFunction.h>
+#include <aSubRecord.h>
+#include <menuFtype.h>
+
+static long parseSettingsXML(aSubRecord *prec)
+{
+	const char* xml_in = (const char*)(prec->a); /* waveform CHAR data */
+	epicsOldString* tag_in = (epicsOldString*)(prec->b); /* string */
+	epicsOldString* type_in = (epicsOldString*)(prec->c); /* string */
+    char* value_out_wf = (char*)(prec->vala);
+    epicsOldString* value_out_str = (epicsOldString*)(prec->valb);
+    
+    if (prec->fta != menuFtypeCHAR || prec->ftb != menuFtypeSTRING || prec->ftc != menuFtypeSTRING || 
+        prec->ftva != menuFtypeCHAR || prec->ftvb != menuFtypeSTRING)
+	{
+         errlogPrintf("%s incorrect input data type.", prec->name);
+		 return -1;
+	}
+    // calculate number of elements, but do not assume NULL termination
+    int nelements;
+    for(nelements=0; nelements<prec->noa && xml_in[nelements] != '\0'; ++nelements)
+        ;
+    if (nelements == 0) {
+         errlogPrintf("%s no input XML - OK if this only happens once on startup.\n", prec->name);
+		 return -1;
+    }
+	std::string val, xml_in_str(xml_in, nelements);
+    char xpath[256];
+    prec->nevb = 1;
+    try {
+        epicsSnprintf(xpath, sizeof(xpath), "/Cluster/%s[Name='%s']/Val", *type_in, *tag_in); 
+	    isisdaeDriver::getDAEXML(xml_in_str, xpath, val);
+        strncpy(value_out_wf, val.c_str(), prec->nova);
+        prec->neva = (val.size() > prec->nova ? prec->nova : val.size());
+        strncpy(*value_out_str, val.c_str(), sizeof(epicsOldString));
+    }
+    catch(const std::exception& ex)
+    {
+        memset(value_out_wf, 0, prec->nova);
+        memset(*value_out_str, 0, sizeof(epicsOldString));
+        prec->neva = 0;
+        errlogPrintf("%s exception in XML for tag %s type %s: %s.", prec->name, *tag_in, *type_in, ex.what());
+        return -1;
+    }
+    return 0; /* process output links */
 }
+
+epicsRegisterFunction(parseSettingsXML);
+
+}
+
+
+
+
+#include <string.h>
+#include <stdlib.h>
+#include <errlog.h>
+#include <epicsString.h>
+
+#include <epicsExport.h>
+
+
+extern "C" {
+}
+
+			
+
+
