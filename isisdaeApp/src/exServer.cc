@@ -359,6 +359,20 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
         this->installAliasName(*pPVI, pvAlias);
 	}
 
+    sprintf(buffer, "%s:%d:%d:%s:MAX", prefix, period, id, axis);
+    pPVI = new pvInfo (0.5, buffer, 0.0f, 1.0f, "", aitEnumInt32, 1);
+    m_pvList[buffer] = pPVI;
+	pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getMAXVAL());
+    pPVI->setPV(pPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s:MAX", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+
     sprintf(buffer, "%s:%d:%d:%s.NELM", prefix, period, id, axis);
 	pPVI = createFixedPV(buffer, m_ntc, "", aitEnumInt32);
 	if (period == 1)

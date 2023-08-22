@@ -392,12 +392,16 @@ public:
     SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period);
 	virtual bool getNewValue(smartGDDPointer& pDD);
     int& getNORD() { return m_nord; }
+    int& getMAXVAL() { return m_maxval; }
+    int& getMINVAL() { return m_minval; }
 protected:
     int m_spec; // so can be updated by MonitorSpectrumPV subclass  
 private:
 	std::string m_axis;
 	int m_period;
 	int m_nord;
+	int m_maxval;
+	int m_minval;
     SpectrumPV & operator = ( const SpectrumPV & );
     SpectrumPV ( const SpectrumPV & );
 };
