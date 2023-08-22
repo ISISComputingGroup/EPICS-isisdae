@@ -1,2 +1,3 @@
 registrar("isisdaeRegister")
 variable(isisdaePCASDebug, int)
+function(parseSettingsXML)

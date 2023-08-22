@@ -34,6 +34,7 @@ public:
     virtual void report(FILE *fp, int details);
     virtual void setShutter(int addr, int open);
 	void setRunState(RunState state) { m_RunStatus = state; setIntegerParam(P_RunStatus, state); }
+	static void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
     
     enum DAEType { UnknownDAE=0, NeutronDAE2=1, MuonDAE2=2, NeutronDAE3=3, MuonDAE3=4 };
 
@@ -191,7 +192,7 @@ private:
 	void pollerThread2();
 	void pollerThread3();
 	void pollerThread4();
-    void zeroRunCounters();	
+    void zeroRunCounters(bool do_callbacks = true);
     void updateRunStatus();
 	void reportErrors(const char* exc_text);
 	void reportMessages();
@@ -204,7 +205,6 @@ private:
 	template <typename epicsType> 
 	  int computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode, int period);
 	
-	void getDAEXML(const std::string& xmlstr, const std::string& path, std::string& value);
 	static void translateBeamlineType(std::string& str);
 	template<typename T> asynStatus writeValue(asynUser *pasynUser, const char* functionName, T value);
 //    template<typename T> asynStatus readValue(asynUser *pasynUser, const char* functionName, T* value);

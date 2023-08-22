@@ -1,0 +1,5 @@
+file "settings_xml.template" {
+    pattern { SETTING, XML, TAG, TYPE }
+    { "TESTSETTING1", "DAESETTINGS", "Monitor Spectrum", "I32" }
+    { "TESTSETTING2", "TCBSETTINGS", "TR1 To 1", "DBL" }
+}

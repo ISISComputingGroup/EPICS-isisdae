@@ -150,8 +150,9 @@ struct frame_uamp_state
     struct timeb tb;
 	long frames;
 	double uah;
-	bool error; // error reported
-	frame_uamp_state() : frames(0), uah(0.0), error(false) { memset(&tb, 0, sizeof(struct timeb)); }
+	bool frames_error; // error reported
+	bool uamps_error; // error reported
+	frame_uamp_state() : frames(0), uah(0.0), frames_error(false), uamps_error(false) { memset(&tb, 0, sizeof(struct timeb)); }
 };
 
 
@@ -167,7 +168,7 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
     if (state.tb.time == 0) // first call
 	{
 	    memcpy(&(state.tb), &now, sizeof(struct timeb));
-		state.error = false;
+		state.frames_error = state.uamps_error = false;
 		if (uah >= 0.0 && uah < MAXUAH)
 		{
 		    state.uah = uah;
@@ -190,25 +191,25 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 
 	if (tdiff < 0.1)
 	{
-		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that elads to errors
+		tdiff = 0.1; // we get called from poller and elsewhere, so can get a very small tdiff that leads to errors
 	}
 	// isis is 50Hz max, use 55 to just allow a bit of leeway 
     if ( (frames < 0) || (frames > MAXFRAMES) || ((frames - state.frames) >  frames_per_sec * tdiff) )
 	{
-		if (!state.error)
+		if (!state.frames_error)
 		{
-			errlogSevPrintf(errlogInfo, "Ignoring invalid %s frames %ld", type, frames);
-			state.error = true;
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s frames %ld (old = %ld, tdiff = %f)", type, frames, state.frames, tdiff);
+			state.frames_error = true;
 		}
 	    frames = state.frames;
 		update_state = false;
 	}
 	if ( (uah < 0.0) ||  (uah > MAXUAH) || ((uah - state.uah) >  uah_per_sec * tdiff) )
 	{
-		if (!state.error)
+		if (!state.uamps_error)
 		{
-			errlogSevPrintf(errlogInfo, "Ignoring invalid %s uah %f", type, uah);
-			state.error = true;
+			errlogSevPrintf(errlogInfo, "Ignoring invalid %s uah %f (old = %f, tdiff = %f)", type, uah, state.uah, tdiff);
+			state.uamps_error = true;
 		}
 	    uah = state.uah;
 		update_state = false;
@@ -218,10 +219,15 @@ static void check_frame_uamp(const char* type, long& frames, double& uah, frame_
 	    memcpy(&(state.tb), &now, sizeof(struct timeb));
 		state.uah = uah;
 		state.frames = frames;
-		if (state.error)
+		if (state.frames_error)
 		{
-			errlogSevPrintf(errlogInfo, "%s frames OK %ld uah OK %f", type, frames, uah);
-		    state.error = false;
+			errlogSevPrintf(errlogInfo, "%s frames OK %ld", type, frames);
+		    state.frames_error = false;
+		}
+		if (state.uamps_error)
+		{
+			errlogSevPrintf(errlogInfo, "%s uah OK %f", type, uah);
+		    state.uamps_error = false;
 		}
 	}
 }
@@ -1198,6 +1204,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	setIntegerParam(P_DAEType, DAEType::UnknownDAE);
     setIntegerParam(P_IsMuonDAE, 0);
     setIntegerParam(P_blockSpecZero, 0);
+    zeroRunCounters(false); // may avoid some PVS coming up in undefined alarm?
 
     // area detector defaults
 //	NDDataType_t dataType = NDUInt16;
@@ -1422,15 +1429,15 @@ void isisdaeDriver::updateRunStatus()
 }
 
 // zero counters st start of run, done early before actual readbacks
-void isisdaeDriver::zeroRunCounters()
+void isisdaeDriver::zeroRunCounters(bool do_callbacks)
 {
-		setDoubleParam(P_GoodUAH, 0.0);
+        setDoubleParam(P_GoodUAH, 0.0);
         setDoubleParam(P_GoodUAHPeriod, 0.0);
         setDoubleParam(P_TotalUAmps, 0.0);
         setIntegerParam(P_TotalCounts, 0);
         setIntegerParam(P_GoodFramesTotal, 0);
         setIntegerParam(P_GoodFramesPeriod, 0);
-		setIntegerParam(P_RawFramesTotal, 0);
+        setIntegerParam(P_RawFramesTotal, 0);
         setIntegerParam(P_RawFramesPeriod, 0);  
         setIntegerParam(P_RunDurationTotal, 0);
         setIntegerParam(P_RunDurationPeriod, 0);
@@ -1446,7 +1453,9 @@ void isisdaeDriver::zeroRunCounters()
         setDoubleParam(P_vetoPCExt1, 0.0);
         setDoubleParam(P_vetoPCExt2, 0.0);
         setDoubleParam(P_vetoPCExt3, 0.0);
-	    callParamCallbacks();
+        if (do_callbacks) {
+            callParamCallbacks();
+        }
 }
 
 void isisdaeDriver::pollerThread2()
@@ -2806,5 +2815,63 @@ static void isisdaeRegister(void)
 
 epicsExportRegistrar(isisdaeRegister);
 epicsExportAddress(int, isisdaePCASDebug);
+
+#include <registryFunction.h>
+#include <aSubRecord.h>
+#include <menuFtype.h>
+
+static long parseSettingsXML(aSubRecord *prec)
+{
+	const char* xml_in = (const char*)(prec->a); /* waveform CHAR data */
+	epicsOldString* tag_in = (epicsOldString*)(prec->b); /* string */
+	epicsOldString* type_in = (epicsOldString*)(prec->c); /* string */
+    char* value_out_wf = (char*)(prec->vala);
+    epicsOldString* value_out_str = (epicsOldString*)(prec->valb);
+    
+    if (!((prec->fta == menuFtypeCHAR || prec->fta == menuFtypeUCHAR) && prec->ftb == menuFtypeSTRING && prec->ftc == menuFtypeSTRING && 
+        prec->ftva == menuFtypeCHAR && prec->ftvb == menuFtypeSTRING))
+	{
+         errlogPrintf("%s incorrect input data type.\n", prec->name);
+		 return -1;
+	}
+    // calculate number of elements, but do not assume NULL termination
+    int nelements;
+    for(nelements=0; nelements<prec->noa && xml_in[nelements] != '\0'; ++nelements)
+        ;
+    if (nelements == 0) {
+         errlogPrintf("%s no input XML - OK if this only happens once on IOC startup.\n", prec->name);
+		 return -1;
+    }
+	std::string val, xml_in_str(xml_in, nelements);
+    char xpath[256];
+    prec->nevb = 1;
+    try {
+        epicsSnprintf(xpath, sizeof(xpath), "/Cluster/%s[Name='%s']/Val", *type_in, *tag_in);
+        if (xml_in_str.find("<Cluster>") != std::string::npos) {
+	        isisdaeDriver::getDAEXML(xml_in_str, xpath, val);
+        } else {
+            std::string uncomp_xml;
+		    if (uncompressString(xml_in_str, uncomp_xml) == 0)
+			{
+                size_t found = uncomp_xml.find_last_of(">");  // in cased junk on end
+                isisdaeDriver::getDAEXML(uncomp_xml.substr(0,found+1), xpath, val);
+			}
+        }
+        strncpy(value_out_wf, val.c_str(), prec->nova);
+        prec->neva = (val.size() > prec->nova ? prec->nova : val.size());
+        strncpy(*value_out_str, val.c_str(), sizeof(epicsOldString));
+    }
+    catch(const std::exception& ex)
+    {
+        memset(value_out_wf, 0, prec->nova);
+        memset(*value_out_str, 0, sizeof(epicsOldString));
+        prec->neva = 0;
+        errlogPrintf("%s exception in XML for tag %s type %s: %s.\n", prec->name, *tag_in, *type_in, ex.what());
+        return -1;
+    }
+    return 0; /* process output links */
+}
+
+epicsRegisterFunction(parseSettingsXML);
 
 }

@@ -20,6 +20,7 @@ DB += veto.db
 DB += inst_alias_string_parameters.db
 DB += inst_string_parameters.db
 DB += inst_real_parameters.db
+DB += settings_xml.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
