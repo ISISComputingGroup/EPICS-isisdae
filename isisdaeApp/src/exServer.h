@@ -283,14 +283,15 @@ private:
     exScalarPV ( const exScalarPV & );
 };
 
-// number of array elements PV
+// pv to provide value via reference to a scaler value, like NORD for waveform
+template <typename T>
 class NORDPV : public exScalarPV {
 public:
     NORDPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int& nord );
+        bool preCreateFlag, bool scanOnIn, T& nord );
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
-    int& m_nord;
+    T& m_nord;
     NORDPV & operator = ( const NORDPV & );
     NORDPV ( const NORDPV & );
 };
@@ -392,16 +393,16 @@ public:
     SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period);
 	virtual bool getNewValue(smartGDDPointer& pDD);
     int& getNORD() { return m_nord; }
-    int& getMAXVAL() { return m_maxval; }
-    int& getMINVAL() { return m_minval; }
+    float& getMAXVAL() { return m_maxval; }
+    float& getMINVAL() { return m_minval; }
 protected:
     int m_spec; // so can be updated by MonitorSpectrumPV subclass  
 private:
 	std::string m_axis;
 	int m_period;
 	int m_nord;
-	int m_maxval;
-	int m_minval;
+	float m_maxval;
+	float m_minval;
     SpectrumPV & operator = ( const SpectrumPV & );
     SpectrumPV ( const SpectrumPV & );
 };

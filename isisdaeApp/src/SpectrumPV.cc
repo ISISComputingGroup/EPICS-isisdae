@@ -9,7 +9,8 @@
 /// the #NORDPV class. It thus looks a bit like an EPICS Waveform record and, like waveform, export an NELM field too.   
 
 SpectrumPV::SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period )
-	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn, true), m_axis(axis), m_spec(spec), m_period(period), m_nord(0), m_minval(0), m_maxval(0)
+	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn, true), m_axis(axis), m_spec(spec),
+       m_period(period), m_nord(0), m_minval(0.0), m_maxval(0.0)
 {
 
 }

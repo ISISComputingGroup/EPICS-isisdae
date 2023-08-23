@@ -12,17 +12,22 @@
 /// this class is actually more general and now not just use for NORD, it can be used fore any integer PV in the spectrum class
 /// and is now used for min and max values as well as NORD
 
-NORDPV::NORDPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int& nord ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, false), m_nord(nord)
+template <typename T>
+NORDPV<T>::NORDPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, false), m_nord(nord)
 {
 
 }
 
-bool NORDPV::getNewValue(smartGDDPointer& pDD)
+template <typename T>
+bool NORDPV<T>::getNewValue(smartGDDPointer& pDD)
 {
-	if ( this->pValue.valid() && (static_cast<int>(* this->pValue) == m_nord) )
+	if ( this->pValue.valid() && (static_cast<T>(* this->pValue) == m_nord) )
 	{
 		return false;
 	}
     *pDD = m_nord;
 	return true;
 }
+
+template class NORDPV<int>;
+template class NORDPV<float>;

@@ -348,7 +348,7 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
     sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, id, axis);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
+	exPV* pPV = new NORDPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD());
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -362,9 +362,9 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
 	}
 
     sprintf(buffer, "%s:%d:%d:%s:MAX", prefix, period, id, axis);
-    pPVI = new pvInfo (0.5, buffer, 0.0f, 1.0f, "", aitEnumInt32, 1);
+    pPVI = new pvInfo (0.5, buffer, 0.0f, 1.0f, "", aitEnumFloat32, 1);
     m_pvList[buffer] = pPVI;
-	pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getMAXVAL());
+	pPV = new NORDPV<float>(*this, *pPVI, true, scanOn, pSPV->getMAXVAL());
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
