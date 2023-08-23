@@ -352,6 +352,8 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
+    // if creating PVs for period 1, as period 1 is the default also now
+    // create pv so if :spec: is specified it translates to :1:spec:
 	if (period == 1)
 	{
         sprintf(buffer, "%s:%d:%s.NORD", prefix, id, axis);
