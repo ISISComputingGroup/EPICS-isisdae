@@ -9,7 +9,8 @@
 /// the #NORDPV class. It thus looks a bit like an EPICS Waveform record and, like waveform, export an NELM field too.   
 
 SpectrumPV::SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period )
-	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn, true), m_axis(axis), m_spec(spec), m_period(period), m_nord(0)
+	   : exVectorPV(cas, setup, preCreateFlag, scanOnIn, true), m_axis(axis), m_spec(spec),
+       m_period(period), m_nord(0), m_minval(0.0), m_maxval(0.0)
 {
 
 }
@@ -67,6 +68,7 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 			    return false; // no change to value
 			}
 		}
+        const auto minmax = std::minmax_element(pY, pY + n);
 		for(int i=n; i<nmax; ++i)
 		{
 		    pY[i] = 0.0;
@@ -81,6 +83,8 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         // (do this before we increment pF)
         //
         pDD->putRef(pY, new exVecDestructor);
+        m_minval = *(minmax.first);
+        m_maxval = *(minmax.second);
 		return true;
     }
 	else if (m_axis == "X")
@@ -96,6 +100,7 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 			    return false; // no change to value
 			}
 		}
+        const auto minmax = std::minmax_element(pX, pX + n);
 		for(int i=n; i<nmax; ++i)
 		{
 		    pX[i] = pX[n-1];  // repeat last x element
@@ -110,6 +115,8 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         // (do this before we increment pF)
         //
         pDD->putRef(pX, new exVecDestructor);
+        m_minval = *(minmax.first);
+        m_maxval = *(minmax.second);
 		return true; // value changed, calling function will send monitors
 	}
     else

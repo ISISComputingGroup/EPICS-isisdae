@@ -348,13 +348,29 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
     sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, id, axis);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new NORDPV(*this, *pPVI, true, scanOn, pSPV->getNORD());
+	exPV* pPV = new NORDPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD());
+    pPVI->setPV(pPV);
+	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+    this->installAliasName(*pPVI, pvAlias);
+    // if creating PVs for period 1, as period 1 is the default also now
+    // create pv so if :spec: is specified it translates to :1:spec:
+	if (period == 1)
+	{
+        sprintf(buffer, "%s:%d:%s.NORD", prefix, id, axis);
+	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
+        this->installAliasName(*pPVI, pvAlias);
+	}
+
+    sprintf(buffer, "%s:%d:%d:%s:MAX", prefix, period, id, axis);
+    pPVI = new pvInfo (0.5, buffer, 0.0f, 1.0f, "", aitEnumFloat32, 1);
+    m_pvList[buffer] = pPVI;
+	pPV = new NORDPV<float>(*this, *pPVI, true, scanOn, pSPV->getMAXVAL());
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "%s:%d:%s.NORD", prefix, id, axis);
+        sprintf(buffer, "%s:%d:%s:MAX", prefix, id, axis);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	}
