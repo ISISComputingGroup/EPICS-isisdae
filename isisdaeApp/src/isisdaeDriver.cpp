@@ -2235,6 +2235,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
     double exposureTime;
     int i, j, k, integMode, integSpecMode, numPeriods;
 	long cntDiff;
+    static const int INIT_NDET = 12;
 	uint64_t cntSum, oldCntSum; 
 	struct Point
 	{
@@ -2242,19 +2243,29 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 		short y;
 	    Point() : x(-1), y(-1) { }
 	};
-	static std::vector<uint32_t*> old_integrals(10, NULL);
-	static std::vector<uint32_t*> new_integrals(10, NULL);
-	static std::vector<int> old_nspec(10, 0);
-	static std::vector<int> old_map_start(10, 0);
-	static std::vector<std::string> old_spec_map_file(10, "");
-	static std::vector< std::vector<Point> > spec_map(10);
-	static int old_period[10];
 	double intgTMax(0.0), intgTMin(0.0);
 	std::string spec_map_file;
-	
+
+	static std::vector<uint32_t*> old_integrals(INIT_NDET, NULL);
+	static std::vector<uint32_t*> new_integrals(INIT_NDET, NULL);
+	static std::vector<int> old_nspec(INIT_NDET, 0);
+	static std::vector<int> old_map_start(INIT_NDET, 0);
+	static std::vector<std::string> old_spec_map_file(INIT_NDET, "");
+	static std::vector< std::vector<Point> > spec_map(INIT_NDET);
+	static std::vector<int> old_period(INIT_NDET, 0);    
+    if (addr >= old_integrals.size()) {
+	    old_integrals.resize(addr + 1, NULL);
+	    new_integrals.resize(addr + 1, NULL);
+	    old_nspec.resize(addr + 1, 0);
+	    old_map_start.resize(addr + 1, 0);
+	    old_spec_map_file.resize(addr + 1, "");
+	    spec_map.resize(addr + 1);
+	    old_period.resize(addr + 1, 0);
+    }
+
 	maxval = 0.0;
 	totalCntsDiff =  maxSpecCntsDiff = 0;
-
+    
     status = getIntegerParam(addr, NDColorMode,   &colorMode);
     status = getDoubleParam (addr, ADAcquireTime, &exposureTime);
 	status = getIntegerParam(addr, P_integralsMode,  &integMode);
@@ -2595,6 +2606,11 @@ static void daeCASThread(void* arg)
         pCAS = new exServer ( pvPrefix, aliasCount, 
             scanOn != 0, syncScan == 0, asyncDelay,
             maxSimultAsyncIO, iface );
+    }
+    catch(const std::exception& ex) {
+        errlogSevPrintf (errlogMajor, "CAS: Server initialization error %s\n", ex.what());
+        errlogFlush ();
+        return;
     }
     catch(...) {
         errlogSevPrintf (errlogMajor, "CAS: Server initialization error\n" );
