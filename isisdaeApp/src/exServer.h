@@ -467,7 +467,7 @@ public:
     exServer ( const char * const pvPrefix, 
         unsigned aliasCount, bool scanOn,
         bool asyncScan, double asyncDelay,
-        unsigned maxSimultAsyncIO, isisdaeInterface* iface );
+        unsigned maxSimultAsyncIO, isisdaeInterface* iface, int dae_type );
     ~exServer ();
     void show ( unsigned level ) const;
     void removeIO ();

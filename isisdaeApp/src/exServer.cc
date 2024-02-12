@@ -60,7 +60,7 @@ static const int ISISDAE_MAX_NTC_DEFAULT = 8000;
 exServer::exServer ( const char * const pvPrefix, 
         unsigned aliasCount, bool scanOnIn, 
         bool asyncScan, double asyncDelayIn,
-        unsigned maxSimultAsyncIOIn, isisdaeInterface* iface) : 
+        unsigned maxSimultAsyncIOIn, isisdaeInterface* iface, int dae_type ) :
         pTimerQueue ( 0 ), simultAsychIOCount ( 0u ), 
         _maxSimultAsyncIO ( maxSimultAsyncIOIn ),
         asyncDelay ( asyncDelayIn ), scanOn ( scanOnIn ), m_iface ( iface ), m_pvPrefix(pvPrefix),
@@ -76,15 +76,11 @@ exServer::exServer ( const char * const pvPrefix,
 			m_ntc = ISISDAE_MAX_NTC_DEFAULT;
 		}
 	}
-	int dae_type = iface->getDAEType();
-	if (dae_type == 2 || dae_type == 4)
-	{
-		m_tof_units = "ns";
-	}
-	else
-	{
-		m_tof_units = "us";
-	}
+	if (dae_type == 2 || dae_type == 4) {
+	    m_tof_units = "ns";
+	} else {
+	    m_tof_units = "us";
+    }
     if ( getenv("ISISDAE_MAX_NTC") != NULL )
 	{
 		m_ntc = atol(getenv("ISISDAE_MAX_NTC"));
@@ -313,6 +309,13 @@ void exServer::show (unsigned level) const
 	{
 		std::cerr << "PV: \"" << it->second->getName() << "\"" << std::endl;
 		it->second->getPV()->show(level);
+#if 0 /* untested, but probably not now needed */
+        std::string prefixedPV = m_pvPrefix  + it->second->getName();
+        stringId id (prefixedPV.c_str(), stringId::refString);
+        if (this->stringResTbl.lookup(id) == NULL) {
+            std::cerr << "ERROR: PV is not in string lookup table" << std::endl;
+        }
+#endif 
 	}
 	//
     // print information about ca server libarary

@@ -2602,10 +2602,22 @@ static void daeCASThread(void* arg)
     printf("CAS: starting cas server\n");
 	registerStructuredExceptionHandler();
 	pvPrefix = macEnvExpand("$(MYPVPREFIX)DAE:");
+
+    int dae_type = -1;
+    while(dae_type == -1) {
+        try {
+	        dae_type = iface->getDAEType();
+        }
+        catch(...) {
+            dae_type = -1;
+            std::cerr << "CAS: waiting for DAE" << std::endl;
+            epicsThreadSleep(30);
+        }
+    }
     try {
         pCAS = new exServer ( pvPrefix, aliasCount, 
             scanOn != 0, syncScan == 0, asyncDelay,
-            maxSimultAsyncIO, iface );
+            maxSimultAsyncIO, iface, dae_type);
     }
     catch(const std::exception& ex) {
         errlogSevPrintf (errlogMajor, "CAS: Server initialization error %s\n", ex.what());
