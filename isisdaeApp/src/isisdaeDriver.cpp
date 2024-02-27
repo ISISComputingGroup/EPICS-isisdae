@@ -2614,20 +2614,23 @@ static void daeCASThread(void* arg)
             epicsThreadSleep(30);
         }
     }
-    try {
-        pCAS = new exServer ( pvPrefix, aliasCount, 
-            scanOn != 0, syncScan == 0, asyncDelay,
-            maxSimultAsyncIO, iface, dae_type);
-    }
-    catch(const std::exception& ex) {
-        errlogSevPrintf (errlogMajor, "CAS: Server initialization error %s\n", ex.what());
-        errlogFlush ();
-        return;
-    }
-    catch(...) {
-        errlogSevPrintf (errlogMajor, "CAS: Server initialization error\n" );
-        errlogFlush ();
-        return;
+    for(bool done = false; !done; ) {
+        try {
+            pCAS = new exServer ( pvPrefix, aliasCount, 
+                scanOn != 0, syncScan == 0, asyncDelay,
+                maxSimultAsyncIO, iface, dae_type);
+            done = true;
+        }
+        catch(const std::exception& ex) {
+            errlogSevPrintf (errlogMajor, "CAS: Server initialization error %s\n", ex.what());
+            errlogFlush ();
+            epicsThreadSleep(30);
+        }
+        catch(...) {
+            errlogSevPrintf (errlogMajor, "CAS: Server initialization error\n" );
+            errlogFlush ();
+            epicsThreadSleep(30);
+        }
     }
     
     pCAS->setDebugLevel(debugLevel);
