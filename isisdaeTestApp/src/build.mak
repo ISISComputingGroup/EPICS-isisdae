@@ -31,7 +31,7 @@ $(APPNAME)_DBD += isisdae.dbd
 $(APPNAME)_DBD += webget.dbd
 $(APPNAME)_DBD += FileList.dbd
 $(APPNAME)_DBD += ADnEDSupport.dbd
-$(APPNAME)_DBD += ffmpegServer.dbd
+#$(APPNAME)_DBD += ffmpegServer.dbd
 
 # Add all the support libraries needed by this IOC
 ## ISIS standard libraries ##
@@ -48,12 +48,15 @@ $(APPNAME)_LIBS += asubFunctions
 #$(APPNAME)_LIBS += xxx
 $(APPNAME)_LIBS += isisdae FileList asyn oncrpc zlib efsw libjson pcrecpp pcre pugixml
 $(APPNAME)_LIBS += cas gdd 
-$(APPNAME)_LIBS += ffmpegServer
-$(APPNAME)_LIBS += avdevice
-$(APPNAME)_LIBS += avformat
-$(APPNAME)_LIBS += avcodec
-$(APPNAME)_LIBS += avutil
-$(APPNAME)_LIBS += swscale
+
+## ffmpegserver
+#$(APPNAME)_LIBS += ffmpegServer
+#$(APPNAME)_LIBS += avdevice
+#$(APPNAME)_LIBS += avformat
+#$(APPNAME)_LIBS += avcodec
+#$(APPNAME)_LIBS += avutil
+#$(APPNAME)_LIBS += swscale
+
 $(APPNAME)_LIBS += ADnEDSupport
 $(APPNAME)_LIBS += ADnEDTransform
 

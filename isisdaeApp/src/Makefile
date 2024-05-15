@@ -41,12 +41,15 @@ isisdae_SRCS += NoAlarmPV.cpp
 isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += ADnEDSupport
 isisdae_LIBS += cas gdd
-isisdae_LIBS += ffmpegServer
-isisdae_LIBS += avdevice
-isisdae_LIBS += avformat
-isisdae_LIBS += avcodec
-isisdae_LIBS += avutil
-isisdae_LIBS += swscale
+
+## ffmpegserver
+#isisdae_LIBS += ffmpegServer
+#isisdae_LIBS += avdevice
+#isisdae_LIBS += avformat
+#isisdae_LIBS += avcodec
+#isisdae_LIBS += avutil
+#isisdae_LIBS += swscale
+
 isisdae_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
