@@ -315,7 +315,7 @@ void exServer::show (unsigned level) const
         if (this->stringResTbl.lookup(id) == NULL) {
             std::cerr << "ERROR: PV is not in string lookup table" << std::endl;
         }
-#endif 
+#endif
 	}
 	//
     // print information about ca server libarary

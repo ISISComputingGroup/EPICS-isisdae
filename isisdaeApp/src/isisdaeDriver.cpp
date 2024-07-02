@@ -43,7 +43,11 @@ static epicsThreadOnceId onceId = EPICS_THREAD_ONCE_INIT;
 
 static const char *driverName="isisdaeDriver";
 
-const char* isisdaeDriver::RunStateNames[] = { "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING", "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING", "UPDATING", "STORING", "CHANGING" };
+const char* isisdaeDriver::RunStateNames[] = {
+    "PROCESSING", "SETUP", "RUNNING", "PAUSED", "WAITING", "VETOING",
+    "ENDING", "SAVING", "RESUMING", "PAUSING", "BEGINNING", "ABORTING",
+    "UPDATING", "STORING", "CHANGING"
+};
 
 /// An STL exception describing a Win32 Structured Exception. 
 /// Code needs to be compiled with /EHa if you wish to use this via _set_se_translator().
@@ -390,14 +394,18 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		else if (function == P_integralsTMin)
 		{
 			double intgTMax(0.0);
-			getDoubleParam(addr, P_integralsTMax, &intgTMax);
-			m_iface->setSpecIntgCutoff(value, intgTMax);
+            if (addr == 0) {
+			    getDoubleParam(addr, P_integralsTMax, &intgTMax);
+			    m_iface->setSpecIntgCutoff(value, intgTMax);
+            }
 		}
 		else if (function == P_integralsTMax)
 		{
 			double intgTMin(0.0);
-			getDoubleParam(addr, P_integralsTMin, &intgTMin);
-			m_iface->setSpecIntgCutoff(intgTMin, value);
+            if (addr == 0) {
+			    getDoubleParam(addr, P_integralsTMin, &intgTMin);
+			    m_iface->setSpecIntgCutoff(intgTMin, value);
+            }
 		}
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
@@ -460,7 +468,19 @@ asynStatus isisdaeDriver::readArray(asynUser *pasynUser, const char* functionNam
 	try
 	{
 	    m_iface->resetMessages();
-		if (function == P_VMEReadValueProps || function == P_VMEReadArrayProps || function == P_QXReadArrayProps)
+		if (function == P_spectrumData)
+        {
+            int numSpec = 0, numPeriods = 0, ntc = 0;
+            getIntegerParam(0, P_NumSpectra,  &numSpec);
+            getIntegerParam(0, P_NumPeriods, &numPeriods);
+            getIntegerParam(0, P_NumTimeChannels, &ntc);
+            const uint32_t* spec_data = m_iface->getData();
+            int max_spec_data_size = m_iface->getDataSize();
+            int ncopy = std::min({(int)nElements, (ntc + 1) * (numSpec + 1) * numPeriods, max_spec_data_size});
+            std::copy(spec_data, spec_data + ncopy, value);
+            *nIn = ncopy;
+        }
+		else if (function == P_VMEReadValueProps || function == P_VMEReadArrayProps || function == P_QXReadArrayProps)
 		{
 			std::vector<epicsInt32>& props = m_directRWProps[function];
 			if (nElements >= props.size())
@@ -1190,6 +1210,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_vetoPCExt3String, asynParamFloat64, &P_vetoPCExt3); 
     
     createParam(P_blockSpecZeroString, asynParamInt32, &P_blockSpecZero);
+    
+    createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
+    createParam(P_spectrumDataString, asynParamInt32Array, &P_spectrumData);
 
     // list commands that are not allowed when you are in the given run state
 	m_disallowedStateCommand[RS_SETUP] << P_AbortRun << P_EndRun << P_PauseRun << P_ResumeRun;
@@ -1414,7 +1437,7 @@ void isisdaeDriver::updateRunStatus()
 		    }
 			else
 			{
-                setDoubleParam(P_CountRate, static_cast<double>(tc - old_tc) / tdiff * 3600.0 / 1e6); // to make million events per hour			
+                setDoubleParam(P_CountRate, static_cast<double>(tc - old_tc) / tdiff * 3600.0 / 1e6); // to make million events per hour
                 setDoubleParam(P_CountRateFrame, static_cast<double>(tc - old_tc) / static_cast<double>(frames - old_frames));
 			}
 		    old_tc_ts = tc_ts;
@@ -1821,11 +1844,22 @@ void isisdaeDriver::pollerThread4()
 	memset(&(last_update[0]), 0, maxAddr * sizeof(epicsTimeStamp));	
 	while(true)
 	{
+        {
+            epicsGuard<isisdaeDriver> _lock(*this);
+            int numSpec = 0, numPeriods = 0;
+            getIntegerParam(0, P_NumSpectra,  &numSpec);
+            getIntegerParam(0, P_NumPeriods, &numPeriods);
+            const uint32_t* spec_integrals = m_iface->getEventSpecIntegrals();
+            int max_spec_int_size = m_iface->getEventSpecIntegralsSize();
+            doCallbacksInt32Array(const_cast<epicsInt32*>(reinterpret_cast<const epicsInt32*>(spec_integrals)),
+                                  std::min(max_spec_int_size, (numSpec + 1) * numPeriods),
+                                  P_spectrumIntegrals, 0);
+        }
 		all_acquiring = all_enable = 0;
 		for(int i=0; i<maxAddr; ++i)
 		{
 		    epicsGuard<isisdaeDriver> _lock(*this);
-			try 
+			try
 			{
 				acquiring = enable = 0;
 				getIntegerParam(i, ADAcquire, &acquiring);
@@ -2227,7 +2261,8 @@ void transpose(float *src, float *dst, const int N, const int M) {
 #endif
 
 template <typename epicsType> 
-int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY, double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode, int period)
+int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int maxSizeX, int maxSizeY,
+                                double& maxval, long& totalCntsDiff, long& maxSpecCntsDiff, int data_mode, int period)
 {
     epicsType *pMono=NULL, *pRed=NULL, *pGreen=NULL, *pBlue=NULL;
     int columnStep=0, rowStep=0, colorMode, numSpec;
@@ -2373,7 +2408,8 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	if (integSpecMode == 1)
 	{
 		try {
-			max_spec_int_size = m_iface->getEventSpecIntegralsSize(); // in case numPeriods or numSpec changes just use same default as event mode
+            // in case numPeriods or numSpec changes just use same default as event mode
+			max_spec_int_size = m_iface->getEventSpecIntegralsSize();
 			if (new_integrals[addr] == NULL)
 			{
 				new_integrals[addr] = new uint32_t[max_spec_int_size];
@@ -2440,7 +2476,7 @@ int isisdaeDriver::computeArray(int addr, int spec_start, int trans_mode, int ma
 	double* dintegrals = new double[maxSizeX * maxSizeY];
 	for(i=0; i < (maxSizeX * maxSizeY); ++i)
 	{
-		dintegrals[i] = 0.0;		
+		dintegrals[i] = 0.0;
 	}
 	for(i=0; i<nspec; ++i)
 	{

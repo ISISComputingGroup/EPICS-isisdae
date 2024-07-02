@@ -253,11 +253,15 @@ record(longin, "$(P)$(R)INTG:SPEC:SIZEY")
 	info(archive, "VAL")
 }
 
+# there can only be one cutoff value sent to ISISICP, so
+# c++ code send value for ADDR==0 and though you can set a differnt
+# value for each detector we set all readbacks to use addr==0 to
+# reflect all same isisicp spectrum integrals cutoff
 record(ai, "$(P)$(R)INTG:TMIN")
 {
     field(DESC, "Integrals TMIN")
     field(DTYP, "asynFloat64")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMIN")
+    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))INTG_TMIN")
     field(SCAN, "I/O Intr")
 	info(archive, "VAL")
 }
@@ -275,7 +279,7 @@ record(ai, "$(P)$(R)INTG:TMAX")
 {
     field(DESC, "Integrals TMAX")
     field(DTYP, "asynFloat64")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INTG_TMAX")
+    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))INTG_TMAX")
     field(SCAN, "I/O Intr")
 	info(archive, "VAL")
 }
@@ -309,6 +313,7 @@ record(ai, "$(P)$(R)INTG:RATE")
     field(SIOL, "$(P)$(R)SIM:INTG:RATE CP")
     field(HSV, "MINOR")
     field(HIGH, "1e100")
+	field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
     info(autosaveFields, "HIGH")
     info(alarm, "ISISDAE_01")
@@ -325,6 +330,7 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
     field(SIOL, "$(P)$(R)SIM:INTG:SPEC:RATE CP")
     field(HSV, "MINOR")
     field(HIGH, "1e100")
+	field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
     info(autosaveFields, "HIGH")
     info(alarm, "ISISDAE_01")

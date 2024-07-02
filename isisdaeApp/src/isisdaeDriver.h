@@ -139,6 +139,10 @@ private:
     int P_diagSpecIntHigh; // float				
 	int P_diagSum; // int
 	int P_simulationMode; // int
+    
+    int P_spectrumIntegrals; // int array
+    int P_spectrumData; // int array
+    
 	// create area detector views of intregrals of spectra in event mode
 	int P_integralsSpecStart; // int
 	int P_integralsSpecMode; // int
@@ -331,6 +335,9 @@ private:
 #define P_integralsSpecMapString               	"INTG_SPEC_MAP"
 
 #define P_simulationModeString					"SIM_MODE"
+
+#define P_spectrumIntegralsString				"SPECTRUM_INTEGRALS"
+#define P_spectrumDataString				"SPECTRUM_DATA"
 
 #define P_vetoEnableString					"VETO_ENABLE"
 #define P_vetoDisableString					"VETO_DISABLE"

@@ -1574,3 +1574,24 @@ record(bi, "$(P)$(Q)BLOCKSPECZERO")
 	field(ZNAM, "No")
 	field(ONAM, "Yes")
 }
+
+record(waveform, "$(P)$(Q)SPECINTEGRALS")
+{
+    field(DESC, "Spec Integrals")
+    field(NELM, "$(SPECINTG_SIZE=1000000)")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)SPECTRUM_INTEGRALS")
+    field(SCAN, "I/O Intr")
+}
+
+# Normally Passive SCAN and force a scan/read by writing to .PROC
+record(waveform, "$(P)$(Q)SPECDATA")
+{
+    field(DESC, "Spec Data")
+    field(NELM, "$(SPECDATA_SIZE=5000000)")
+    field(SCAN, "$(SPECDATA_SCAN=Passive)")
+    field(FTVL, "LONG")
+    field(DTYP, "asynInt32ArrayIn")
+    field(INP,  "@asyn(icp,0,0)SPECTRUM_DATA")
+}
