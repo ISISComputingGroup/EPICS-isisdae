@@ -99,6 +99,7 @@ public:
     int setPeriod(long period);
     int setNumPeriods(long nperiods);
     int setRunTitle(const std::string& title);
+    std::string getRunTitle();
     int setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role);
     int setSampleParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value);
     int setBeamlineParameter(const std::string& name, const std::string& type, const std::string& units, const std::string& value);

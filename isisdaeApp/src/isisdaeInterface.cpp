@@ -697,6 +697,11 @@ int isisdaeInterface::setRunTitle(const std::string& title)
     return setSampleParameter("Run Title", "String", "", title);
 }
 
+std::string isisdaeInterface::getRunTitle()
+{
+    return getValue("TITL");
+}
+
 int isisdaeInterface::setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role)
 {
     ISISICPINT::string_table_t table;

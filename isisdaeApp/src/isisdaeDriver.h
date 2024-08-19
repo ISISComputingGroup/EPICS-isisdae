@@ -215,6 +215,7 @@ private:
     template<typename T> asynStatus readArray(asynUser *pasynUser, const char* functionName, T *value, size_t nElements, size_t *nIn);
 
     void settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg);
+    std::string stripSimPrefix(const std::string& title);
   
 };
 
