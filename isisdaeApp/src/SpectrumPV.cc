@@ -33,14 +33,16 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         return false;
     }
     int n = 0;
+    bool as_histogram = (m_axis == "XE" ? true : false); // is X bin boundaries
+    bool as_distribution = (m_axis == "YC" ? false : true); // is Y a distribution
 	try {
 	    if (m_axis == "YC")
 		{
-	        n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax, false);
+	        n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax, as_histogram, as_distribution);
 		}
 		else
 		{
-	        n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax, true);
+	        n = cas.iface()->getSpectrum(m_spec, m_period, pX, pY, nmax, as_histogram, as_distribution);
 		}
 	}
 	catch(const std::exception& ex) {
@@ -55,9 +57,9 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         delete[] pY;
 		return false;
 	}
-	m_nord = n;  // number of elements used
 	if (m_axis == "Y" || m_axis == "YC")
 	{
+	    m_nord = n;  // number of elements used
 		delete[] pX;
 		if ( this->pValue.valid() )
 		{
@@ -87,8 +89,12 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         m_maxval = *(minmax.second);
 		return true;
     }
-	else if (m_axis == "X")
+	else if (m_axis == "X" || m_axis == "XE")
 	{
+        if (as_histogram && n < nmax) {
+            ++n; // we have bin boundaries
+        }
+	    m_nord = n;  // number of elements used
 		delete[] pY;
 		// check to see if value has actually changed since last time
 		if ( this->pValue.valid()  )
@@ -121,6 +127,7 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
 	}
     else
     {
+	    m_nord = 0;  // number of elements used
         delete[] pX;
         delete[] pY;
 	    return false;
