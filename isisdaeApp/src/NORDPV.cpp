@@ -29,5 +29,55 @@ bool NORDPV<T>::getNewValue(smartGDDPointer& pDD)
 	return true;
 }
 
+template <typename T>
+NORDSPECPV<T>::NORDSPECPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int spec) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_spec(spec)
+{
+
+}
+
+template <typename T>
+bool NORDSPECPV<T>::getNewValue(smartGDDPointer& pDD)
+{
+    try {
+	    setNORD(cas.iface()->getSpectrumSize(m_spec));
+	}
+	catch(const std::exception& ex) {
+		std::cerr << "CAS: Exception in NORDSPECPV::getNewValue(): " << ex.what() << std::endl;
+		return false;
+	}
+	catch(...) {
+		std::cerr << "CAS: Exception in NORDSPECPV::getNewValue()" << std::endl;
+		return false;
+	}
+    return NORDPV<T>::getNewValue(pDD);
+}
+
+template <typename T>
+NORDMONPV<T>::NORDMONPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int mon) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_mon(mon)
+{
+
+}
+
+template <typename T>
+bool NORDMONPV<T>::getNewValue(smartGDDPointer& pDD)
+{
+    try {
+        int spec = cas.iface()->getSpectrumNumberForMonitor(m_mon);
+	    setNORD(cas.iface()->getSpectrumSize(spec));
+	}
+	catch(const std::exception& ex) {
+		std::cerr << "CAS: Exception in NORDMONPV::getNewValue(): " << ex.what() << std::endl;
+		return false;
+	}
+	catch(...) {
+		std::cerr << "CAS: Exception in NORDMONPV::getNewValue()" << std::endl;
+		return false;
+	}
+    return NORDPV<T>::getNewValue(pDD);
+}
+
 template class NORDPV<int>;
 template class NORDPV<float>;
+
+template class NORDSPECPV<int>;
+template class NORDMONPV<int>;

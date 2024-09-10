@@ -417,6 +417,12 @@ int ISISICPINT::updateCRPTSpectra(LONG period, LONG spec_start, LONG nspec, std:
     return 0;
 }
 
+long ISISICPINT::getSpectrumSize(long spectrum_number, std::string& messages)
+{
+    return 0;
+}    
+
+
 int ISISICPINT::getCRPTSpectraIntegral(const std::vector<long>& spectrum_numbers, long period, const std::vector<float>& time_low, const std::vector<float>& time_high, std::vector<long>& counts, std::string& messages)
 {
     return 0;

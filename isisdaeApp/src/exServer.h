@@ -290,10 +290,38 @@ public:
     NORDPV ( exServer & cas, pvInfo &setup, 
         bool preCreateFlag, bool scanOnIn, T& nord );
 	virtual bool getNewValue(smartGDDPointer& pDD);
+protected:
+    void setNORD(const T& nord) { m_nord = nord; }
 private:
     T& m_nord;
     NORDPV & operator = ( const NORDPV & );
     NORDPV ( const NORDPV & );
+};
+
+template <typename T>
+class NORDSPECPV : public NORDPV<T>
+{
+public:
+    NORDSPECPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, T& nord, int spec );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    int m_spec;
+    NORDSPECPV & operator = ( const NORDSPECPV & );
+    NORDSPECPV ( const NORDSPECPV & );
+};
+
+template <typename T>
+class NORDMONPV : public NORDPV<T>
+{
+public:
+    NORDMONPV ( exServer & cas, pvInfo &setup, 
+        bool preCreateFlag, bool scanOnIn, T& nord, int mon );
+	virtual bool getNewValue(smartGDDPointer& pDD);
+private:
+    int m_mon;
+    NORDMONPV & operator = ( const NORDMONPV & );
+    NORDMONPV ( const NORDMONPV & );
 };
 
 class CountsPV : public exScalarPV {

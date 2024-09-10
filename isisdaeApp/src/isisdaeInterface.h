@@ -108,6 +108,7 @@ public:
     int getPeriod();
     long getNumPeriods();
 	long getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution);
+    long getSpectrumSize(long spectrum_number);
     long getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
     long getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts);
     long getSpectrumIntegral2(long spec_start, long nspectra, long period, float time_low, float time_high, std::vector<long>& counts);

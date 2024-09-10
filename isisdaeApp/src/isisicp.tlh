@@ -3,7 +3,7 @@
 // c:\development\instrumentcontrol\icp\isisicp\x64\debug\isisicp.tlh
 //
 // C++ source equivalent of type library isisicp.tlb
-// compiler-generated file created 09/10/24 at 02:41:08 - DO NOT EDIT!
+// compiler-generated file created 09/10/24 at 17:25:34 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -390,6 +390,9 @@ Idae : IDispatch
         BSTR * messages );
     double getRawUAmpHPeriod (
         BSTR * messages );
+    long getSpectrumSize (
+        long spectrum_number,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -752,6 +755,10 @@ Idae : IDispatch
       virtual HRESULT __stdcall raw_getRawUAmpHPeriod (
         /*[out]*/ BSTR * messages,
         /*[out,retval]*/ double * value ) = 0;
+      virtual HRESULT __stdcall raw_getSpectrumSize (
+        /*[in]*/ long spectrum_number,
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * value ) = 0;
 };
 
 //

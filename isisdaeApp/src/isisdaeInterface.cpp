@@ -1074,6 +1074,11 @@ int isisdaeInterface::extractValues(const char* name, DAEValue::DAEType type, st
     return 0;
 }
 
+long isisdaeInterface::getSpectrumSize(long spectrum_number)
+{
+    return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getSpectrumSize, _1, spectrum_number, _2)) : callI<long>(boost::bind(&ISISICPINT::getSpectrumSize, spectrum_number, _1)));
+}
+
 long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution)
 {
 	long sum = 0, n;

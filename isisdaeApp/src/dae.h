@@ -23,6 +23,7 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern int(startSEWait)(std::string& messages);
 	ISISICPINT_DllExport extern int(endSEWait)(std::string& messages);
 	ISISICPINT_DllExport extern int(getSpectrum)(long spectrum_number, long period, std::vector<double>& time_channels, std::vector<double>& signal, bool as_histogram, bool as_distribution, long& sum, std::string& messages);
+	ISISICPINT_DllExport extern long(getSpectrumSize)(long spectrum_number, std::string& messages);
 	ISISICPINT_DllExport extern int(changeTCB)(const std::string& tcb_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(changeDAEsettings)(const std::string& dae_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(getSpectrumIntegral)(long spectrum_number, long period, float time_low, float time_high, long& counts, std::string& messages);
