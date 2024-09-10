@@ -112,6 +112,11 @@ double ISISICPINT::getGoodUAmpH(std::string& messages)
     return 0;
 }
 
+double ISISICPINT::getRawUAmpH(std::string& messages)
+{
+    return 0;
+}
+
 int ISISICPINT::getSpectraSum(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums, std::string& messages)
 {
     return 0;
@@ -383,6 +388,16 @@ long ISISICPINT::getGoodFramesPeriod(std::string& messages)
 }
 
 double ISISICPINT::getGoodUAmpHPeriod(std::string& messages)
+{
+    return 0.0;
+}
+
+long ISISICPINT::getRawFramesPeriod(std::string& messages)
+{
+    return 0;
+}
+
+double ISISICPINT::getRawUAmpHPeriod(std::string& messages)
 {
     return 0.0;
 }

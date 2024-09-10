@@ -1,9 +1,9 @@
-// Created by Microsoft (R) C/C++ Compiler Version 14.00.24245.0 (2d5a9df1).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24247.2 (f732dba8).
 //
-// c:\development\instrumentcontrol\icp\isisicp\x64\release\isisicp.tlh
+// c:\development\instrumentcontrol\icp\isisicp\x64\debug\isisicp.tlh
 //
 // C++ source equivalent of type library isisicp.tlb
-// compiler-generated file created 01/03/22 at 11:00:23 - DO NOT EDIT!
+// compiler-generated file created 09/10/24 at 02:41:08 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -384,6 +384,12 @@ Idae : IDispatch
         _bstr_t name,
         _bstr_t value,
         BSTR * messages );
+    double getRawUAmpH (
+        BSTR * messages );
+    long getRawFramesPeriod (
+        BSTR * messages );
+    double getRawUAmpHPeriod (
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -737,6 +743,15 @@ Idae : IDispatch
         /*[in]*/ BSTR name,
         /*[in]*/ BSTR value,
         /*[out]*/ BSTR * messages ) = 0;
+      virtual HRESULT __stdcall raw_getRawUAmpH (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * value ) = 0;
+      virtual HRESULT __stdcall raw_getRawFramesPeriod (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ long * value ) = 0;
+      virtual HRESULT __stdcall raw_getRawUAmpHPeriod (
+        /*[out]*/ BSTR * messages,
+        /*[out,retval]*/ double * value ) = 0;
 };
 
 //

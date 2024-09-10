@@ -78,8 +78,11 @@ public:
 	unsigned long getGoodFrames();
     unsigned long getGoodFramesPeriod();
 	unsigned long getRawFrames();
+    unsigned long getRawFramesPeriod();
 	double getGoodUAH();
     double getGoodUAHPeriod();
+	double getRawUAH();
+    double getRawUAHPeriod();
 	int beginRun();
     int beginRunEx(long options, long period);
 	int abortRun();

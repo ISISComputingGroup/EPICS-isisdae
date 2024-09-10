@@ -281,6 +281,11 @@ unsigned long isisdaeInterface::getRawFrames()
 	return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getRawFramesTotal, _1, _2)) : callI<long>(boost::bind(&ISISICPINT::getRawFramesTotal, _1)));
 }
 
+unsigned long isisdaeInterface::getRawFramesPeriod()
+{
+	return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getRawFramesPeriod, _1, _2)) : callI<long>(boost::bind(&ISISICPINT::getRawFramesPeriod, _1)));
+}
+
 COAUTHIDENTITY* isisdaeInterface::createIdentity(const std::string& user, const std::string&  domain, const std::string& pass)
 {
 	if (user.size() == 0)
@@ -482,6 +487,16 @@ double isisdaeInterface::getGoodUAH()
 double isisdaeInterface::getGoodUAHPeriod()
 {
 	return (m_dcom ? callD<double>(boost::bind(&ICPDCOM::getGoodUAmpHPeriod, _1, _2)) : callI<double>(boost::bind(&ISISICPINT::getGoodUAmpHPeriod, _1)));
+}
+
+double isisdaeInterface::getRawUAH()
+{
+	return (m_dcom ? callD<double>(boost::bind(&ICPDCOM::getRawUAmpH, _1, _2)) : callI<double>(boost::bind(&ISISICPINT::getRawUAmpH, _1)));
+}
+
+double isisdaeInterface::getRawUAHPeriod()
+{
+	return (m_dcom ? callD<double>(boost::bind(&ICPDCOM::getRawUAmpHPeriod, _1, _2)) : callI<double>(boost::bind(&ISISICPINT::getRawUAmpHPeriod, _1)));
 }
 
 int isisdaeInterface::beginRun()

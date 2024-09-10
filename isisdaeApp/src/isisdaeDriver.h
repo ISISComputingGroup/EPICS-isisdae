@@ -90,6 +90,7 @@ private:
     int P_PeriodSequence; // long
     int P_BeamCurrent; // double
     int P_TotalUAmps; // double
+    int P_TotalUAmpsPeriod; // double
     int P_MonitorFrom; // double
     int P_MonitorTo; // double
     int P_MEvents; // double
@@ -265,6 +266,7 @@ private:
 #define P_PeriodSequenceString	"PERIODSEQ"
 #define P_BeamCurrentString	"BEAMCURRENT"
 #define P_TotalUAmpsString	"TOTALUAMPS"
+#define P_TotalUAmpsPeriodString	"TOTALUAMPSPD"
 #define P_MonitorFromString	"MONITORFROM"
 #define P_MonitorToString	"MONITORTO"
 #define P_MEventsString	"MEVENTS"
