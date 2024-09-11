@@ -521,6 +521,7 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs(false, spec, period, "X", m_tof_units);
+	createAxisPVs(false, spec, period, "XE", m_tof_units);
 	createAxisPVs(false, spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs(false, spec, period, "YC", "cnt");
 	createCountsPV(false, spec, period);
@@ -544,6 +545,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs(true, mon, period, "X", m_tof_units);
+	createAxisPVs(true, mon, period, "XE", m_tof_units);
 	createAxisPVs(true, mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs(true, mon, period, "YC", "cnt");
 	createCountsPV(true, mon, period);
@@ -571,8 +573,8 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then spectrum
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(X|YC|Y|C)([.].*)?");
-    pcrecpp::RE spec_re("SPEC:(\\d+):(X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(XE|X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_re("SPEC:(\\d+):(XE|X|YC|Y|C)([.].*)?");
     
     if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis, &field))
     {
@@ -589,8 +591,8 @@ bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& 
 bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then monitor
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(X|YC|Y|C|S)([.].*)?");
-    pcrecpp::RE monitor_re("MON:(\\d+):(X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_re("MON:(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
 	if (!monitor_per_re.FullMatch(pvStr, &period, &mon, &axis, &field))
 	{
         if (!monitor_re.FullMatch(pvStr, &mon, &axis, &field))

@@ -1079,33 +1079,42 @@ long isisdaeInterface::getSpectrumSize(long spectrum_number)
     return (m_dcom ? callD<long>(boost::bind(&ICPDCOM::getSpectrumSize, _1, spectrum_number, _2)) : callI<long>(boost::bind(&ISISICPINT::getSpectrumSize, spectrum_number, _1)));
 }
 
-long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_distribution)
+// returns number of signal values, if as_histogram is true them there will be n+1 time bin boundary values rather than n 
+long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution)
 {
 	long sum = 0, n;
 	if (m_dcom)
 	{
 		variant_t time_channels_v, signal_v;
-		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, false, as_distribution, &sum, _2));
+		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, as_histogram, as_distribution, &sum, _2));
 		double *s = NULL, *t = NULL;
 		accessArrayVariant(&signal_v, &s);
 		accessArrayVariant(&time_channels_v, &t);
+		n = arrayVariantLength(&time_channels_v);
+		for(int i=0; i < std::min(nvals,n); ++i)
+        {        
+			time_channels[i] = static_cast<float>(t[i]);
+	    }
 		n = arrayVariantLength(&signal_v);
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
 	        signal[i] = static_cast<float>(s[i]);
-			time_channels[i] = static_cast<float>(t[i]);
-	    }
+        }
 		unaccessArrayVariant(&signal_v);
 		unaccessArrayVariant(&time_channels_v);
 	}
 	else
 	{
 		std::vector<double> time_channels_v, signal_v;
-		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), false, as_distribution, boost::ref(sum), _1));
-		n = static_cast<long>(signal_v.size());
+		callI<int>(boost::bind(&ISISICPINT::getSpectrum, spec, period, boost::ref(time_channels_v), boost::ref(signal_v), as_histogram, as_distribution, boost::ref(sum), _1));
+		n = static_cast<long>(time_channels_v.size());
 		for(int i=0; i < std::min(nvals,n); ++i)
 	    {
 	        time_channels[i] = static_cast<float>(time_channels_v[i]);
+	    }
+		n = static_cast<long>(signal_v.size());
+		for(int i=0; i < std::min(nvals,n); ++i)
+	    {
 	        signal[i] = static_cast<float>(signal_v[i]);
 	    }
 	}
