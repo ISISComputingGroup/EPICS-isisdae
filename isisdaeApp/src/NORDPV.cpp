@@ -30,7 +30,7 @@ bool NORDPV<T>::getNewValue(smartGDDPointer& pDD)
 }
 
 template <typename T>
-NORDSPECPV<T>::NORDSPECPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int spec) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_spec(spec)
+NORDSPECPV<T>::NORDSPECPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int spec, bool is_edges) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_is_edges(is_edges), m_spec(spec)
 {
 
 }
@@ -39,7 +39,7 @@ template <typename T>
 bool NORDSPECPV<T>::getNewValue(smartGDDPointer& pDD)
 {
     try {
-	    setNORD(cas.iface()->getSpectrumSize(m_spec));
+	    setNORD(cas.iface()->getSpectrumSize(m_spec) + (m_is_edges ? 1 : 0));
 	}
 	catch(const std::exception& ex) {
 		std::cerr << "CAS: Exception in NORDSPECPV::getNewValue(): " << ex.what() << std::endl;
@@ -53,7 +53,7 @@ bool NORDSPECPV<T>::getNewValue(smartGDDPointer& pDD)
 }
 
 template <typename T>
-NORDMONPV<T>::NORDMONPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int mon) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_mon(mon)
+NORDMONPV<T>::NORDMONPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, T& nord, int mon, bool is_edges) : NORDPV<T>(cas, setup, preCreateFlag, scanOnIn, nord), m_is_edges(is_edges), m_mon(mon)
 {
 
 }
@@ -63,7 +63,7 @@ bool NORDMONPV<T>::getNewValue(smartGDDPointer& pDD)
 {
     try {
         int spec = cas.iface()->getSpectrumNumberForMonitor(m_mon);
-	    setNORD(cas.iface()->getSpectrumSize(spec));
+	    setNORD(cas.iface()->getSpectrumSize(spec) + (m_is_edges ? 1 : 0));
 	}
 	catch(const std::exception& ex) {
 		std::cerr << "CAS: Exception in NORDMONPV::getNewValue(): " << ex.what() << std::endl;

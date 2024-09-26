@@ -349,10 +349,11 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
     }
 	
     sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, id, axis);
+    bool is_edges = (strcmp(axis, "XE") == 0);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = (is_monitor ? static_cast<NORDPV<int>*>(new NORDMONPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id)) :
-                              static_cast<NORDPV<int>*>(new NORDSPECPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id)));
+	exPV* pPV = (is_monitor ? static_cast<NORDPV<int>*>(new NORDMONPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id, is_edges)) :
+                              static_cast<NORDPV<int>*>(new NORDSPECPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id, is_edges)));
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);

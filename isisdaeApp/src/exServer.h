@@ -303,9 +303,10 @@ class NORDSPECPV : public NORDPV<T>
 {
 public:
     NORDSPECPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, T& nord, int spec );
+        bool preCreateFlag, bool scanOnIn, T& nord, int spec, bool is_edges );
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
+    bool m_is_edges;
     int m_spec;
     NORDSPECPV & operator = ( const NORDSPECPV & );
     NORDSPECPV ( const NORDSPECPV & );
@@ -316,10 +317,11 @@ class NORDMONPV : public NORDPV<T>
 {
 public:
     NORDMONPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, T& nord, int mon );
+        bool preCreateFlag, bool scanOnIn, T& nord, int mon, bool is_edges );
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
-    int m_mon;
+    bool m_is_edges;
+    int m_mon;    
     NORDMONPV & operator = ( const NORDMONPV & );
     NORDMONPV ( const NORDMONPV & );
 };
