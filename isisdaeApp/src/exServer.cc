@@ -349,9 +349,11 @@ void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* ax
     }
 	
     sprintf(buffer, "%s:%d:%d:%s.NORD", prefix, period, id, axis);
+    bool is_edges = (strcmp(axis, "XE") == 0);
     pPVI = new pvInfo (0.5, buffer, static_cast<float>(m_ntc), 1.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-	exPV* pPV = new NORDPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD());
+	exPV* pPV = (is_monitor ? static_cast<NORDPV<int>*>(new NORDMONPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id, is_edges)) :
+                              static_cast<NORDPV<int>*>(new NORDSPECPV<int>(*this, *pPVI, true, scanOn, pSPV->getNORD(), id, is_edges)));
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -520,6 +522,7 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs(false, spec, period, "X", m_tof_units);
+	createAxisPVs(false, spec, period, "XE", m_tof_units);
 	createAxisPVs(false, spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs(false, spec, period, "YC", "cnt");
 	createCountsPV(false, spec, period);
@@ -543,6 +546,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	}
 
 	createAxisPVs(true, mon, period, "X", m_tof_units);
+	createAxisPVs(true, mon, period, "XE", m_tof_units);
 	createAxisPVs(true, mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
 	createAxisPVs(true, mon, period, "YC", "cnt");
 	createCountsPV(true, mon, period);
@@ -570,8 +574,8 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then spectrum
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(X|YC|Y|C)([.].*)?");
-    pcrecpp::RE spec_re("SPEC:(\\d+):(X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(XE|X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_re("SPEC:(\\d+):(XE|X|YC|Y|C)([.].*)?");
     
     if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis, &field))
     {
@@ -588,8 +592,8 @@ bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& 
 bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field)
 {
     //Assumes period then monitor
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(X|YC|Y|C|S)([.].*)?");
-    pcrecpp::RE monitor_re("MON:(\\d+):(X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_re("MON:(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
 	if (!monitor_per_re.FullMatch(pvStr, &period, &mon, &axis, &field))
 	{
         if (!monitor_re.FullMatch(pvStr, &mon, &axis, &field))

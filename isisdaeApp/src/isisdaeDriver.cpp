@@ -1125,6 +1125,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     
     createParam(P_BeamCurrentString, asynParamFloat64, &P_BeamCurrent);
     createParam(P_TotalUAmpsString, asynParamFloat64, &P_TotalUAmps);
+    createParam(P_TotalUAmpsPeriodString, asynParamFloat64, &P_TotalUAmpsPeriod);
     createParam(P_MonitorFromString, asynParamFloat64, &P_MonitorFrom);
     createParam(P_MonitorToString, asynParamFloat64, &P_MonitorTo);
     createParam(P_MEventsString, asynParamFloat64, &P_MEvents);
@@ -1409,22 +1410,26 @@ void isisdaeDriver::updateRunStatus()
         {
             m_RunStatus = rs;
         }
-		long frames = m_iface->getGoodFrames();
         unsigned long tc = m_iface->getTotalCounts();
 		epicsTime tc_ts(epicsTime::getCurrent());
-		double uah = m_iface->getGoodUAH();
-//		long p_frames = m_iface->getGoodFramesPeriod();   // this currently only works in period card mode
-//		double p_uah = m_iface->getGoodUAHPeriod();
+		long frames = m_iface->getGoodFrames();
+		long p_frames = m_iface->getGoodFramesPeriod();
 		long r_frames = m_iface->getRawFrames();
-		double r_uah = 0.0;
+		long p_r_frames = m_iface->getRawFramesPeriod();
+		double uah = m_iface->getGoodUAH();
+		double p_uah = m_iface->getGoodUAHPeriod();
+		double r_uah = m_iface->getRawUAH();
+		double p_r_uah = m_iface->getRawUAHPeriod();
 		if (no_check_frame_uamp == NULL || *no_check_frame_uamp == '\0')
 		{
 		    check_frame_uamp("good", frames, uah, fu_state);
 		    check_frame_uamp("raw", r_frames, r_uah, r_fu_state);
-//		    check_frame_uamp("period good", p_frames, p_uah, p_fu_state);
+		    check_frame_uamp("period good", p_frames, p_uah, p_fu_state);
 		}
 		setDoubleParam(P_GoodUAH, uah);
-//        setDoubleParam(P_GoodUAHPeriod, p_uah);
+        setDoubleParam(P_GoodUAHPeriod, p_uah);
+		setDoubleParam(P_TotalUAmps, r_uah);
+		setDoubleParam(P_TotalUAmpsPeriod, p_r_uah);
 		setIntegerParam(P_TotalCounts, tc);
         setDoubleParam(P_MEvents, static_cast<double>(tc) / 1.0e6);
 		double tdiff = static_cast<double>(tc_ts - old_tc_ts);
@@ -1445,10 +1450,11 @@ void isisdaeDriver::updateRunStatus()
 		    old_frames = frames;
 		}
         setIntegerParam(P_GoodFramesTotal, frames);
-//        setIntegerParam(P_GoodFramesPeriod, p_frames);
+        setIntegerParam(P_GoodFramesPeriod, p_frames);
+        setIntegerParam(P_RawFramesPeriod, p_r_frames);
 		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
-        ///@todo need to update P_RawFramesPeriod, P_RunDurationTotal, P_TotalUAmps, P_RunDurationPeriod, P_MonitorCounts
+        ///@todo need to update P_RunDurationTotal, P_RunDurationPeriod, P_MonitorCounts
 }
 
 // zero counters st start of run, done early before actual readbacks
@@ -1457,6 +1463,7 @@ void isisdaeDriver::zeroRunCounters(bool do_callbacks)
         setDoubleParam(P_GoodUAH, 0.0);
         setDoubleParam(P_GoodUAHPeriod, 0.0);
         setDoubleParam(P_TotalUAmps, 0.0);
+        setDoubleParam(P_TotalUAmpsPeriod, 0.0);
         setIntegerParam(P_TotalCounts, 0);
         setIntegerParam(P_GoodFramesTotal, 0);
         setIntegerParam(P_GoodFramesPeriod, 0);

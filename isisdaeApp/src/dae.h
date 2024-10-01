@@ -23,6 +23,7 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern int(startSEWait)(std::string& messages);
 	ISISICPINT_DllExport extern int(endSEWait)(std::string& messages);
 	ISISICPINT_DllExport extern int(getSpectrum)(long spectrum_number, long period, std::vector<double>& time_channels, std::vector<double>& signal, bool as_histogram, bool as_distribution, long& sum, std::string& messages);
+	ISISICPINT_DllExport extern long(getSpectrumSize)(long spectrum_number, std::string& messages);
 	ISISICPINT_DllExport extern int(changeTCB)(const std::string& tcb_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(changeDAEsettings)(const std::string& dae_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(getSpectrumIntegral)(long spectrum_number, long period, float time_low, float time_high, long& counts, std::string& messages);
@@ -33,6 +34,7 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern long(getRawFramesTotal)(std::string& messages); // retval
 	ISISICPINT_DllExport extern long(getGoodFramesTotal)(std::string& messages); // retval
 	ISISICPINT_DllExport extern double(getGoodUAmpH)(std::string& messages); // retval
+	ISISICPINT_DllExport extern double(getRawUAmpH)(std::string& messages); // retval
 	ISISICPINT_DllExport extern int(getSpectraSum)(long period, long first_spec, long num_spec, long spec_type, double time_low, double time_high, std::vector<long>& sums, std::vector<long>& max_vals, std::vector<long>& spec_nums, std::string& messages);
 	ISISICPINT_DllExport extern int(changeSample)(const std::string& sample_xml, std::string& messages);
 	ISISICPINT_DllExport extern int(changeUser)(const std::string& user_xml, std::string& messages);
@@ -86,6 +88,8 @@ namespace ISISICPINT
 	ISISICPINT_DllExport extern int(getStatusMessages)(long stream, std::list<std::string>& messages);
 	ISISICPINT_DllExport extern long(getGoodFramesPeriod)(std::string& messages); // retval
 	ISISICPINT_DllExport extern double(getGoodUAmpHPeriod)(std::string& messages); // retval
+	ISISICPINT_DllExport extern long(getRawFramesPeriod)(std::string& messages); // retval
+	ISISICPINT_DllExport extern double(getRawUAmpHPeriod)(std::string& messages); // retval
 	ISISICPINT_DllExport extern int(getFramesAllPeriods)(std::vector<long>& good_frames, std::vector<long>& raw_frames, std::string& messages);
 	ISISICPINT_DllExport extern int(getUAmpHAllPeriods)(std::vector<float>& good_uamph, std::vector<float>& raw_uamph, std::string& messages);
 	ISISICPINT_DllExport extern double(getMEventsPeriod)(long period, std::string& messages); // retval

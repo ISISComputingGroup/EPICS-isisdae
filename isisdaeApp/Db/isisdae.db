@@ -315,6 +315,17 @@ record(ai, "$(P)$(Q)TOTALUAMPS")
     info(archive, "-5.0 VAL")
 }
 
+record(ai, "$(P)$(Q)TOTALUAMPS_PD")
+{
+    field(DESC, "DAE Raw Period Microamps")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)TOTALUAMPSPD")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+	field(EGU, "uA hour")
+    info(archive, "-5.0 VAL")
+}
+
 record(ai, "$(P)$(Q)MEVENTS")
 {
     field(DESC, "DAE millions of events")
