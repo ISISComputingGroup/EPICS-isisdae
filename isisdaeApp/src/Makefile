@@ -38,7 +38,7 @@ isisdae_SRCS += isisdaeDriver.cpp isisdaeInterface.cpp CRPTMapping.cpp
 isisdae_SRCS += MonitorSpectrumPV.cpp MonitorCountsPV.cpp dae_isisicpint_dummy.cpp
 isisdae_SRCS += NoAlarmPV.cpp
 
-isisdae_LIBS += webget htmltidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
+isisdae_LIBS += webget tidy asyn oncrpc utilities zlib pcrecpp pcre pugixml
 isisdae_LIBS += ADnEDSupport
 isisdae_LIBS += cas gdd
 
