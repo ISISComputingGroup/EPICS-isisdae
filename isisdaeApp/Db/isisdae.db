@@ -81,6 +81,17 @@ record(longin, "$(P)$(Q)IRUNNUMBER")
 	field(EGU, "")
 }
 
+## set run number: use with caution
+## normally only used if we are syncing two instances
+## if ibex on different computers
+record(longout, "$(P)$(Q)RUNNUMBER:SET")
+{
+    field(DESC, "Set Run Number")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)SET_RUNNUMBER")
+	field(EGU, "")
+}
+
 record(waveform, "$(P)$(Q)_USERNAME")
 {
     field(DESC, "Experiment User name")
@@ -810,6 +821,7 @@ record(longin, "$(P)$(Q)PERIOD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)PERIOD")
     field(SCAN, "I/O Intr")
+    field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
 	info(archive, "VAL")
 	field(EGU, "")
@@ -820,6 +832,7 @@ record(longout, "$(P)$(Q)PERIOD:SP")
     field(DESC, "Change DAE Period Number")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)PERIOD")
+    field(UDFS, "NO_ALARM")
 }
 
 alias("$(P)$(Q)PERIOD", "$(P)$(Q)PERIOD:SP:RBV")
@@ -830,6 +843,7 @@ record(longin, "$(P)$(Q)NUMPERIODS")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)NUMPERIODS")
     field(SCAN, "I/O Intr")
+    field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
 	field(EGU, "")
 	info(archive, "VAL")
@@ -840,6 +854,7 @@ record(longout, "$(P)$(Q)NUMPERIODS:SP")
     field(DESC, "Change Number of DAE periods")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn(icp,0,0)NUMPERIODS")
+    field(UDFS, "NO_ALARM")
 }
 
 alias("$(P)$(Q)NUMPERIODS", "$(P)$(Q)NUMPERIODS:SP:RBV")

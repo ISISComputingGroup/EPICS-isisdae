@@ -407,6 +407,11 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 			    m_iface->setSpecIntgCutoff(intgTMin, value);
             }
 		}
+		else if (function == P_setRunNumber)
+        {
+            std::cout << "Setting run number to " << static_cast<long>(value) << std::endl;
+        	m_iface->setICPValueLong("RUN_NUMBER", static_cast<long>(value));
+        }
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -1211,6 +1216,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
 	createParam(P_vetoPCExt3String, asynParamFloat64, &P_vetoPCExt3); 
     
     createParam(P_blockSpecZeroString, asynParamInt32, &P_blockSpecZero);
+    createParam(P_setRunNumberString, asynParamInt32, &P_setRunNumber);
     
     createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
     createParam(P_spectrumDataString, asynParamInt32Array, &P_spectrumData);

@@ -177,7 +177,7 @@ private:
 	int P_vetoPCExt3;   // double
     
     int P_blockSpecZero; // long
-
+    int P_setRunNumber; // long
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
@@ -358,6 +358,7 @@ private:
 #define P_vetoPCExt3String					"VETO_PC_EXT3"
 
 #define P_blockSpecZeroString                "BLOCKSPECZERO"
+#define P_setRunNumberString                 "SET_RUNNUMBER"
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"
