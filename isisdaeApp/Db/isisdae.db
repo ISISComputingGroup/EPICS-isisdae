@@ -837,6 +837,17 @@ record(longout, "$(P)$(Q)PERIOD:SP")
 
 alias("$(P)$(Q)PERIOD", "$(P)$(Q)PERIOD:SP:RBV")
 
+# fast change period, does pause/chane/resume in one
+# operation. pass a negative period number to skip
+# even the pause/resume
+record(longout, "$(P)$(Q)FCPERIOD:SP")
+{
+    field(DESC, "Change DAE Period Number quickly")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)FASTPERIODCHANGE")
+    field(UDFS, "NO_ALARM")
+}
+
 record(longin, "$(P)$(Q)NUMPERIODS")
 {
     field(DESC, "Number of DAE periods")

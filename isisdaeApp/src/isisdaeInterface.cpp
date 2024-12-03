@@ -742,6 +742,11 @@ int isisdaeInterface::setPeriod(long period)
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::changePeriod, _1, period, _2)) : callI<int>(boost::bind(&ISISICPINT::changePeriod, period, _1)));
 }
 
+int isisdaeInterface::changePeriodWhileRunning(long period, bool pause_first)
+{
+	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::changePeriodWhileRunning, _1, period, (pause_first?1:0), _2)) : callI<int>(boost::bind(&ISISICPINT::changePeriod, period, _1)));
+}
+
 int isisdaeInterface::setNumPeriods(long nperiods)
 {
 	return (m_dcom ? callD<int>(boost::bind(&ICPDCOM::changeNumberOfSoftwarePeriods, _1, nperiods, _2)) : callI<int>(boost::bind(&ISISICPINT::changeNumberOfSoftwarePeriods, nperiods, _1)));

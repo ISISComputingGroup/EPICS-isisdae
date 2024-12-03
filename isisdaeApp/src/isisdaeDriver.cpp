@@ -387,6 +387,17 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
 		{
 			m_iface->setPeriod(static_cast<long>(value));
 		}
+        else if (function == P_FastPeriodChange)
+		{
+            long period = static_cast<long>(value);
+            if (period >= 0) {
+                setIntegerParam(P_Period, period);
+			    m_iface->changePeriodWhileRunning(period, true);
+            } else {
+                setIntegerParam(P_Period, -period);
+			    m_iface->changePeriodWhileRunning(-period, false);
+            }
+		}
         else if (function == P_NumPeriods)
 		{
 			m_iface->setNumPeriods(static_cast<long>(value));
@@ -1123,6 +1134,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_DAEMemoryUsedString, asynParamInt32, &P_DAEMemoryUsed);
     
     createParam(P_PeriodString, asynParamInt32, &P_Period);
+    createParam(P_FastPeriodChangeString, asynParamInt32, &P_FastPeriodChange);
     createParam(P_NumSpectraString, asynParamInt32, &P_NumSpectra);
     createParam(P_MonitorCountsString, asynParamInt32, &P_MonitorCounts);
     createParam(P_PeriodSequenceString, asynParamInt32, &P_PeriodSequence);
