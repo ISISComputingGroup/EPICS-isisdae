@@ -100,6 +100,7 @@ public:
     long getRunNumber();
 	long getDAEType();
     int setPeriod(long period);
+    int changePeriodWhileRunning(long period, bool pause_first);
     int setNumPeriods(long nperiods);
     int setRunTitle(const std::string& title);
     int setUserParameters(long rbno, const std::string& name, const std::string& institute, const std::string& role);
