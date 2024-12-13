@@ -84,6 +84,7 @@ private:
     int P_DAEMemoryUsed; //long
     int P_NumPeriods; // long
     int P_Period; // long
+    int P_FastPeriodChange; // long
     int P_MonitorSpectrum; // long
     int P_NumSpectra; // long
     int P_MonitorCounts; // long
@@ -261,6 +262,7 @@ private:
 #define P_DAEMemoryUsedString	"DAEMEMORYUSED"
 #define P_NumPeriodsString	"NUMPERIODS"
 #define P_PeriodString	"PERIOD"
+#define P_FastPeriodChangeString	"FASTPERIODCHANGE"
 #define P_NumSpectraString	"NUMSPECTRA"
 #define P_MonitorCountsString	"MONITORCOUNTS"
 #define P_PeriodSequenceString	"PERIODSEQ"
