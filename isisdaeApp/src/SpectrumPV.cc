@@ -57,6 +57,7 @@ bool SpectrumPV::getNewValue(smartGDDPointer& pDD)
         delete[] pY;
 		return false;
 	}
+    n = (n > nmax ? nmax : n); // we may not have allocated enough space so truncate - isisicp may have been reconfigured with a larger size
 	if (m_axis == "Y" || m_axis == "YC")
 	{
 	    m_nord = n;  // number of elements used

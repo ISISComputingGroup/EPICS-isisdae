@@ -38,8 +38,11 @@ NORDSPECPV<T>::NORDSPECPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, b
 template <typename T>
 bool NORDSPECPV<T>::getNewValue(smartGDDPointer& pDD)
 {
+    int nmax = static_cast<int>(this->info.getHopr());
     try {
-	    setNORD(cas.iface()->getSpectrumSize(m_spec) + (m_is_edges ? 1 : 0));
+        int n = cas.iface()->getSpectrumSize(m_spec) + (m_is_edges ? 1 : 0);
+        n = (n > nmax ? nmax : n); // we may not have allocated enough space so truncate - isisicp may have been reconfigured with a larger size
+	    setNORD(n);
 	}
 	catch(const std::exception& ex) {
 		std::cerr << "CAS: Exception in NORDSPECPV::getNewValue(): " << ex.what() << std::endl;
@@ -61,9 +64,12 @@ NORDMONPV<T>::NORDMONPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, boo
 template <typename T>
 bool NORDMONPV<T>::getNewValue(smartGDDPointer& pDD)
 {
+    int nmax = static_cast<int>(this->info.getHopr());
     try {
         int spec = cas.iface()->getSpectrumNumberForMonitor(m_mon);
-	    setNORD(cas.iface()->getSpectrumSize(spec) + (m_is_edges ? 1 : 0));
+        int n = cas.iface()->getSpectrumSize(spec) + (m_is_edges ? 1 : 0);
+        n = (n > nmax ? nmax : n); // we may not have allocated enough space so truncate - isisicp may have been reconfigured with a larger size
+	    setNORD(n);
 	}
 	catch(const std::exception& ex) {
 		std::cerr << "CAS: Exception in NORDMONPV::getNewValue(): " << ex.what() << std::endl;
