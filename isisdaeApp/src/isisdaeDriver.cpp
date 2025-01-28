@@ -35,6 +35,7 @@
 
 #include "isisdaeDriver.h"
 #include "isisdaeInterface.h"
+#include "isisdaePvaServices.h"
 #include "convertToString.h"
 #include "ADCore/ADApp/pluginSrc/colorMaps.h"
 #include <epicsExport.h>
@@ -2783,6 +2784,7 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 					printf("epicsThreadCreate failure\n");
 					return(asynError);
 				}
+                new isisdaePvaServices(iface);
 			}
 			else
 			{
