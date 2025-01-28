@@ -103,10 +103,11 @@ class isisdaePvaServicesImpl
     isisdaeInterface* m_iface;
     std::tr1::shared_ptr<RPCServer> m_server;
     public:
-    isisdaePvaServicesImpl(isisdaeInterface* iface) : m_iface(iface), m_server(new RPCServer)
+    isisdaePvaServicesImpl(isisdaeInterface* iface, const char* pvprefix) : m_iface(iface), m_server(new RPCServer)
     {
+        std::string service_name = std::string(pvprefix != NULL ? pvprefix : "") + "RPC:QXReadArray";
         try {
-            m_server->registerService("QXReadArray", RPCServiceAsync::shared_pointer(new QXReadArrayServiceImpl(m_iface)));
+            m_server->registerService(service_name, RPCServiceAsync::shared_pointer(new QXReadArrayServiceImpl(m_iface)));
             m_server->printInfo();
             m_server->runInNewThread();
         }
@@ -117,7 +118,7 @@ class isisdaePvaServicesImpl
     }
 };
 
-isisdaePvaServices::isisdaePvaServices(isisdaeInterface* iface) : m_services(new isisdaePvaServicesImpl(iface))
+isisdaePvaServices::isisdaePvaServices(isisdaeInterface* iface, const char* pvprefix) : m_services(new isisdaePvaServicesImpl(iface, pvprefix))
 {
 }
 

@@ -2765,7 +2765,8 @@ void isisdaeShowPCAS(int level)
 /// \param[in] progid @copydoc initArg5
 /// \param[in] username @copydoc initArg6
 /// \param[in] password @copydoc initArg7
-int isisdaeConfigure(const char *portName, int options, const char *host, const char* username, const char* password, int ndet)
+int isisdaeConfigure(const char *portName, int options, const char *host, const char* username,
+      const char* password, int ndet, const char* pvprefix)
 {
 	registerStructuredExceptionHandler();
 	try
@@ -2784,7 +2785,7 @@ int isisdaeConfigure(const char *portName, int options, const char *host, const 
 					printf("epicsThreadCreate failure\n");
 					return(asynError);
 				}
-                new isisdaePvaServices(iface);
+                new isisdaePvaServices(iface, pvprefix);
 			}
 			else
 			{
@@ -2881,20 +2882,22 @@ static const iocshArg initArg1 = { "options", iocshArgInt};			    ///< options a
 static const iocshArg initArg2 = { "host", iocshArgString};				///< host name where LabVIEW is running ("" for localhost) 
 static const iocshArg initArg3 = { "username", iocshArgString};			///< (optional) remote username for host #initArg3
 static const iocshArg initArg4 = { "password", iocshArgString};			///< (optional) remote password for username #initArg6 on host #initArg3
-static const iocshArg initArg5 = { "ndet", iocshArgInt};			    ///< options as per #lvDCOMOptions enum
+static const iocshArg initArg5 = { "ndet", iocshArgInt};			    ///< number of area detector liveview
+static const iocshArg initArg6 = { "pvprefix", iocshArgString};			///< pvprefixm, used for e.g. pva rpc
 
 static const iocshArg * const initArgs[] = { &initArg0,
                                              &initArg1,
                                              &initArg2,
                                              &initArg3,
                                              &initArg4,
-                                             &initArg5 };
+                                             &initArg5,
+                                             &initArg6 };
 
 static const iocshFuncDef initFuncDef = {"isisdaeConfigure", sizeof(initArgs) / sizeof(iocshArg*), initArgs};
 
 static void initCallFunc(const iocshArgBuf *args)
 {
-    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval, args[5].ival);
+    isisdaeConfigure(args[0].sval, args[1].ival, args[2].sval, args[3].sval, args[4].sval, args[5].ival, args[6].sval);
 }
 
 // isisdaeShowPCAS
