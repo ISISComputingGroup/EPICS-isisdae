@@ -24,6 +24,7 @@ PCRE=$(SUPPORT)/pcre/master
 PUGIXML=$(SUPPORT)/pugixml/master
 PVCOMPLETE=$(SUPPORT)/pvcomplete/master
 PVDUMP=$(SUPPORT)/pvdump/master
+PVXS=$(SUPPORT)/pvxs/master
 READASCII=$(SUPPORT)/ReadASCII/master
 SNCSEQ=$(SUPPORT)/seq/master
 SQLITE=$(SUPPORT)/sqlite/master

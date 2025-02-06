@@ -50,6 +50,8 @@ isisdae_LIBS += cas gdd
 #isisdae_LIBS += avutil
 #isisdae_LIBS += swscale
 
+isisdae_LIBS += pvxsIoc pvxs
+
 isisdae_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)

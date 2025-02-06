@@ -1,22 +1,21 @@
-#include <pv/pvData.h>
-#include <pv/rpcServer.h>
+#include <pvxs/sharedpv.h>
+#include <pvxs/server.h>
+#include <pvxs/nt.h>
+#include <pvxs/log.h>
+#include <functional>
 
 #include "isisdaeInterface.h" 
 #include "isisdaePvaServices.h" 
 
-using namespace epics::pvData;
-using namespace epics::pvAccess;
+using namespace pvxs;
 
-static Structure::const_shared_pointer resultStructure =
-    getFieldCreate()->createFieldBuilder()->
-    addArray("values", pvInt)->
-    createStructure();
 
 // s1 starts with s2 check
 static bool starts_with(const std::string& s1, const std::string& s2) {
     return s2.size() <= s1.size() && s1.compare(0, s2.size(), s2) == 0;
 }
 
+#if 0
 class QXReadArrayServiceImpl :
     public RPCServiceAsync
 {
@@ -98,23 +97,59 @@ class QXReadArrayServiceImpl :
     }
 };
 
+#endif
+
+
 class isisdaePvaServicesImpl
 {
     isisdaeInterface* m_iface;
-    std::tr1::shared_ptr<RPCServer> m_server;
+    server::Server m_server;
+    server::SharedPV m_pv;
     public:
-    isisdaePvaServicesImpl(isisdaeInterface* iface, const char* pvprefix) : m_iface(iface), m_server(new RPCServer)
+    isisdaePvaServicesImpl(isisdaeInterface* iface, const char* pvprefix) : m_iface(iface), m_server(server::Server::fromEnv()), m_pv(server::SharedPV::buildReadonly())
     {
         std::string service_name = std::string(pvprefix != NULL ? pvprefix : "") + "RPC:QXReadArray";
         try {
-            m_server->registerService(service_name, RPCServiceAsync::shared_pointer(new QXReadArrayServiceImpl(m_iface)));
-            m_server->printInfo();
-            m_server->runInNewThread();
+//            m_pv.onRPC(std::move(std::bind(&isisdaePvaServicesImpl::onRPC, this, std::ref(std::placeholders::_1), std::move(std::placeholders::_2), std::move(std::placeholders::_3))));
+            m_pv.onRPC(std::bind(&isisdaePvaServicesImpl::onRPC, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+            m_server.addPV(service_name, m_pv);
+            epicsThreadCreate("rpc", epicsThreadPriorityMedium, epicsThreadStackMedium, &isisdaePvaServicesImpl::runRPC, this);
         }
         catch(const std::exception& ex)
         {
             std::cerr << "isisdaePvaServicesImpl failed: " << ex.what() << std::endl;
         }
+    }
+    
+    static void runRPC(void* arg)
+    {
+        isisdaePvaServicesImpl* impl = (isisdaePvaServicesImpl*)arg;
+        impl->runRPC();
+    }
+    
+    void runRPC()
+    {
+        m_server.run();
+    }
+
+    void onRPC(server::SharedPV& pv, std::unique_ptr<server::ExecOp>&& op, Value&& top)
+    {
+        auto reply(nt::NTScalar{TypeCode::Float64}.create());
+        try {
+            // assume arguments encoded NTURI
+ //           auto rhs = top["query.rhs"].as<double>();
+  //          auto lhs = top["query.lhs"].as<double>();
+
+            reply["value"] = 1;
+
+        } catch(std::exception& e){
+            reply["alarm.severity"] = 0; //INVALID_ALARM;
+            reply["alarm.message"] = e.what();
+        }
+
+        op->reply(reply);
+        // Scale-able applications may reply outside of this callback,
+        // and from another thread.
     }
 };
 
