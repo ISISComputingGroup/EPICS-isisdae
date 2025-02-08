@@ -37,6 +37,7 @@ ZLIB=$(SUPPORT)/zlib/master
 AREA_DETECTOR=$(SUPPORT)/areaDetector/master
 ADNED=$(AREA_DETECTOR)/ADnED
 #FFMPEGSERVER=$(AREA_DETECTOR)/ffmpegServer
+OPENSSL=$(SUPPORT)/OpenSSL/master
 
 # optional extra local definitions here
 -include $(TOP)/configure/RELEASE.private

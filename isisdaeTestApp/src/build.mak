@@ -32,6 +32,7 @@ $(APPNAME)_DBD += webget.dbd
 $(APPNAME)_DBD += FileList.dbd
 $(APPNAME)_DBD += ADnEDSupport.dbd
 #$(APPNAME)_DBD += ffmpegServer.dbd
+$(APPNAME)_DBD += pvxsIoc.dbd
 
 # Add all the support libraries needed by this IOC
 ## ISIS standard libraries ##
@@ -47,6 +48,7 @@ $(APPNAME)_LIBS += asubFunctions
 ## Add other libraries here ##
 #$(APPNAME)_LIBS += xxx
 $(APPNAME)_LIBS += isisdae FileList asyn oncrpc zlib efsw libjson pcrecpp pcre pugixml
+$(APPNAME)_LIBS += pvxsIoc pvxs
 $(APPNAME)_LIBS += cas gdd 
 
 ## ffmpegserver
@@ -63,13 +65,14 @@ $(APPNAME)_LIBS += ADnEDTransform
 $(APPNAME)_LIBS_WIN32 += libcurl
 $(APPNAME)_SYS_LIBS_Linux += curl
 
+$(APPNAME)_LIBS += libssl libcrypto
+
 #ifneq ($(findstring debug,$(EPICS_HOST_ARCH)),)
 #isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64-debug
 #else
 #isisicpint_DIR = $(TOP)/isisdaeApp/src/lib/windows-x64
 #endif
 #$(APPNAME)_LIBS_WIN32 += isisicpint
-$(APPNAME)_SYS_LIBS_WIN32 += psapi
 
 # isisdaeTest_registerRecordDeviceDriver.cpp derives from isisdaeTest.dbd
 $(APPNAME)_SRCS += $(APPNAME)_registerRecordDeviceDriver.cpp
@@ -81,7 +84,7 @@ $(APPNAME)_SRCS_vxWorks += -nil-
 # Add support from base/src/vxWorks if needed
 #$(APPNAME)_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
-$(APPNAME)_SYS_LIBS_WIN32 += wldap32 ws2_32 crypt32 Normaliz # advapi32 user32 msxml2
+$(APPNAME)_SYS_LIBS_WIN32 += psapi wldap32 ws2_32 crypt32 Normaliz # advapi32 user32 msxml2
 
 # Finally link to the EPICS Base libraries
 $(APPNAME)_LIBS += $(EPICS_BASE_IOC_LIBS)
