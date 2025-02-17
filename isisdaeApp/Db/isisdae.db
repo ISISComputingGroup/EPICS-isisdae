@@ -222,7 +222,7 @@ record(longin, "$(P)$(Q)RUNDURATION")
     field(INP,  "@asyn(icp,0,0)RUNDURATION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
-	field(EGU, "s")
+    field(EGU, "s")
     info(archive, "-30.0 VAL")
 }
 
@@ -232,6 +232,7 @@ record(longin, "$(P)$(Q)RUNDURATION_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
     field(SCAN, "I/O Intr")
+    field(EGU, "s")
     info(archive, "-30.0 VAL")
 }
 
