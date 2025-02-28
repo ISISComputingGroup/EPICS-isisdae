@@ -222,9 +222,38 @@ record(longin, "$(P)$(Q)RUNDURATION")
     field(INP,  "@asyn(icp,0,0)RUNDURATION")
     field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
-	field(EGU, "s")
+    field(EGU, "s")
     info(archive, "-30.0 VAL")
 }
+
+record(calc, "$(P)$(Q)_RUNDURATION_H") {
+    field(INPA, "$(P)$(Q)RUNDURATION CP MS")
+    field(CALC, "FLOOR(A/3600)")
+}
+
+record(calc, "$(P)$(Q)_RUNDURATION_M") {
+    field(INPA, "$(P)$(Q)RUNDURATION CP MS")
+    field(CALC, "FLOOR(FLOOR(A%3600)/60)")
+}
+
+record(calc, "$(P)$(Q)_RUNDURATION_S") {
+    field(INPA, "$(P)$(Q)RUNDURATION CP MS")
+    field(CALC, "FLOOR(A%60)")
+}
+
+record(scalcout, "$(P)$(Q)_RUNDURATION_CALC") {
+    field(INAA, "$(P)$(Q)_RUNDURATION_H")
+    field(INBB, "$(P)$(Q)_RUNDURATION_M")
+    field(INCC, "$(P)$(Q)_RUNDURATION_S")
+    field(SCAN, "1 second")
+    field(CALC, "PRINTF('%02d', AA)+':'+PRINTF('%02d', BB)+':'+PRINTF('%02d', CC)")
+}
+
+record(stringin, "$(P)$(Q)RUNDURATION_STR") {
+    field(DESC, "Formatted Run Duration")
+    field(INP, "$(P)$(Q)_RUNDURATION_CALC.SVAL CP MS")
+}
+
 
 record(longin, "$(P)$(Q)RUNDURATION_PD")
 {
@@ -232,8 +261,38 @@ record(longin, "$(P)$(Q)RUNDURATION_PD")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn(icp,0,0)RUNDURATIONPD")
     field(SCAN, "I/O Intr")
+    field(EGU, "s")
     info(archive, "-30.0 VAL")
 }
+
+record(calc, "$(P)$(Q)_RUNDURATION_PD_H") {
+    field(INPA, "$(P)$(Q)RUNDURATION_PD CP MS")
+    field(CALC, "FLOOR(A/3600)")
+}
+
+record(calc, "$(P)$(Q)_RUNDURATION_PD_M") {
+    field(INPA, "$(P)$(Q)RUNDURATION_PD CP MS")
+    field(CALC, "FLOOR(FLOOR(A%3600)/60)")
+}
+
+record(calc, "$(P)$(Q)_RUNDURATION_PD_S") {
+    field(INPA, "$(P)$(Q)RUNDURATION_PD CP MS")
+    field(CALC, "FLOOR(A%60)")
+}
+
+record(scalcout, "$(P)$(Q)_RUNDURATION_PD_CALC") {
+    field(INAA, "$(P)$(Q)_RUNDURATION_PD_H")
+    field(INBB, "$(P)$(Q)_RUNDURATION_PD_M")
+    field(INCC, "$(P)$(Q)_RUNDURATION_PD_S")
+    field(SCAN, "1 second")
+    field(CALC, "PRINTF('%02d', AA)+':'+PRINTF('%02d', BB)+':'+PRINTF('%02d', CC)")
+}
+
+record(stringin, "$(P)$(Q)RUNDURATION_PD_STR") {
+    field(DESC, "Formatted Period Run Duration")
+    field(INP, "$(P)$(Q)_RUNDURATION_PD_CALC.SVAL CP MS")
+}
+
 
 record(longin, "$(P)$(Q)NUMTIMECHANNELS")
 {
