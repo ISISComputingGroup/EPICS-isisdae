@@ -1475,6 +1475,8 @@ void isisdaeDriver::updateRunStatus()
 		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
         ///@todo need to update P_RunDurationTotal, P_RunDurationPeriod, P_MonitorCounts
+        /// note - rememeber to remove anything added here from pollerThread2() or else
+        /// you get competing updates
 }
 
 // zero counters st start of run, done early before actual readbacks
@@ -1665,22 +1667,19 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_ISISCycle, values["ISISCycle"]);
         setStringParam(P_DAETimingSource, values["DAETimingSource"]);
         setStringParam(P_PeriodType, values["Period Type"]);
-        
-        setIntegerParam(P_RawFramesPeriod, values["RawFramesPeriod"]);
-        setIntegerParam(P_GoodFramesPeriod, values["GoodFramesPeriod"]);
-        
+
         setIntegerParam(P_RunDurationTotal, values["RunDurationTotal"]);
         setIntegerParam(P_RunDurationPeriod, values["RunDurationPeriod"]);
         setIntegerParam(P_NumTimeChannels, values["NumberOfTimeChannels"]);
         setIntegerParam(P_NumPeriods, values["NumberOfPeriods"]);
         setIntegerParam(P_DAEMemoryUsed, values["DAEMemoryUsed"]);
-        
+
         setIntegerParam(P_Period, values["CurrentPeriod"]);
         setIntegerParam(P_NumSpectra, values["NumberOfSpectra"]);
         setIntegerParam(P_MonitorCounts, values["MonitorCounts"]);
         setIntegerParam(P_PeriodSequence, values["PeriodSequence"]);
         setIntegerParam(P_MonitorSpectrum, values["MonitorSpectrum"]);
-        
+
         beam_current = values["BeamCurrent"];
 		if (beam_current > 0.0)
 		{
@@ -1691,11 +1690,8 @@ void isisdaeDriver::pollerThread2()
             setDoubleParam(P_BeamCurrent, 0.0);
 		}
 
-        setDoubleParam(P_TotalUAmps, values["TotalUAmps"]);
         setDoubleParam(P_MonitorFrom, values["MonitorFrom"]);
         setDoubleParam(P_MonitorTo, values["MonitorTo"]);
-//        setDoubleParam(P_MEvents, values["TotalDAECounts"]);  // now updated in separate loop
-//        setDoubleParam(P_CountRate, values["CountRate"]); // now updated in separate loop
         setDoubleParam(P_EventModeFraction, values["EventModeCardFraction"]);
 		setDoubleParam(P_EventModeBufferUsedFraction, values["EventModeBufferUsedFraction"]);
 		setDoubleParam(P_EventModeFileMB, values["EventModeFileMB"]);
