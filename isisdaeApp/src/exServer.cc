@@ -325,15 +325,20 @@ void exServer::show (unsigned level) const
 }
 
 
-void exServer::createAxisPVs(bool is_monitor, int id, int period, const char* axis, const std::string& units)
+void exServer::createAxisPVs(bool use_crpt, bool is_monitor, int id, int period, const char* axis, const std::string& units)
 {
 	char buffer[256], pvAlias[256];
-    const char* prefix = (is_monitor ? "MON" : "SPEC");
+    const char* prefix;
+    if (use_crpt) {
+        prefix = (is_monitor ? "CMON" : "CSPEC");
+    } else {
+        prefix = (is_monitor ? "MON" : "SPEC");
+    }
     sprintf(buffer, "%s:%d:%d:%s", prefix, period, id, axis);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, units.c_str(), aitEnumFloat32, m_ntc);
     m_pvList[buffer] = pPVI;
-	SpectrumPV* pSPV = (is_monitor ? new MonitorSpectrumPV(*this, *pPVI, true, scanOn, axis, id, period) :
-                                     new SpectrumPV(*this, *pPVI, true, scanOn, axis, id, period));
+	SpectrumPV* pSPV = (is_monitor ? new MonitorSpectrumPV(*this, *pPVI, true, scanOn, axis, id, period, use_crpt) :
+                                     new SpectrumPV(*this, *pPVI, true, scanOn, axis, id, period, use_crpt));
     pPVI->setPV(pSPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -480,15 +485,20 @@ pvInfo* exServer::createNoAlarmPV(const std::string& pvStr)
 }
 
 // id is spec or mon number
-void exServer::createCountsPV(bool is_monitor, int id, int period)
+void exServer::createCountsPV(bool use_crpt, bool is_monitor, int id, int period)
 {
 	char buffer[256], pvAlias[256];
-    const char* prefix = (is_monitor ? "MON" : "SPEC");
+    const char* prefix;
+    if (use_crpt) {
+        prefix = (is_monitor ? "CMON" : "CSPEC");
+    } else {
+        prefix = (is_monitor ? "MON" : "SPEC");
+    }
     sprintf(buffer, "%s:%d:%d:C", prefix, period, id);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, "cnt", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
-    exPV* pPV = (is_monitor ? new MonitorCountsPV(*this, *pPVI, true, scanOn, id, period) :
-                              new CountsPV(*this, *pPVI, true, scanOn, id, period));
+    exPV* pPV = (is_monitor ? new MonitorCountsPV(*this, *pPVI, true, scanOn, id, period, use_crpt) :
+                              new CountsPV(*this, *pPVI, true, scanOn, id, period, use_crpt));
     pPVI->setPV(pPV);
 	sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
     this->installAliasName(*pPVI, pvAlias);
@@ -509,23 +519,24 @@ void exServer::createCountsPV(bool is_monitor, int id, int period)
 bool exServer::createSpecPVs(const std::string& pvStr)
 {
     int spec, period;
+    bool use_crpt = false;
 	std::string axis, field;
 	char buffer[256];
-    if (!parseSpecPV(pvStr, spec, period, axis, field))
+    if (!parseSpecPV(pvStr, spec, period, axis, field, use_crpt))
 	{
 	    return false;
 	}
-    sprintf(buffer, "SPEC:%d:%d:X", period, spec);
+    sprintf(buffer, "%sSPEC:%d:%d:X", (use_crpt ? "C" : ""), period, spec);
     if (m_pvList.find(buffer) != m_pvList.end())
 	{
 	    return false;
 	}
 
-	createAxisPVs(false, spec, period, "X", m_tof_units);
-	createAxisPVs(false, spec, period, "XE", m_tof_units);
-	createAxisPVs(false, spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
-	createAxisPVs(false, spec, period, "YC", "cnt");
-	createCountsPV(false, spec, period);
+	createAxisPVs(use_crpt, false, spec, period, "X", m_tof_units);
+	createAxisPVs(use_crpt, false, spec, period, "XE", m_tof_units);
+	createAxisPVs(use_crpt, false, spec, period, "Y", std::string("cnt /") + m_tof_units); // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs(use_crpt, false, spec, period, "YC", "cnt");
+	createCountsPV(use_crpt, false, spec, period);
 
     return true;
 }
@@ -533,25 +544,26 @@ bool exServer::createSpecPVs(const std::string& pvStr)
 bool exServer::createMonitorPVs(const std::string& pvStr)
 {
     int mon, period;
+    bool use_crpt = false;
 	std::string axis, field;
 	char buffer[256], pvAlias[256];
-    if (!parseMonitorPV(pvStr, mon, period, axis, field))
+    if (!parseMonitorPV(pvStr, mon, period, axis, field, use_crpt))
 	{
 	    return false;
 	}
-    sprintf(buffer, "MON:%d:%d:X", period, mon);
+    sprintf(buffer, "%sMON:%d:%d:X", (use_crpt ? "C" : ""), period, mon);
     if (m_pvList.find(buffer) != m_pvList.end())
 	{
 	    return false;
 	}
 
-	createAxisPVs(true, mon, period, "X", m_tof_units);
-	createAxisPVs(true, mon, period, "XE", m_tof_units);
-	createAxisPVs(true, mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
-	createAxisPVs(true, mon, period, "YC", "cnt");
-	createCountsPV(true, mon, period);
+	createAxisPVs(use_crpt, true, mon, period, "X", m_tof_units);
+	createAxisPVs(use_crpt, true, mon, period, "XE", m_tof_units);
+	createAxisPVs(use_crpt, true, mon, period, "Y", std::string("cnt /") + m_tof_units);  // currently MAX_UNIT_SIZE = 8 for CTRL_DOUBLE calls
+	createAxisPVs(use_crpt, true, mon, period, "YC", "cnt");
+	createCountsPV(use_crpt, true, mon, period);
 
-    sprintf(buffer, "MON:%d:%d:S", period, mon);
+    sprintf(buffer, "%sMON:%d:%d:S", (use_crpt ? "C" : ""), period, mon);
     pvInfo* pPVI = new pvInfo (0.5, buffer, 0.0f, 0.0f, "", aitEnumInt32, 1);
     m_pvList[buffer] = pPVI;
 	exPV* pPV = new MonLookupPV(*this, *pPVI, true, scanOn, mon);
@@ -562,7 +574,7 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
     this->installAliasName(*pPVI, pvAlias);
 	if (period == 1)
 	{
-        sprintf(buffer, "MON:%d:S", mon);
+        sprintf(buffer, "%sMON:%d:S", (use_crpt ? "C" : ""), mon);
 	    sprintf(pvAlias, "%s%s", m_pvPrefix.c_str(), buffer);
         this->installAliasName(*pPVI, pvAlias);
 	    sprintf(pvAlias, "%s%s.VAL", m_pvPrefix.c_str(), buffer);
@@ -571,38 +583,43 @@ bool exServer::createMonitorPVs(const std::string& pvStr)
 	return true;
 }
 
-bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field)
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field, bool& use_crpt)
 {
     //Assumes period then spectrum
-    pcrecpp::RE spec_per_re("SPEC:(\\d+):(\\d+):(XE|X|YC|Y|C)([.].*)?");
-    pcrecpp::RE spec_re("SPEC:(\\d+):(XE|X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_per_re("(C)?SPEC:(\\d+):(\\d+):(XE|X|YC|Y|C)([.].*)?");
+    pcrecpp::RE spec_re("(C)?SPEC:(\\d+):(XE|X|YC|Y|C)([.].*)?");
     
-    if (!spec_per_re.FullMatch(pvStr, &period, &spec, &axis, &field))
+    std::string crpt;
+    if (!spec_per_re.FullMatch(pvStr, &crpt, &period, &spec, &axis, &field))
     {
-        if (!spec_re.FullMatch(pvStr, &spec, &axis, &field))
+        if (!spec_re.FullMatch(pvStr, &crpt, &spec, &axis, &field))
         {
             return false;
         }
         //If not specified assume the period is 1
         period = 1;
     }
+    use_crpt = (crpt == "C" ? true : false);
 	return true;
 }
 
-bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field)
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field, bool& use_crpt)
 {
     //Assumes period then monitor
-    pcrecpp::RE monitor_per_re("MON:(\\d+):(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
-    pcrecpp::RE monitor_re("MON:(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
-	if (!monitor_per_re.FullMatch(pvStr, &period, &mon, &axis, &field))
+    pcrecpp::RE monitor_per_re("(C)?MON:(\\d+):(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
+    pcrecpp::RE monitor_re("(C)?MON:(\\d+):(XE|X|YC|Y|C|S)([.].*)?");
+
+    std::string crpt;
+	if (!monitor_per_re.FullMatch(pvStr, &crpt, &period, &mon, &axis, &field))
 	{
-        if (!monitor_re.FullMatch(pvStr, &mon, &axis, &field))
+        if (!monitor_re.FullMatch(pvStr, &crpt, &mon, &axis, &field))
         {
             return false;
         }
         //If not specified assume the period is 1
         period = 1;
 	}
+    use_crpt = (crpt == "C" ? true : false);
 	return true;
 }
 

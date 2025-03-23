@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24247.2 (f732dba8).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.41.34123.0 (d1a4bee2).
 //
-// c:\development\instrumentcontrol\icp\isisicp\x64\debug\isisicp.tli
+// C:\development\InstrumentControl\ICP\isisicp\x64\Release\isisicp.tli
 //
 // Wrapper implementations for type library isisicp.tlb
-// compiler-generated file created 09/10/24 at 17:25:34 - DO NOT EDIT!
+// compiler-generated file - DO NOT EDIT!
 
 #pragma once
 
@@ -594,4 +594,10 @@ inline long Idae::getSpectrumSize ( long spectrum_number, BSTR * messages ) {
     HRESULT _hr = raw_getSpectrumSize(spectrum_number, messages, &_result);
     if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
     return _result;
+}
+
+inline HRESULT Idae::getCRPTSpectrum ( long spectrum_number, long period, VARIANT * time_channels, VARIANT * signal, long as_histogram, long as_distribution, long * sum, BSTR * messages ) {
+    HRESULT _hr = raw_getCRPTSpectrum(spectrum_number, period, time_channels, signal, as_histogram, as_distribution, sum, messages);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
 }
