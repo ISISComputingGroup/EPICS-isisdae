@@ -1231,6 +1231,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     
     createParam(P_blockSpecZeroString, asynParamInt32, &P_blockSpecZero);
     createParam(P_setRunNumberString, asynParamInt32, &P_setRunNumber);
+    createParam(P_CRPTDataWordsString, asynParamInt32, &P_CRPTDataWords);
     
     createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
     createParam(P_spectrumDataString, asynParamInt32Array, &P_spectrumData);
@@ -1569,6 +1570,7 @@ void isisdaeDriver::pollerThread2()
                 m_iface->getTCBSettingsXML(tcbSettings);
                 m_iface->getHardwarePeriodsSettingsXML(hardwarePeriodsSettings);
                 m_iface->getUpdateSettingsXML(updateSettings);
+                setIntegerParam(P_CRPTDataWords, m_iface->getCRPTDataWords());
             }
             this_gf = m_iface->getGoodFrames();
 		    m_iface->getVetoInfo(veto_names, veto_aliases, veto_enabled, veto_frames);

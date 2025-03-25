@@ -618,6 +618,12 @@ long isisdaeInterface::getDAEType()
     return atol(getValue("DAETYPE").c_str());
 }
 
+
+long isisdaeInterface::getCRPTDataWords()
+{
+    return atol(getValue("CRPTDATASIZE").c_str());
+}
+
 std::string isisdaeInterface::getValue(const std::string& name)
 {
     if (m_dcom)

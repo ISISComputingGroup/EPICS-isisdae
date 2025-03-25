@@ -157,6 +157,7 @@ public:
 	long getSpectrumNumberForMonitor(long mon_num);
 	int setICPValue(const std::string& name, const std::string& value);
 	int setICPValueLong(const std::string& name, long value);
+    long getCRPTDataWords();
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
