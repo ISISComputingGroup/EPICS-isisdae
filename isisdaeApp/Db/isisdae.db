@@ -39,9 +39,8 @@ record(waveform, "$(P)$(Q)_HIDDEN")
     field(NELM, "6")
     field(FTVL, "CHAR")
     field(INP, {const:[72,105,100,100,101,110]})
-    #field(PINI, "YES")
-    #field(ASG, "READONLY")
-    #field(DISP, "1")
+    field(ASG, "READONLY")
+    field(DISP, "1")
 }
 
 record(acalcout, "$(P)$(Q)WDTITLE_CALC")
