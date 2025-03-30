@@ -62,7 +62,7 @@ record(waveform, "$(P)$(Q)WDTITLE")
 
 record(acalcout, "$(P)$(Q)WDUSERS_CALC")
 {
-    field(NELM, "256")
+    field(NELM, "1024")
     field(INPA, "$(P)$(Q)TITLE:DISPLAY CP")
     field(INBB, "$(P)$(Q)_USERNAME CP")
     field(INCC, "$(P)$(Q)_HIDDEN")
@@ -73,7 +73,7 @@ record(acalcout, "$(P)$(Q)WDUSERS_CALC")
 record(waveform, "$(P)$(Q)WDUSERS")
 {
     field(DESC, "users displayed to web dashboard")
-    field(NELM, "256")
+    field(NELM, "1024")
     field(FTVL, "CHAR")
 }
 
