@@ -33,6 +33,51 @@ record(bi, "$(P)$(Q)TITLE:DISPLAY")
     info(autosaveFields, "VAL")
 }
 
+record(waveform, "$(P)$(Q)_HIDDEN")
+{
+    field(DESC, "waveform containing 'hidden'")
+    field(NELM, "6")
+    field(FTVL, "CHAR")
+    field(INP, {const:[72,105,100,100,101,110]})
+    field(ASG, "READONLY")
+    field(DISP, "1")
+}
+
+record(acalcout, "$(P)$(Q)WDTITLE_CALC")
+{
+    field(NELM, "256")
+    field(INPA, "$(P)$(Q)TITLE:DISPLAY CP")
+    field(INBB, "$(P)$(Q)TITLE CP")
+    field(INCC, "$(P)$(Q)_HIDDEN")
+    field(CALC, "A?BB:CC")
+    field(OUT, "$(P)$(Q)WDTITLE")
+}
+
+record(waveform, "$(P)$(Q)WDTITLE")
+{
+    field(DESC, "title displayed to web dashboard")
+    field(NELM, "256")
+    field(FTVL, "CHAR")
+}
+
+record(acalcout, "$(P)$(Q)WDUSERS_CALC")
+{
+    field(NELM, "1024")
+    field(INPA, "$(P)$(Q)TITLE:DISPLAY CP")
+    field(INBB, "$(P)$(Q)_USERNAME CP")
+    field(INCC, "$(P)$(Q)_HIDDEN")
+    field(CALC, "A?BB:CC")
+    field(OUT, "$(P)$(Q)WDUSERS")
+}
+
+record(waveform, "$(P)$(Q)WDUSERS")
+{
+    field(DESC, "users displayed to web dashboard")
+    field(NELM, "1024")
+    field(FTVL, "CHAR")
+}
+
+
 alias("$(P)$(Q)TITLE", "$(P)$(Q)TITLE:SP:RBV")
 
 record(stringin, "$(P)$(Q)_RBNUMBER")
