@@ -1516,6 +1516,7 @@ record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
     field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_SAMP.PROC")
 }
 
+## keep last NSAM status reading in a circular buffer
 record(compress, "$(P)$(Q)_CHECK_ARCHIVER_SAMP")
 {
     field(INP, "$(P)$(Q)_CHECK_ARCHIVER NPP")
@@ -1524,6 +1525,8 @@ record(compress, "$(P)$(Q)_CHECK_ARCHIVER_SAMP")
     field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_COMP.PROC")
 }
 
+## take highest value of above reading
+## here N must be same as NSAM above
 record(compress, "$(P)$(Q)_CHECK_ARCHIVER_COMP")
 {
     field(INP, "$(P)$(Q)_CHECK_ARCHIVER_SAMP NPP")
@@ -1533,6 +1536,7 @@ record(compress, "$(P)$(Q)_CHECK_ARCHIVER_COMP")
 }
 
 # signal a hard restart of the block archiver via procServ
+# if archiver has not been running for a while
 record(calcout, "$(P)$(Q)_CHECK_ARCHIVER_CALC")
 {
     field(INPA, "$(P)$(Q)_CHECK_ARCHIVER_COMP NPP")
@@ -1551,6 +1555,7 @@ record(stringout, "$(P)$(Q)_FR_ARCHIVER_MSG")
     field(FLNK, "$(P)$(Q)_FR_ARCHIVER_CNT.PROC")
 }
 
+## count of forced restarts of block archiver
 record(calc, "$(P)$(Q)_FR_ARCHIVER_CNT")
 {
     field(CALC, "A:=A+1;A")
