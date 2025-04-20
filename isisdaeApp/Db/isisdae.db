@@ -632,7 +632,7 @@ record(bo, "$(P)$(Q)BEGINRUN_")
     field(ZNAM, "0")
     field(ONAM, "1")
     field(VAL, 1)
-    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC CA")
 }
 
 ## value sent controls begin options (such as DELAYED or PAUSED)
@@ -686,7 +686,7 @@ record(longout, "$(P)$(Q)BEGINRUNEX_")
     #Set the initial alarm state
     field(UDFS, "NO_ALARM")
     field(OUT,  "@asyn(icp,0,0)BEGINRUNEX")
-    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(FLNK, "$(P)$(Q)_RESTART_ARCHIVER.PROC CA")
 }
 
 record(bo, "$(P)$(Q)ENDRUN")
@@ -730,7 +730,7 @@ record(seq, "$(P)$(Q)ENDRUN_")
 {
     field(SELM, "All")
     field(DOL1, "1")
-    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC")
+    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC CA")
     # give archive time to restart
     field(DOL2, "1")
     field(DLY2, "1")
@@ -1440,28 +1440,25 @@ record(waveform, "$(P)$(Q)PERIOD_PATTERN")
 }
 
 ##############################################################################################
-## records for restarting archive engine on a begin
+## records for restarting archive engine on a begin and end
 ##############################################################################################
 
 ## force processing of _RESTART_ARCHIVER via forward link to restart archiver
+## don't restart more than once a second which is about what archiver can manage
 record(seq, "$(P)$(Q)_RESTART_ARCHIVER")
 {
-	field(SELM, "All")
-	field(DOL1, "1")
-	field(DOL2, "1")
-    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER1.PROC")
-	field(DLY2, "5.0")
-    field(LNK2, "$(P)$(Q)_CHECK_ARCHIVER.PROC")
-	field(SCAN, "Passive")
+    field(SELM, "All")
+    field(DOL1, "1")
+    field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER1.PROC PP")
+    field(DOL2, "1")
+    field(DLY2, "1.0")
+    field(LNK2, "$(P)$(Q)_RESTART_ARCHIVER_CNT.PROC PP")
+    field(SCAN, "Passive")
 }
 
-## URL for block archiver restart request
-record(stringout, "$(P)$(Q)_RESTART_ARCHIVER_URL")
+record(calc, "$(P)$(Q)_RESTART_ARCHIVER_CNT")
 {
-    field(DTYP, "asynOctetWrite")
-    field(OUT, "@asyn(arch1,0,0)URL0")
-	field(PINI, "YES")
-	field(VAL, "http://localhost:4813/restart")
+    field(CALC, "A:=A+1;A")
 }
 
 ## ask block archiver to restart
@@ -1469,16 +1466,30 @@ record(stringin, "$(P)$(Q)_RESTART_ARCHIVER1")
 {
     field(DTYP, "asynOctetRead")
     field(INP, "@asyn(arch1,0,0)DATA0")
-	field(SCAN, "Passive")
+    field(SCAN, "Passive")
 }
+
+## URL for block archiver restart request
+record(stringout, "$(P)$(Q)_RESTART_ARCHIVER_URL")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT, "@asyn(arch1,0,0)URL0")
+    field(PINI, "YES")
+    field(VAL, "http://localhost:4813/restart")
+}
+
+## check archiver
+## we take several periodic readings as we may try to read archiver when
+## it is reloading and get an invalid answer
+
 
 ## URL of block archiver status page
 record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_URL")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT, "@asyn(arch2,0,0)URL0")
-	field(PINI, "YES")
-	field(VAL, "http://localhost:4813/main")
+    field(PINI, "YES")
+    field(VAL, "http://localhost:4813/main")
 }
 
 ## XPath expression to check status web page for whether archiver is RUNNING
@@ -1486,8 +1497,8 @@ record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_XPATH")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT, "@asyn(arch2,0,0)XPATH0")
-	field(PINI, "YES")
-	field(VAL, "count(//*[text()='RUNNING'])")
+    field(PINI, "YES")
+    field(VAL, "count(//*[text()='RUNNING'])")
 }
 
 ## check block archiver status - contains 1 if RUNNING, 0 if not
@@ -1496,27 +1507,60 @@ record(stringout, "$(P)$(Q)_CHECK_ARCHIVER_XPATH")
 record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
 {
     field(DTYP, "asynInt32")
-	field(ZNAM, "STOPPED")
-	field(ONAM, "RUNNING")
+    field(ZNAM, "STOPPED")
+    field(ONAM, "RUNNING")
     field(INP, "@asyn(arch2,0,0)IDATA0")
-	field(SCAN, "Passive")
-	field(VAL, "1")
-	field(UDFS, "NO_ALARM")
-	field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_CALC.PROC")
+    field(SCAN, "10 second")
+    field(VAL, "1")
+    field(UDFS, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_SAMP.PROC")
 }
 
-## if _CHECK_ARCHIVER is 0 (i.e. not RUNNING), signal a hard restart of the block archiver via procServ
+record(compress, "$(P)$(Q)_CHECK_ARCHIVER_SAMP")
+{
+    field(INP, "$(P)$(Q)_CHECK_ARCHIVER NPP")
+    field(ALG, "Circular Buffer")
+    field(NSAM, "5")
+    field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_COMP.PROC")
+}
+
+record(compress, "$(P)$(Q)_CHECK_ARCHIVER_COMP")
+{
+    field(INP, "$(P)$(Q)_CHECK_ARCHIVER_SAMP NPP")
+    field(ALG, "N to 1 High Value")
+    field(N, "5")
+    field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_CALC.PROC")
+}
+
+# signal a hard restart of the block archiver via procServ
 record(calcout, "$(P)$(Q)_CHECK_ARCHIVER_CALC")
 {
-    field(INPA, "$(P)$(Q)_CHECK_ARCHIVER NPP")
-    field(INPB, 1)
-	field(CALC, "A=B")
-	field(OOPT, "When Zero")
-	field(OUT, "$(P)$(Q)_RESTART_ARCHIVER_PS.PROC PP")
+    field(INPA, "$(P)$(Q)_CHECK_ARCHIVER_COMP NPP")
+    field(INPB, "1")
+    field(CALC, "A=B")
+    field(OOPT, "When Zero")
+    field(OUT, "$(P)$(Q)_FR_ARCHIVER_MSG.PROC PP")
+}
+
+record(stringout, "$(P)$(Q)_FR_ARCHIVER_MSG")
+{
+    field(DTYP, "stdio")
+    field(OUT, "@stdout")
+    field(VAL, "*** Restarting ARBLOCK ***")
+    field(UDFS, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_FR_ARCHIVER_CNT.PROC")
+}
+
+record(calc, "$(P)$(Q)_FR_ARCHIVER_CNT")
+{
+    field(CALC, "A:=A+1;A")
+    field(ASG, "READONLY")
+    field(UDFS, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_FR_ARCHIVER_PS.PROC")
 }
 
 ## restart block archiver using procServ via procServControl
-record(longout, "$(P)$(Q)_RESTART_ARCHIVER_PS")
+record(longout, "$(P)$(Q)_FR_ARCHIVER_PS")
 {
     field(OUT, "$(P)CS:PS:ARBLOCK:RESTART PP")
     field(VAL, 1)
