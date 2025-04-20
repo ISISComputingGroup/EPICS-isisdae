@@ -1512,14 +1512,25 @@ record(bi, "$(P)$(Q)_CHECK_ARCHIVER")
     field(INP, "@asyn(arch2,0,0)IDATA0")
     field(SCAN, "10 second")
     field(VAL, "1")
-    field(UDFS, "NO_ALARM")
+    field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_C.PROC")
+}
+
+# if C has changed, pretend we are running - this is
+# to make sure we don't restart when it is
+# trying to restart
+record(calc, "$(P)$(Q)_CHECK_ARCHIVER_C")
+{
+    field(INPA, "$(P)$(Q)_CHECK_ARCHIVER.VAL")
+    field(INPB, "$(P)$(Q)_CHECK_ARCHIVER.SEVR")
+    field(INPC, "$(P)$(Q)_FR_ARCHIVER_CNT.VAL")
+    field(CALC, "C#D?1:(B=0?A:0);D:=C")
     field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_SAMP.PROC")
 }
 
 ## keep last NSAM status reading in a circular buffer
 record(compress, "$(P)$(Q)_CHECK_ARCHIVER_SAMP")
 {
-    field(INP, "$(P)$(Q)_CHECK_ARCHIVER NPP")
+    field(INP, "$(P)$(Q)_CHECK_ARCHIVER_C NPP")
     field(ALG, "Circular Buffer")
     field(NSAM, "5")
     field(FLNK, "$(P)$(Q)_CHECK_ARCHIVER_COMP.PROC")
