@@ -50,7 +50,7 @@ record(acalcout, "$(P)$(Q)WDTITLE_CALC")
     field(INBB, "$(P)$(Q)TITLE CP")
     field(INCC, "$(P)$(Q)_HIDDEN")
     field(CALC, "A?BB:CC")
-    field(OUT, "$(P)$(Q)WDTITLE")
+    field(OUT, "$(P)$(Q)WDTITLE PP")
 }
 
 record(waveform, "$(P)$(Q)WDTITLE")
@@ -67,7 +67,7 @@ record(acalcout, "$(P)$(Q)WDUSERS_CALC")
     field(INBB, "$(P)$(Q)_USERNAME CP")
     field(INCC, "$(P)$(Q)_HIDDEN")
     field(CALC, "A?BB:CC")
-    field(OUT, "$(P)$(Q)WDUSERS")
+    field(OUT, "$(P)$(Q)WDUSERS PP")
 }
 
 record(waveform, "$(P)$(Q)WDUSERS")
