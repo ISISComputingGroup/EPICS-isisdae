@@ -1430,6 +1430,9 @@ void isisdaeDriver::updateRunStatus()
         {
             m_RunStatus = rs;
         }
+		long run_number = m_iface->getRunNumber(); // for when we end a run
+        setIntegerParam(P_IRunNumber, run_number);
+        setStringParam(P_RunNumber, std::to_string(run_number));
         unsigned long tc = m_iface->getTotalCounts();
 		epicsTime tc_ts(epicsTime::getCurrent());
 		long frames = m_iface->getGoodFrames();
