@@ -1045,7 +1045,8 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
                     1, /* Autoconnect */
                     0, /* Default priority */
                     0),	/* Default stack size*/
-					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false), m_pRaw(NULL)
+					m_iface(iface), m_RunStatus(0), m_vetopc(0.0), m_inStateTrans(false), m_pRaw(NULL),
+                    m_run_number_length(0)
 {					
 	int i;
 	int status = 0;
@@ -1431,10 +1432,12 @@ void isisdaeDriver::updateRunStatus()
             m_RunStatus = rs;
         }
         long run_number = m_iface->getRunNumber(); // for when we end a run
-        setIntegerParam(P_IRunNumber, run_number);
-        char run_number_str[16];
-        epicsSnprintf(run_number_str, sizeof(run_number_str), "%08ld", run_number);
-        setStringParam(P_RunNumber, run_number_str);
+        if (m_run_number_length > 0) {
+            setIntegerParam(P_IRunNumber, run_number);
+            char run_number_str[16];
+            epicsSnprintf(run_number_str, sizeof(run_number_str), "%0*ld", m_run_number_length, run_number);
+            setStringParam(P_RunNumber, run_number_str);
+        }
         unsigned long tc = m_iface->getTotalCounts();
 		epicsTime tc_ts(epicsTime::getCurrent());
 		long frames = m_iface->getGoodFrames();
@@ -1660,7 +1663,10 @@ void isisdaeDriver::pollerThread2()
 		}
         setStringParam(P_RunTitle, title_stripped.c_str());
 		
-        setStringParam(P_RBNumber, values["RBNumber"]); 
+        setStringParam(P_RBNumber, values["RBNumber"]);
+        const char* rn = values["RunNumber"];
+        m_run_number_length = strlen(rn);
+        setIntegerParam(P_IRunNumber, atol(rn));
         setStringParam(P_InstName, values["InstName"]);
         setStringParam(P_UserName, values["UserName"]);
         setStringParam(P_UserTelephone, values["UserTelephone"]);
