@@ -3,8 +3,8 @@
 
 #include "isisdaeInterface.h"
 
-MonitorCountsPV::MonitorCountsPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int mon, int period ) :
-            CountsPV(cas, setup, preCreateFlag, scanOnIn, 0/*spec*/, period), m_monitor(mon)
+MonitorCountsPV::MonitorCountsPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int mon, int period, bool use_crpt) :
+            CountsPV(cas, setup, preCreateFlag, scanOnIn, 0/*spec*/, period, use_crpt), m_monitor(mon)
 {
     updateSpectrum();
 }

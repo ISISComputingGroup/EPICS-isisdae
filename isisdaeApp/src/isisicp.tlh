@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.24247.2 (f732dba8).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.41.34123.0 (d1a4bee2).
 //
-// c:\development\instrumentcontrol\icp\isisicp\x64\debug\isisicp.tlh
+// C:\development\InstrumentControl\ICP\isisicp\x64\Release\isisicp.tlh
 //
 // C++ source equivalent of type library isisicp.tlb
-// compiler-generated file created 09/10/24 at 17:25:34 - DO NOT EDIT!
+// compiler-generated file - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -393,6 +393,15 @@ Idae : IDispatch
     long getSpectrumSize (
         long spectrum_number,
         BSTR * messages );
+    HRESULT getCRPTSpectrum (
+        long spectrum_number,
+        long period,
+        VARIANT * time_channels,
+        VARIANT * signal,
+        long as_histogram,
+        long as_distribution,
+        long * sum,
+        BSTR * messages );
 
     //
     // Raw methods provided by interface
@@ -759,6 +768,15 @@ Idae : IDispatch
         /*[in]*/ long spectrum_number,
         /*[out]*/ BSTR * messages,
         /*[out,retval]*/ long * value ) = 0;
+      virtual HRESULT __stdcall raw_getCRPTSpectrum (
+        /*[in]*/ long spectrum_number,
+        /*[in]*/ long period,
+        /*[out]*/ VARIANT * time_channels,
+        /*[out]*/ VARIANT * signal,
+        /*[in]*/ long as_histogram,
+        /*[in]*/ long as_distribution,
+        /*[out]*/ long * sum,
+        /*[out]*/ BSTR * messages ) = 0;
 };
 
 //

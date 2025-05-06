@@ -3,8 +3,8 @@
 
 #include "isisdaeInterface.h"
 
-MonitorSpectrumPV::MonitorSpectrumPV(exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int mon, int period) :
-        SpectrumPV(cas, setup, preCreateFlag, scanOnIn, axis, 0/*spec*/, period), m_monitor(mon)
+MonitorSpectrumPV::MonitorSpectrumPV(exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int mon, int period, bool use_crpt) :
+        SpectrumPV(cas, setup, preCreateFlag, scanOnIn, axis, 0/*spec*/, period, use_crpt), m_monitor(mon)
 {
     updateSpectrum();
 }
