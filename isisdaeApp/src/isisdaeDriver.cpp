@@ -1666,7 +1666,6 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_RBNumber, values["RBNumber"]);
         const char* rn = values["RunNumber"];
         m_run_number_length = strlen(rn);
-        setIntegerParam(P_IRunNumber, atol(rn));
         setStringParam(P_InstName, values["InstName"]);
         setStringParam(P_UserName, values["UserName"]);
         setStringParam(P_UserTelephone, values["UserTelephone"]);
