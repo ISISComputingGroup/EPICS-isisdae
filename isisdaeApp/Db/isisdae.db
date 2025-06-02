@@ -733,7 +733,7 @@ record(seq, "$(P)$(Q)ENDRUN_")
     field(LNK1, "$(P)$(Q)_RESTART_ARCHIVER.PROC CA")
     # give archive time to restart
     field(DOL2, "1")
-    field(DLY2, "1")
+    field(DLY2, "2")
     field(LNK2, "$(P)$(Q)_ENDRUN2 PP")
     #Set the initial alarm state
     field(UDFS, "NO_ALARM")
