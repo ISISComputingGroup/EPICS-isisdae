@@ -61,8 +61,8 @@
 #endif
 
 // 0x0 on error, 0x1 for scalar int, 0x2 for scalar float, 0x4 for string, ored with 0x100 if array
-bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field);
-bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field);
+bool parseSpecPV(const std::string& pvStr, int& spec, int& period, std::string& axis, std::string& field, bool& use_crpt);
+bool parseMonitorPV(const std::string& pvStr, int& mon, int& period, std::string& axis, std::string& field, bool& use_crpt);
 //int parseSamplePV(const std::string& pvStr, std::string& param); 
 //int parseBeamlinePV(const std::string& pvStr, std::string& param); 
 
@@ -329,12 +329,13 @@ private:
 class CountsPV : public exScalarPV {
 public:
     CountsPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int spec, int period );
+        bool preCreateFlag, bool scanOnIn, int spec, int period, bool use_crpt);
 	virtual bool getNewValue(smartGDDPointer& pDD);
 protected:
     int m_spec;  // so can be updated by MonitorCountsPV subclass 
 private:
 	int m_period;
+    bool m_use_crpt;
     CountsPV & operator = ( const CountsPV & );
     CountsPV ( const CountsPV & );
 };
@@ -342,7 +343,7 @@ private:
 class MonitorCountsPV : public CountsPV {
 public:
     MonitorCountsPV ( exServer & cas, pvInfo &setup, 
-        bool preCreateFlag, bool scanOnIn, int mon, int period );
+        bool preCreateFlag, bool scanOnIn, int mon, int period, bool use_crpt);
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
 	int m_monitor;
@@ -420,7 +421,7 @@ class exVecDestructor: public gddDestructor {
 
 class SpectrumPV : public exVectorPV {
 public:
-    SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period);
+    SpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int spec, int period, bool use_crpt);
 	virtual bool getNewValue(smartGDDPointer& pDD);
     int& getNORD() { return m_nord; }
     float& getMAXVAL() { return m_maxval; }
@@ -433,13 +434,14 @@ private:
 	int m_nord;
 	float m_maxval;
 	float m_minval;
+    bool m_use_crpt;
     SpectrumPV & operator = ( const SpectrumPV & );
     SpectrumPV ( const SpectrumPV & );
 };
 
 class MonitorSpectrumPV : public SpectrumPV {
 public:
-    MonitorSpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int mon, int period);
+    MonitorSpectrumPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, const std::string& axis, int mon, int period, bool use_crpt);
 	virtual bool getNewValue(smartGDDPointer& pDD);
 private:
     int m_monitor;
@@ -516,8 +518,8 @@ public:
 	
 	bool createSpecPVs(const std::string& pvStr);
 	bool createMonitorPVs(const std::string& pvStr);
-	void createAxisPVs(bool is_monitor, int id, int period, const char* axis, const std::string& units);
-	void createCountsPV(bool is_monitor, int id, int period);
+	void createAxisPVs(bool use_crpt, bool is_monitor, int id, int period, const char* axis, const std::string& units);
+	void createCountsPV(bool use_crpt, bool is_monitor, int id, int period);
     template <typename T> pvInfo* createFixedPV(const std::string& pvStr, const T& value, const char* units, aitEnum ait_type);
     pvInfo* createNoAlarmPV(const std::string& pvStr);
 private:

@@ -110,8 +110,10 @@ public:
     int getPeriod();
     long getNumPeriods();
 	long getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution);
+	long getCRPTSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution);
     long getSpectrumSize(long spectrum_number);
     long getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
+    long getCRPTSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts);
     long getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts);
     long getSpectrumIntegral2(long spec_start, long nspectra, long period, float time_low, float time_high, std::vector<long>& counts);
 	int updateCRPTSpectra(long period, long spec_start, long nspectra);
@@ -155,6 +157,7 @@ public:
 	long getSpectrumNumberForMonitor(long mon_num);
 	int setICPValue(const std::string& name, const std::string& value);
 	int setICPValueLong(const std::string& name, long value);
+    long getCRPTDataWords();
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
@@ -195,6 +198,7 @@ private:
   
 	int getXMLSettingsI(std::string& result, const std::string& template_file, int (*func)(const std::string&, std::string&, std::string&));
     int getXMLSettingsD(std::string& result, const std::string& template_file, HRESULT (ICPDCOM::*func)(_bstr_t, BSTR*, BSTR*));
+	long getSpectrumHelper(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution, bool use_crpt);
 };
 
 #endif /* ISISDAE_INTERFACE_H */

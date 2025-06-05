@@ -618,6 +618,12 @@ long isisdaeInterface::getDAEType()
     return atol(getValue("DAETYPE").c_str());
 }
 
+
+long isisdaeInterface::getCRPTDataWords()
+{
+    return atol(getValue("CRPTDATASIZE").c_str());
+}
+
 std::string isisdaeInterface::getValue(const std::string& name)
 {
     if (m_dcom)
@@ -1090,13 +1096,29 @@ long isisdaeInterface::getSpectrumSize(long spectrum_number)
 }
 
 // returns number of signal values, if as_histogram is true them there will be n+1 time bin boundary values rather than n 
+long isisdaeInterface::getCRPTSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution)
+{
+    return getSpectrumHelper(spec, period, time_channels, signal, nvals, as_histogram, as_distribution, true);
+}
+
+// returns number of signal values, if as_histogram is true them there will be n+1 time bin boundary values rather than n 
 long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution)
+{
+    return getSpectrumHelper(spec, period, time_channels, signal, nvals, as_histogram, as_distribution, false);
+}
+
+// returns number of signal values, if as_histogram is true them there will be n+1 time bin boundary values rather than n 
+long isisdaeInterface::getSpectrumHelper(int spec, int period, float* time_channels, float* signal, long nvals, bool as_histogram, bool as_distribution, bool use_crpt)
 {
 	long sum = 0, n;
 	if (m_dcom)
 	{
 		variant_t time_channels_v, signal_v;
-		callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, as_histogram, as_distribution, &sum, _2));
+        if (use_crpt) {
+		    callD<int>(boost::bind(&ICPDCOM::getCRPTSpectrum, _1, spec, period, &time_channels_v, &signal_v, as_histogram, as_distribution, &sum, _2));
+        } else {
+		    callD<int>(boost::bind(&ICPDCOM::getSpectrum, _1, spec, period, &time_channels_v, &signal_v, as_histogram, as_distribution, &sum, _2));
+        }
 		double *s = NULL, *t = NULL;
 		accessArrayVariant(&signal_v, &s);
 		accessArrayVariant(&time_channels_v, &t);
@@ -1131,6 +1153,24 @@ long isisdaeInterface::getSpectrum(int spec, int period, float* time_channels, f
     return n;
 }
 
+long isisdaeInterface::getCRPTSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts)
+{
+	variant_t spectrum_numbers_v, times_low_v, times_high_v, counts_v;
+    std::vector<long> spectrum_numbers = { spectrum_number };
+    std::vector<float> times_low = { time_low };
+    std::vector<float> times_high = { time_high };
+    std::vector<long> counts_array;
+	makeVariantFromArray(&spectrum_numbers_v, spectrum_numbers);
+	makeVariantFromArray(&times_low_v, times_low);
+	makeVariantFromArray(&times_high_v, times_high);
+	if (m_dcom) {
+		callD<int>(boost::bind(&ICPDCOM::getCRPTSpectraIntegral, _1, spectrum_numbers_v, period, times_low_v, times_high_v, &counts_v, _2));
+		makeArrayFromVariant(counts_array, &counts_v);
+        counts = (counts_array.size() > 0 ? counts_array[0] : 0);
+    }
+    return 0;
+}
+
 long isisdaeInterface::getSpectrumIntegral(long spectrum_number, long period, float time_low, float time_high, long& counts)
 {
 	if (m_dcom)
@@ -1147,6 +1187,9 @@ long isisdaeInterface::getSpectrumIntegral(long spectrum_number, long period, fl
 long isisdaeInterface::getSpectrumIntegral(std::vector<long>& spectrum_numbers, long period, std::vector<float>& times_low, std::vector<float>& times_high, std::vector<long>& counts)
 {
 	variant_t spectrum_numbers_v, times_low_v, times_high_v, counts_v;
+	makeVariantFromArray(&spectrum_numbers_v, spectrum_numbers);
+	makeVariantFromArray(&times_low_v, times_low);
+	makeVariantFromArray(&times_high_v, times_high);
 	if (m_dcom)
 	{
 		callD<int>(boost::bind(&ICPDCOM::getSpectraIntegral, _1, spectrum_numbers_v, period, times_low_v, times_high_v, &counts_v, _2));

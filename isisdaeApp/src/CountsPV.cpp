@@ -6,7 +6,7 @@
 #include "gddApps.h"
 #include "isisdaeInterface.h"
 
-CountsPV::CountsPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int spec, int period ) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, true), m_spec(spec), m_period(period)
+CountsPV::CountsPV ( exServer & cas, pvInfo &setup, bool preCreateFlag, bool scanOnIn, int spec, int period, bool use_crpt) : exScalarPV(cas, setup, preCreateFlag, scanOnIn, true), m_spec(spec), m_period(period), m_use_crpt(use_crpt)
 {
 
 }
@@ -16,7 +16,11 @@ bool CountsPV::getNewValue(smartGDDPointer& pDD)
 {
     long counts = 0;
 	try {
-        cas.iface()->getSpectrumIntegral(m_spec, m_period, 0.0, -1.0, counts);
+        if (m_use_crpt) {
+            cas.iface()->getCRPTSpectrumIntegral(m_spec, m_period, 0.0, -1.0, counts);
+        } else {
+            cas.iface()->getSpectrumIntegral(m_spec, m_period, 0.0, -1.0, counts);
+        }
 	}
 	catch(const std::exception& ex) {
 		std::cerr << "CAS: Exception in CountsPV::getNewValue(): " << ex.what() << std::endl;
