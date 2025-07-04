@@ -137,6 +137,23 @@ record(longout, "$(P)$(Q)RUNNUMBER:SET")
 	field(EGU, "")
 }
 
+record(longout, "$(P)$(Q)AUTOSAVE:FREQ:SP")
+{
+    field(DESC, "Set Autosave Freq")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn(icp,0,0)AUTOSAVE_FREQ")
+	field(EGU, "")
+}
+
+record(longin, "$(P)$(Q)AUTOSAVE:FREQ")
+{
+    field(DESC, "Get Autosave Freq")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn(icp,0,0)AUTOSAVE_FREQ")
+	field(EGU, "")
+    field(SCAN, "I/O Intr")
+}
+
 record(waveform, "$(P)$(Q)_USERNAME")
 {
     field(DESC, "Experiment User name")

@@ -424,6 +424,10 @@ asynStatus isisdaeDriver::writeValue(asynUser *pasynUser, const char* functionNa
             std::cout << "Setting run number to " << static_cast<long>(value) << std::endl;
         	m_iface->setICPValueLong("RUN_NUMBER", static_cast<long>(value));
         }
+		else if (function == P_autosaveFreq)
+        {
+        	m_iface->setICPValueLong("AUTOSAVE_FREQ", static_cast<long>(value));
+        }
 		endStateTransition();
         asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%s\n", 
@@ -1233,6 +1237,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_blockSpecZeroString, asynParamInt32, &P_blockSpecZero);
     createParam(P_setRunNumberString, asynParamInt32, &P_setRunNumber);
     createParam(P_CRPTDataWordsString, asynParamInt32, &P_CRPTDataWords);
+    createParam(P_autosaveFreqString, asynParamInt32, &P_autosaveFreq);
     
     createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
     createParam(P_spectrumDataString, asynParamInt32Array, &P_spectrumData);
@@ -1729,6 +1734,8 @@ void isisdaeDriver::pollerThread2()
 			setStringParam(P_tcbFile, val.c_str());
 			getDAEXML(hardwarePeriodsSettings, "/Cluster/String[Name='Period File']/Val", val);
 			setStringParam(P_periodsFile, val.c_str());
+			getDAEXML(updateSettings, "/Cluster/U32[Name=' Frequency']/Val", val);
+			setIntegerParam(P_autosaveFreq, atoi(val.c_str()));
         }          
 		std::list<std::string> messages;
 		std::string all_msgs;
