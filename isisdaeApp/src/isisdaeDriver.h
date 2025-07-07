@@ -180,6 +180,7 @@ private:
     int P_blockSpecZero; // long
     int P_setRunNumber; // long
     int P_CRPTDataWords; // long
+    int P_autosaveFreq; // long
     int P_AllMsgs; // char
     int P_ErrMsgs; // char
 	#define LAST_ISISDAE_PARAM P_ErrMsgs
@@ -364,6 +365,7 @@ private:
 
 #define P_blockSpecZeroString                "BLOCKSPECZERO"
 #define P_setRunNumberString                 "SET_RUNNUMBER"
+#define P_autosaveFreqString                 "AUTOSAVE_FREQ"
 
 #define P_CRPTDataWordsString                "CRPTDATAWORDS"
 
