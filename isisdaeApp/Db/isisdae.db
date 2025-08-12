@@ -198,6 +198,35 @@ record(stringin, "$(P)$(Q)STARTTIME")
     info(archive, "VAL")
 }
 
+record(ai, "$(P)$(Q)START_TIME")
+{
+    field(DESC, "Run Start Time")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)START_TIME")
+    field(SCAN, "I/O Intr")
+    info(archive, "VAL")
+}
+
+record(ai, "$(P)$(Q)STOP_TIME")
+{
+    field(DESC, "Run Stop Time")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)STOP_TIME")
+    field(SCAN, "I/O Intr")
+    info(archive, "VAL")
+}
+
+record(ai, "$(P)$(Q)RESUME_TIME")
+{
+    field(DESC, "Run Resume Time")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)RESUME_TIME")
+    field(SCAN, "I/O Intr")
+    info(archive, "VAL")
+}
+
+
+
 record(ai, "$(P)$(Q)NPRATIO")
 {
     field(DESC, "Neutron/Proton ratio")

@@ -1116,7 +1116,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_UserNameString, asynParamOctet, &P_UserName);
     createParam(P_InstNameString, asynParamOctet, &P_InstName);
     createParam(P_UserTelephoneString, asynParamOctet, &P_UserTelephone);
-    createParam(P_StartTimeString, asynParamOctet, &P_StartTime);
+    createParam(P_StartTimeCharString, asynParamOctet, &P_StartTimeChar);
     createParam(P_NPRatioString, asynParamFloat64, &P_NPRatio);
     createParam(P_ISISCycleString, asynParamOctet, &P_ISISCycle);
     createParam(P_DAETimingSourceString, asynParamOctet, &P_DAETimingSource);
@@ -1238,6 +1238,9 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_setRunNumberString, asynParamInt32, &P_setRunNumber);
     createParam(P_CRPTDataWordsString, asynParamInt32, &P_CRPTDataWords);
     createParam(P_autosaveFreqString, asynParamInt32, &P_autosaveFreq);
+    createParam(P_startTimeString, asynParamFloat64, &P_startTime);
+    createParam(P_stopTimeString, asynParamFloat64, &P_stopTime);
+    createParam(P_resumeTimeString, asynParamFloat64, &P_resumeTime);
     
     createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
     createParam(P_spectrumDataString, asynParamInt32Array, &P_spectrumData);
@@ -1488,6 +1491,11 @@ void isisdaeDriver::updateRunStatus()
         setIntegerParam(P_RawFramesPeriod, p_r_frames);
 		setIntegerParam(P_RawFramesTotal, r_frames);
 		setIntegerParam(P_RunStatus, m_RunStatus);
+        
+        setDoubleParam(P_startTime, std::stod(m_iface->getValue("DSTARTTIME")));
+        setDoubleParam(P_stopTime, std::stod(m_iface->getValue("DSTOPTIME")));
+        setDoubleParam(P_resumeTime, std::stod(m_iface->getValue("DRESUMETIME")));
+        
         ///@todo need to update P_RunDurationTotal, P_RunDurationPeriod, P_MonitorCounts
         /// note - rememeber to remove anything added here from pollerThread2() or else
         /// you get competing updates
@@ -1676,7 +1684,7 @@ void isisdaeDriver::pollerThread2()
         setStringParam(P_InstName, values["InstName"]);
         setStringParam(P_UserName, values["UserName"]);
         setStringParam(P_UserTelephone, values["UserTelephone"]);
-        setStringParam(P_StartTime, values["StartTime"]);
+        setStringParam(P_StartTimeChar, values["StartTime"]);
         setDoubleParam(P_NPRatio, values["N/P Ratio"]);
         setStringParam(P_ISISCycle, values["ISISCycle"]);
         setStringParam(P_DAETimingSource, values["DAETimingSource"]);
