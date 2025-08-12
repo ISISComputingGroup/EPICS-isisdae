@@ -198,6 +198,7 @@ record(stringin, "$(P)$(Q)STARTTIME")
     info(archive, "VAL")
 }
 
+## time_t (seconds since 01-01-1970)
 record(ai, "$(P)$(Q)START_TIME")
 {
     field(DESC, "Run Start Time")
@@ -207,6 +208,7 @@ record(ai, "$(P)$(Q)START_TIME")
     info(archive, "VAL")
 }
 
+## time_t (seconds since 01-01-1970)
 record(ai, "$(P)$(Q)STOP_TIME")
 {
     field(DESC, "Run Stop Time")
@@ -216,6 +218,7 @@ record(ai, "$(P)$(Q)STOP_TIME")
     info(archive, "VAL")
 }
 
+## time_t (seconds since 01-01-1970)
 record(ai, "$(P)$(Q)RESUME_TIME")
 {
     field(DESC, "Run Resume Time")
