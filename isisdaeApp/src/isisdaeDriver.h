@@ -67,7 +67,7 @@ private:
     int P_IsMuonDAE; // int
     int P_IRunNumber; //int
     int P_UserTelephone; //char*
-    int P_StartTime; //char*
+    int P_StartTimeChar; //char*
     int P_NPRatio; //double
     int P_ISISCycle; //char*
     int P_DAETimingSource; //char*
@@ -114,6 +114,9 @@ private:
 	int P_tcbFile; // string
 	int P_periodsFile; // string
 	int P_inChangingState; // int
+    int P_startTime; //double
+    int P_stopTime; //double
+    int P_resumeTime; //double
 
     int P_VMEReadValueProps; // int array
     int P_VMEReadValueData; // int
@@ -253,7 +256,7 @@ private:
 #define P_RunNumberString	"RUNNUMBER"
 #define P_IRunNumberString	"IRUNNUMBER"
 #define P_UserTelephoneString	"USERTELEPHONE"
-#define P_StartTimeString	"STARTTIME"
+#define P_StartTimeCharString	"STARTTIME"
 #define P_NPRatioString	"NPRATIO"
 #define P_ISISCycleString	"ISISCYCLE"
 #define P_GoodFramesTotalString	"GOODFRAMES"
@@ -368,6 +371,10 @@ private:
 #define P_autosaveFreqString                 "AUTOSAVE_FREQ"
 
 #define P_CRPTDataWordsString                "CRPTDATAWORDS"
+#define P_startTimeString                "START_TIME"
+#define P_stopTimeString                "STOP_TIME"
+#define P_resumeTimeString                "RESUME_TIME"
+
 
 #define P_AllMsgsString	"ALLMSGS"
 #define P_ErrMsgsString	"ERRMSGS"

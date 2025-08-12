@@ -158,6 +158,7 @@ public:
 	int setICPValue(const std::string& name, const std::string& value);
 	int setICPValueLong(const std::string& name, long value);
     long getCRPTDataWords();
+	std::string getValue(const std::string& name);
 	typedef isisicpLib::Idae ICPDCOM;
 	
 private:
@@ -185,7 +186,6 @@ private:
     int loadFromFile(const std::string& filename, std::string& xml);
     CComPtr<IXMLDOMDocument> createXmlDom(const std::string& xml);
     void getNameAndValue(CComPtr<IXMLDOMNode> spXMLNode, BSTR* name, BSTR* value, DAEValue::DAEType);
-	std::string getValue(const std::string& name);
 	double waitForISISICP();
 	double maybeWaitForISISICP();
 	// call ISISICPINT functions
