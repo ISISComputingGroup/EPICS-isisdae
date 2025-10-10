@@ -1652,7 +1652,12 @@ record(longout, "$(P)$(Q)_FR_ARCHIVER_PS")
     field(VAL, 1)
 }
 
-## has simulation mode been enabled in ISISICP
+## has simulation mode been enabled in ISISICP?
+## if IGNORE_SIM_MODE=YES then SIM_MODE uses SVAL
+## and so is always "No"
+## This is so a DAE IOC/ISISICP being run purely for sample environment
+## in parallel with real acquisition does not lead to lots of 
+## warning about simulated DAE etc.  
 record(bi, "$(P)$(Q)SIM_MODE")
 {
     field(DESC, "Is DAE in simulation mode")
@@ -1661,6 +1666,10 @@ record(bi, "$(P)$(Q)SIM_MODE")
 	field(ONAM, "Yes")
     field(INP, "@asyn(icp,0,0)SIM_MODE")
 	field(SCAN, "I/O Intr")
+	field(SSCN, "Passive")
+    field(SIMM, "$(IGNORE_SIM_MODE=NO)")
+    field(SVAL, "0")
+    field(PINI, "YES")
 	info(INTEREST, "HIGH")
 	field(UDFS, "NO_ALARM")
     info(archive, "VAL")

@@ -316,7 +316,6 @@ record(ai, "$(P)$(R)INTG:RATE")
 	field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
     info(autosaveFields, "HIGH")
-    info(alarm, "ISISDAE_01")
 }
 
 record(ai, "$(P)$(R)INTG:SPEC:RATE")
@@ -333,7 +332,6 @@ record(ai, "$(P)$(R)INTG:SPEC:RATE")
 	field(UDFS, "NO_ALARM")
     info(INTEREST, "HIGH")
     info(autosaveFields, "HIGH")
-    info(alarm, "ISISDAE_01")
 }
 
 ## rate used by INTG:RATE when it is in record simulation mode
