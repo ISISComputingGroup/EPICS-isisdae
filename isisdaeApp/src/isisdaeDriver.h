@@ -224,7 +224,9 @@ private:
 
     void settingsOP(int (isisdaeInterface::*func)(const std::string&), const std::string& value, const char* err_msg);
     std::string stripSimPrefix(const std::string& title);
-  
+    void checkDiskSpace(const std::string& disk,
+          int param_free_percent, int param_rate, int param_free_mb,
+          int param_time_to_full);  
 };
 
 #define NUM_ISISDAE_PARAMS (&LAST_ISISDAE_PARAM - &FIRST_ISISDAE_PARAM + 1)

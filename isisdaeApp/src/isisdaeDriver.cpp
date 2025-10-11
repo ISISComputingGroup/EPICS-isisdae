@@ -11,6 +11,7 @@
 #include <sys/timeb.h>
 #include <numeric>
 #include <boost/algorithm/string.hpp>
+#include <boost/circular_buffer.hpp>
 
 #include <epicsTypes.h>
 #include <epicsTime.h>
@@ -1409,6 +1410,9 @@ void isisdaeDriver::pollerThread1()
         }
         callParamCallbacks();        
         ++counter;
+        checkDiskSpace("c:\\data\\",0,0,0,0);
+        checkDiskSpace("c:\\data\\events\\",0,0,0,0);
+        checkDiskSpace("c:\\data\\export only\\",0,0,0,0);
     }
 }
 
@@ -2264,6 +2268,51 @@ int isisdaeDriver::computeImage(int addr, double& maxval, long& totalCntsDiff, l
                     "%s:%s: error setting parameters\n",
                     driverName, functionName);
     return(status);
+}
+
+void isisdaeDriver::checkDiskSpace(const std::string& disk,
+          int param_free_percent, int param_rate, int param_free_mb,
+          int param_time_to_full)
+{
+// assume this is called once a minute, so make buffer 12 * 60 so rate of over half a day  
+// time to full is in seconds, data rate in MB / s  
+    static const size_t circ_buff_size = 12 * 60;
+    struct disk_info
+    {
+        time_t time;
+        double free_mb;
+    };
+    static std::map<std::string, boost::circular_buffer<disk_info>> oldInfo;
+	ULARGE_INTEGER lpFreeBytesAvailableToCaller, lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes;
+	if (GetDiskFreeSpaceEx(disk.c_str(), &lpFreeBytesAvailableToCaller,
+		        &lpTotalNumberOfBytes, &lpTotalNumberOfFreeBytes) == 0)
+    {
+        std::cerr << "checkDiskSpace :" << disk << " " << GetLastError() << std::endl;
+        return;
+    }
+    double free_mb = (double)lpFreeBytesAvailableToCaller.QuadPart / (1024.0 * 1024.0);
+    double total_mb = (double)lpTotalNumberOfBytes.QuadPart / (1024.0 * 1024.0);
+    double free_percent = (total_mb > 0.0 ? 100.0 * (free_mb / total_mb) : 0);
+    time_t time_now;
+    time(&time_now);
+    //setDoubleParam(param_free_percent, free_percent);
+    //setDoubleParam(param_free_mb, free_mb);
+    if (oldInfo.find(disk) == oldInfo.end()) {
+        oldInfo.emplace(disk, boost::circular_buffer<disk_info>{circ_buff_size});
+    }
+    double data_rate, time_to_full;
+    if (oldInfo[disk].full()) {
+        const disk_info& old_info = oldInfo[disk].front();
+        data_rate = (free_mb - old_info.free_mb) / difftime(time_now, old_info.time);
+        time_to_full = (data_rate > 0.0 ? free_mb / data_rate : 1e20);
+    } else {
+        data_rate = 0.0;
+        time_to_full = 1e20;
+    }
+    //setDoubleParam(param_rate, data_rate);
+    //setDoubleParam(param_time_to_full, time_to_full);
+    oldInfo[disk].push_back({time_now, free_mb});
+    //std::cerr << disk << " " << free_mb << "  " << free_percent << std::endl;
 }
 
 template <typename epicsType> 
