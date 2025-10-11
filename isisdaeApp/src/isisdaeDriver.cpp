@@ -1240,6 +1240,7 @@ isisdaeDriver::isisdaeDriver(isisdaeInterface* iface, const char *portName, int 
     createParam(P_autosaveFreqString, asynParamInt32, &P_autosaveFreq);
     createParam(P_startTimeString, asynParamFloat64, &P_startTime);
     createParam(P_stopTimeString, asynParamFloat64, &P_stopTime);
+    createParam(P_endTimeString, asynParamFloat64, &P_endTime);
     createParam(P_resumeTimeString, asynParamFloat64, &P_resumeTime);
     
     createParam(P_spectrumIntegralsString, asynParamInt32Array, &P_spectrumIntegrals);
@@ -1494,6 +1495,7 @@ void isisdaeDriver::updateRunStatus()
         
         setDoubleParam(P_startTime, std::stod(m_iface->getValue("DSTARTTIME")));
         setDoubleParam(P_stopTime, std::stod(m_iface->getValue("DSTOPTIME")));
+        setDoubleParam(P_endTime, std::stod(m_iface->getValue("DENDTIME")));
         setDoubleParam(P_resumeTime, std::stod(m_iface->getValue("DRESUMETIME")));
         
         ///@todo need to update P_RunDurationTotal, P_RunDurationPeriod, P_MonitorCounts
