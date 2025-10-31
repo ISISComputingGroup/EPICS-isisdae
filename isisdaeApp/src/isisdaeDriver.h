@@ -116,6 +116,7 @@ private:
 	int P_inChangingState; // int
     int P_startTime; //double
     int P_stopTime; //double
+    int P_endTime; //double
     int P_resumeTime; //double
 
     int P_VMEReadValueProps; // int array
@@ -373,6 +374,7 @@ private:
 #define P_CRPTDataWordsString                "CRPTDATAWORDS"
 #define P_startTimeString                "START_TIME"
 #define P_stopTimeString                "STOP_TIME"
+#define P_endTimeString                "END_TIME"
 #define P_resumeTimeString                "RESUME_TIME"
 
 

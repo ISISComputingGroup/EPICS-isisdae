@@ -219,6 +219,16 @@ record(ai, "$(P)$(Q)STOP_TIME")
 }
 
 ## time_t (seconds since 01-01-1970)
+record(ai, "$(P)$(Q)END_TIME")
+{
+    field(DESC, "Run End Time")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn(icp,0,0)END_TIME")
+    field(SCAN, "I/O Intr")
+    info(archive, "VAL")
+}
+
+## time_t (seconds since 01-01-1970)
 record(ai, "$(P)$(Q)RESUME_TIME")
 {
     field(DESC, "Run Resume Time")
@@ -227,8 +237,6 @@ record(ai, "$(P)$(Q)RESUME_TIME")
     field(SCAN, "I/O Intr")
     info(archive, "VAL")
 }
-
-
 
 record(ai, "$(P)$(Q)NPRATIO")
 {
